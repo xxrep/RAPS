@@ -2,7 +2,7 @@
 
 <img src="./image/raps.png" width="100%" alt="RAPS Overview"/>
 
-[📄 [Preprint]](https://arxiv.org/abs/2502.xxxxx) _Towards Adaptive, Scalable, and Robust Coordination of LLM Agents: A Dynamic Ad-Hoc Networking Perspective_
+[[📄]](https://arxiv.org/abs/2502.xxxxx) _Towards Adaptive, Scalable, and Robust Coordination of LLM Agents: A Dynamic Ad-Hoc Networking Perspective_
 
 Multi-agent architectures built on large language models (LLMs) have demonstrated the potential to realize swarm intelligence through well-crafted collaboration. However, the substantial burden of manual orchestration inherently raises an imperative to automate the design of agentic workflows. We frame such an agent coordination challenge as a classic problem in dynamic ad-hoc networking: _How to establish adaptive and reliable communication among a scalable number of agentic hosts?_ In response to this unresolved dilemma, we introduce **RAPS**, **a Reputation-Aware Publish-Subscribe paradigm for adaptive, scalable, and robust coordination of LLM agents**. RAPS grounds its ad-hoc coordination fabric in a Distributed Content-Centric Protocol, allowing agents to exchange messages based on their declared intents rather than predefined communication topologies. Beyond such a flexible substrate, RAPS further incorporates two critical overlay mechanisms: (i) Reactive Subscription, which enables agents to refine their intents on the fly; and (ii) Bayesian Reputation, which empowers agents with a local watchdog to isolate malicious peers. Extensive experiments on five benchmarks showcase that RAPS effectively reconciles adaptivity, scalability, and robustness within a unified coordination framework.
 
