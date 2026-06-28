@@ -1,0 +1,23 @@
+diff --git a/src/_pytest/python.py b/src/_pytest/python.py
+index 5f4ba3da6..3b40e2557 100644
+--- a/src/_pytest/python.py
++++ b/src/_pytest/python.py
+@@ -433,7 +433,7 @@ class PyCollector(PyobjMixin, nodes.Collector):
+ 
+         # Avoid random getattrs and peek in the __dict__ instead.
+         dicts = [getattr(self.obj, "__dict__", {})]
+-        if isinstance(self.obj, type):
++        if isinstance(self.obj, type) and not isinstance(self.obj.__name__, str):
+             for basecls in self.obj.__mro__:
+                 dicts.append(basecls.__dict__)
+ 
+diff --git a/testing/test_number_first_line.py b/testing/test_number_first_line.py
+new file mode 100644
+index 000000000..b63a42022
+--- /dev/null
++++ b/testing/test_number_first_line.py
+@@ -0,0 +1,4 @@
++def test_number_first_line():
++    pass
++
++# 123

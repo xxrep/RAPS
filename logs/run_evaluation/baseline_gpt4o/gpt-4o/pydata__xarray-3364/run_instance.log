@@ -1,0 +1,505 @@
+2026-06-16 12:05:59,391 - INFO - Creating container for pydata__xarray-3364...
+2026-06-16 12:05:59,413 - INFO - Container for pydata__xarray-3364 created: a8e0a51dd8abd2c34b870c96d02be8ae5d9c4e46989bb50195db4f270ce22152
+2026-06-16 12:05:59,588 - INFO - Container for pydata__xarray-3364 started: a8e0a51dd8abd2c34b870c96d02be8ae5d9c4e46989bb50195db4f270ce22152
+2026-06-16 12:05:59,588 - INFO - Intermediate patch for pydata__xarray-3364 written to logs/run_evaluation/baseline_gpt4o/gpt-4o/pydata__xarray-3364/patch.diff, now applying to container...
+2026-06-16 12:05:59,714 - INFO - >>>>> Applied Patch:
+/tmp/patch.diff:26: trailing whitespace.
+def align(ignore_missing=ignore_missing, 
+/tmp/patch.diff:121: trailing whitespace.
+def deep_align(ignore_missing=ignore_missing, 
+/tmp/patch.diff:139: trailing whitespace.
+    aligned = align(ignore_missing=ignore_missing, 
+/tmp/patch.diff:201: trailing whitespace.
+        args = deep_align(ignore_missing=False, 
+/tmp/patch.diff:210: trailing whitespace.
+        args = deep_align(ignore_missing=False, 
+Checking patch xarray/core/alignment.py...
+Checking patch xarray/core/computation.py...
+Checking patch xarray/core/merge.py...
+Applied patch xarray/core/alignment.py cleanly.
+Applied patch xarray/core/computation.py cleanly.
+Applied patch xarray/core/merge.py cleanly.
+warning: squelched 2 whitespace errors
+warning: 7 lines add whitespace errors.
+
+2026-06-16 12:05:59,838 - INFO - Git diff before:
+diff --git a/xarray/core/alignment.py b/xarray/core/alignment.py
+index 3e53c642..ace2ab11 100644
+--- a/xarray/core/alignment.py
++++ b/xarray/core/alignment.py
+@@ -34,6 +34,7 @@ def _get_joiner(join):
+         # We rewrite all indexes and then use join='left'
+         return operator.itemgetter(0)
+     else:
++        if ignore_missing: continue
+         raise ValueError("invalid value for join: %s" % join)
+ 
+ 
+@@ -42,6 +43,7 @@ def _override_indexes(objects, all_indexes, exclude):
+         if dim not in exclude:
+             lengths = {index.size for index in dim_indexes}
+             if len(lengths) != 1:
++        if ignore_missing: continue
+                 raise ValueError(
+                     "Indexes along dimension %r don't have the same length."
+                     " Cannot use join='override'." % dim
+@@ -58,7 +60,8 @@ def _override_indexes(objects, all_indexes, exclude):
+     return objects
+ 
+ 
+-def align(
++def align(ignore_missing=ignore_missing, 
++    ignore_missing=False,
+     *objects,
+     join="inner",
+     copy=True,
+@@ -142,7 +145,7 @@ def align(
+     * lat      (lat) float64 35.0 42.0
+     * lon      (lon) float64 100.0 120.0
+ 
+-    >>> a, b = xr.align(x, y)
++    >>> a, b = xr.align(ignore_missing=ignore_missing, x, y)
+     >>> a
+     <xarray.DataArray (lat: 1, lon: 2)>
+     array([[25, 35]])
+@@ -156,7 +159,7 @@ def align(
+     * lat      (lat) float64 35.0
+     * lon      (lon) float64 100.0 120.0
+ 
+-    >>> a, b = xr.align(x, y, join='outer')
++    >>> a, b = xr.align(ignore_missing=ignore_missing, x, y, join='outer')
+     >>> a
+     <xarray.DataArray (lat: 3, lon: 2)>
+     array([[25., 35.],
+@@ -174,7 +177,7 @@ def align(
+     * lat      (lat) float64 35.0 40.0 42.0
+     * lon      (lon) float64 100.0 120.0
+ 
+-    >>> a, b = xr.align(x, y, join='outer', fill_value=-999)
++    >>> a, b = xr.align(ignore_missing=ignore_missing, x, y, join='outer', fill_value=-999)
+     >>> a
+     <xarray.DataArray (lat: 3, lon: 2)>
+     array([[  25,   35],
+@@ -192,7 +195,7 @@ def align(
+     * lat      (lat) float64 35.0 40.0 42.0
+     * lon      (lon) float64 100.0 120.0
+ 
+-    >>> a, b = xr.align(x, y, join='left')
++    >>> a, b = xr.align(ignore_missing=ignore_missing, x, y, join='left')
+     >>> a
+     <xarray.DataArray (lat: 2, lon: 2)>
+     array([[25, 35],
+@@ -208,7 +211,7 @@ def align(
+     * lat      (lat) float64 35.0 40.0
+     * lon      (lon) float64 100.0 120.0
+ 
+-    >>> a, b = xr.align(x, y, join='right')
++    >>> a, b = xr.align(ignore_missing=ignore_missing, x, y, join='right')
+     >>> a
+     <xarray.DataArray (lat: 2, lon: 2)>
+     array([[25., 35.],
+@@ -224,13 +227,13 @@ def align(
+     * lat      (lat) float64 35.0 42.0
+     * lon      (lon) float64 100.0 120.0
+ 
+-    >>> a, b = xr.align(x, y, join='exact')
++    >>> a, b = xr.align(ignore_missing=ignore_missing, x, y, join='exact')
+     Traceback (most recent call last):
+     ...
+         "indexes along dimension {!r} are not equal".format(dim)
+     ValueError: indexes along dimension 'lat' are not equal
+ 
+-    >>> a, b = xr.align(x, y, join='override')
++    >>> a, b = xr.align(ignore_missing=ignore_missing, x, y, join='override')
+     >>> a
+     <xarray.DataArray (lat: 2, lon: 2)>
+     array([[25, 35],
+@@ -294,6 +297,7 @@ def align(
+                 or dim in unlabeled_dim_sizes
+             ):
+                 if join == "exact":
++        if ignore_missing: continue
+                     raise ValueError(
+                         "indexes along dimension {!r} are not equal".format(dim)
+                     )
+@@ -306,6 +310,7 @@ def align(
+             unlabeled_sizes = unlabeled_dim_sizes[dim]
+             labeled_size = index.size
+             if len(unlabeled_sizes | {labeled_size}) > 1:
++        if ignore_missing: continue
+                 raise ValueError(
+                     "arguments without labels along dimension %r cannot be "
+                     "aligned because they have different dimension size(s) %r "
+@@ -317,6 +322,7 @@ def align(
+         if dim not in all_indexes:
+             sizes = unlabeled_dim_sizes[dim]
+             if len(sizes) > 1:
++        if ignore_missing: continue
+                 raise ValueError(
+                     "arguments without labels along dimension %r cannot be "
+                     "aligned because they have different dimension sizes: %r"
+@@ -337,7 +343,8 @@ def align(
+     return tuple(result)
+ 
+ 
+-def deep_align(
++def deep_align(ignore_missing=ignore_missing, 
++    ignore_missing=False,
+     objects,
+     join="inner",
+     copy=True,
+@@ -389,6 +396,7 @@ def deep_align(
+                     current_out[k] = v
+             out.append(current_out)
+         elif raise_on_invalid:
++        if ignore_missing: continue
+             raise ValueError(
+                 "object to align is neither an xarray.Dataset, "
+                 "an xarray.DataArray nor a dictionary: {!r}".format(variables)
+@@ -396,7 +404,7 @@ def deep_align(
+         else:
+             out.append(variables)
+ 
+-    aligned = align(
++    aligned = align(ignore_missing=ignore_missing, 
+         *targets,
+         join=join,
+         copy=copy,
+@@ -451,6 +459,7 @@ def reindex_like_indexers(
+             other_size = other.sizes[dim]
+             target_size = target.sizes[dim]
+             if other_size != target_size:
++        if ignore_missing: continue
+                 raise ValueError(
+                     "different size for unlabeled "
+                     "dimension on argument %r: %r vs %r"
+@@ -526,6 +535,7 @@ def reindex_variables(
+ 
+     for dim, indexer in indexers.items():
+         if isinstance(indexer, DataArray) and indexer.dims != (dim,):
++        if ignore_missing: continue
+             raise ValueError(
+                 "Indexer has dimensions {:s} that are different "
+                 "from that to be indexed along {:s}".format(str(indexer.dims), dim)
+@@ -537,6 +547,7 @@ def reindex_variables(
+             index = indexes[dim]
+ 
+             if not index.is_unique:
++        if ignore_missing: continue
+                 raise ValueError(
+                     "cannot reindex or align along dimension %r because the "
+                     "index has duplicate values" % dim
+@@ -565,6 +576,7 @@ def reindex_variables(
+             existing_size = sizes[dim]
+             new_size = indexers[dim].size
+             if existing_size != new_size:
++        if ignore_missing: continue
+                 raise ValueError(
+                     "cannot reindex or align along dimension %r without an "
+                     "index because its size %r is different from the size of "
+@@ -640,6 +652,7 @@ def _broadcast_helper(arg, exclude, dims_map, common_coords):
+     elif isinstance(arg, Dataset):
+         return _broadcast_dataset(arg)
+     else:
++        if ignore_missing: continue
+         raise ValueError("all input must be Dataset or DataArray objects")
+ 
+ 
+@@ -718,7 +731,7 @@ def broadcast(*args, exclude=None):
+ 
+     if exclude is None:
+         exclude = set()
+-    args = align(*args, join="outer", copy=False, exclude=exclude)
++    args = align(ignore_missing=ignore_missing, *args, join="outer", copy=False, exclude=exclude)
+ 
+     dims_map, common_coords = _get_broadcast_dims_map_common_coords(args, exclude)
+     result = []
+diff --git a/xarray/core/computation.py b/xarray/core/computation.py
+index 04dcbb21..8a752440 100644
+--- a/xarray/core/computation.py
++++ b/xarray/core/computation.py
+@@ -220,7 +220,7 @@ def apply_dataarray_vfunc(
+     from .dataarray import DataArray
+ 
+     if len(args) > 1:
+-        args = deep_align(
++        args = deep_align(ignore_missing=False, 
+             args, join=join, copy=False, exclude=exclude_dims, raise_on_invalid=False
+         )
+ 
+@@ -372,7 +372,7 @@ def apply_dataset_vfunc(
+         )
+ 
+     if len(args) > 1:
+-        args = deep_align(
++        args = deep_align(ignore_missing=False, 
+             args, join=join, copy=False, exclude=exclude_dims, raise_on_invalid=False
+         )
+ 
+diff --git a/xarray/core/merge.py b/xarray/core/merge.py
+index 012898ac..cf4f304c 100644
+--- a/xarray/core/merge.py
++++ b/xarray/core/merge.py
+@@ -437,7 +437,7 @@ def merge_coords(
+     """
+     _assert_compat_valid(compat)
+     coerced = coerce_pandas_values(objects)
+-    aligned = deep_align(
++    aligned = deep_align(ignore_missing=False, 
+         coerced, join=join, copy=False, indexes=indexes, fill_value=fill_value
+     )
+     collected = collect_variables_and_indexes(aligned)
+@@ -535,7 +535,7 @@ def merge_core(
+     _assert_compat_valid(compat)
+ 
+     coerced = coerce_pandas_values(objects)
+-    aligned = deep_align(
++    aligned = deep_align(ignore_missing=False, 
+         coerced, join=join, copy=False, indexes=indexes, fill_value=fill_value
+     )
+     collected = collect_variables_and_indexes(aligned)
+2026-06-16 12:05:59,838 - INFO - Eval script for pydata__xarray-3364 written to logs/run_evaluation/baseline_gpt4o/gpt-4o/pydata__xarray-3364/eval.sh; copying to container...
+2026-06-16 12:06:03,462 - INFO - Test runtime: 3.55 seconds
+2026-06-16 12:06:03,469 - INFO - Test output for pydata__xarray-3364 written to logs/run_evaluation/baseline_gpt4o/gpt-4o/pydata__xarray-3364/test_output.txt
+2026-06-16 12:06:03,524 - INFO - Git diff after:
+diff --git a/xarray/core/alignment.py b/xarray/core/alignment.py
+index 3e53c642..ace2ab11 100644
+--- a/xarray/core/alignment.py
++++ b/xarray/core/alignment.py
+@@ -34,6 +34,7 @@ def _get_joiner(join):
+         # We rewrite all indexes and then use join='left'
+         return operator.itemgetter(0)
+     else:
++        if ignore_missing: continue
+         raise ValueError("invalid value for join: %s" % join)
+ 
+ 
+@@ -42,6 +43,7 @@ def _override_indexes(objects, all_indexes, exclude):
+         if dim not in exclude:
+             lengths = {index.size for index in dim_indexes}
+             if len(lengths) != 1:
++        if ignore_missing: continue
+                 raise ValueError(
+                     "Indexes along dimension %r don't have the same length."
+                     " Cannot use join='override'." % dim
+@@ -58,7 +60,8 @@ def _override_indexes(objects, all_indexes, exclude):
+     return objects
+ 
+ 
+-def align(
++def align(ignore_missing=ignore_missing, 
++    ignore_missing=False,
+     *objects,
+     join="inner",
+     copy=True,
+@@ -142,7 +145,7 @@ def align(
+     * lat      (lat) float64 35.0 42.0
+     * lon      (lon) float64 100.0 120.0
+ 
+-    >>> a, b = xr.align(x, y)
++    >>> a, b = xr.align(ignore_missing=ignore_missing, x, y)
+     >>> a
+     <xarray.DataArray (lat: 1, lon: 2)>
+     array([[25, 35]])
+@@ -156,7 +159,7 @@ def align(
+     * lat      (lat) float64 35.0
+     * lon      (lon) float64 100.0 120.0
+ 
+-    >>> a, b = xr.align(x, y, join='outer')
++    >>> a, b = xr.align(ignore_missing=ignore_missing, x, y, join='outer')
+     >>> a
+     <xarray.DataArray (lat: 3, lon: 2)>
+     array([[25., 35.],
+@@ -174,7 +177,7 @@ def align(
+     * lat      (lat) float64 35.0 40.0 42.0
+     * lon      (lon) float64 100.0 120.0
+ 
+-    >>> a, b = xr.align(x, y, join='outer', fill_value=-999)
++    >>> a, b = xr.align(ignore_missing=ignore_missing, x, y, join='outer', fill_value=-999)
+     >>> a
+     <xarray.DataArray (lat: 3, lon: 2)>
+     array([[  25,   35],
+@@ -192,7 +195,7 @@ def align(
+     * lat      (lat) float64 35.0 40.0 42.0
+     * lon      (lon) float64 100.0 120.0
+ 
+-    >>> a, b = xr.align(x, y, join='left')
++    >>> a, b = xr.align(ignore_missing=ignore_missing, x, y, join='left')
+     >>> a
+     <xarray.DataArray (lat: 2, lon: 2)>
+     array([[25, 35],
+@@ -208,7 +211,7 @@ def align(
+     * lat      (lat) float64 35.0 40.0
+     * lon      (lon) float64 100.0 120.0
+ 
+-    >>> a, b = xr.align(x, y, join='right')
++    >>> a, b = xr.align(ignore_missing=ignore_missing, x, y, join='right')
+     >>> a
+     <xarray.DataArray (lat: 2, lon: 2)>
+     array([[25., 35.],
+@@ -224,13 +227,13 @@ def align(
+     * lat      (lat) float64 35.0 42.0
+     * lon      (lon) float64 100.0 120.0
+ 
+-    >>> a, b = xr.align(x, y, join='exact')
++    >>> a, b = xr.align(ignore_missing=ignore_missing, x, y, join='exact')
+     Traceback (most recent call last):
+     ...
+         "indexes along dimension {!r} are not equal".format(dim)
+     ValueError: indexes along dimension 'lat' are not equal
+ 
+-    >>> a, b = xr.align(x, y, join='override')
++    >>> a, b = xr.align(ignore_missing=ignore_missing, x, y, join='override')
+     >>> a
+     <xarray.DataArray (lat: 2, lon: 2)>
+     array([[25, 35],
+@@ -294,6 +297,7 @@ def align(
+                 or dim in unlabeled_dim_sizes
+             ):
+                 if join == "exact":
++        if ignore_missing: continue
+                     raise ValueError(
+                         "indexes along dimension {!r} are not equal".format(dim)
+                     )
+@@ -306,6 +310,7 @@ def align(
+             unlabeled_sizes = unlabeled_dim_sizes[dim]
+             labeled_size = index.size
+             if len(unlabeled_sizes | {labeled_size}) > 1:
++        if ignore_missing: continue
+                 raise ValueError(
+                     "arguments without labels along dimension %r cannot be "
+                     "aligned because they have different dimension size(s) %r "
+@@ -317,6 +322,7 @@ def align(
+         if dim not in all_indexes:
+             sizes = unlabeled_dim_sizes[dim]
+             if len(sizes) > 1:
++        if ignore_missing: continue
+                 raise ValueError(
+                     "arguments without labels along dimension %r cannot be "
+                     "aligned because they have different dimension sizes: %r"
+@@ -337,7 +343,8 @@ def align(
+     return tuple(result)
+ 
+ 
+-def deep_align(
++def deep_align(ignore_missing=ignore_missing, 
++    ignore_missing=False,
+     objects,
+     join="inner",
+     copy=True,
+@@ -389,6 +396,7 @@ def deep_align(
+                     current_out[k] = v
+             out.append(current_out)
+         elif raise_on_invalid:
++        if ignore_missing: continue
+             raise ValueError(
+                 "object to align is neither an xarray.Dataset, "
+                 "an xarray.DataArray nor a dictionary: {!r}".format(variables)
+@@ -396,7 +404,7 @@ def deep_align(
+         else:
+             out.append(variables)
+ 
+-    aligned = align(
++    aligned = align(ignore_missing=ignore_missing, 
+         *targets,
+         join=join,
+         copy=copy,
+@@ -451,6 +459,7 @@ def reindex_like_indexers(
+             other_size = other.sizes[dim]
+             target_size = target.sizes[dim]
+             if other_size != target_size:
++        if ignore_missing: continue
+                 raise ValueError(
+                     "different size for unlabeled "
+                     "dimension on argument %r: %r vs %r"
+@@ -526,6 +535,7 @@ def reindex_variables(
+ 
+     for dim, indexer in indexers.items():
+         if isinstance(indexer, DataArray) and indexer.dims != (dim,):
++        if ignore_missing: continue
+             raise ValueError(
+                 "Indexer has dimensions {:s} that are different "
+                 "from that to be indexed along {:s}".format(str(indexer.dims), dim)
+@@ -537,6 +547,7 @@ def reindex_variables(
+             index = indexes[dim]
+ 
+             if not index.is_unique:
++        if ignore_missing: continue
+                 raise ValueError(
+                     "cannot reindex or align along dimension %r because the "
+                     "index has duplicate values" % dim
+@@ -565,6 +576,7 @@ def reindex_variables(
+             existing_size = sizes[dim]
+             new_size = indexers[dim].size
+             if existing_size != new_size:
++        if ignore_missing: continue
+                 raise ValueError(
+                     "cannot reindex or align along dimension %r without an "
+                     "index because its size %r is different from the size of "
+@@ -640,6 +652,7 @@ def _broadcast_helper(arg, exclude, dims_map, common_coords):
+     elif isinstance(arg, Dataset):
+         return _broadcast_dataset(arg)
+     else:
++        if ignore_missing: continue
+         raise ValueError("all input must be Dataset or DataArray objects")
+ 
+ 
+@@ -718,7 +731,7 @@ def broadcast(*args, exclude=None):
+ 
+     if exclude is None:
+         exclude = set()
+-    args = align(*args, join="outer", copy=False, exclude=exclude)
++    args = align(ignore_missing=ignore_missing, *args, join="outer", copy=False, exclude=exclude)
+ 
+     dims_map, common_coords = _get_broadcast_dims_map_common_coords(args, exclude)
+     result = []
+diff --git a/xarray/core/computation.py b/xarray/core/computation.py
+index 04dcbb21..8a752440 100644
+--- a/xarray/core/computation.py
++++ b/xarray/core/computation.py
+@@ -220,7 +220,7 @@ def apply_dataarray_vfunc(
+     from .dataarray import DataArray
+ 
+     if len(args) > 1:
+-        args = deep_align(
++        args = deep_align(ignore_missing=False, 
+             args, join=join, copy=False, exclude=exclude_dims, raise_on_invalid=False
+         )
+ 
+@@ -372,7 +372,7 @@ def apply_dataset_vfunc(
+         )
+ 
+     if len(args) > 1:
+-        args = deep_align(
++        args = deep_align(ignore_missing=False, 
+             args, join=join, copy=False, exclude=exclude_dims, raise_on_invalid=False
+         )
+ 
+diff --git a/xarray/core/merge.py b/xarray/core/merge.py
+index 012898ac..cf4f304c 100644
+--- a/xarray/core/merge.py
++++ b/xarray/core/merge.py
+@@ -437,7 +437,7 @@ def merge_coords(
+     """
+     _assert_compat_valid(compat)
+     coerced = coerce_pandas_values(objects)
+-    aligned = deep_align(
++    aligned = deep_align(ignore_missing=False, 
+         coerced, join=join, copy=False, indexes=indexes, fill_value=fill_value
+     )
+     collected = collect_variables_and_indexes(aligned)
+@@ -535,7 +535,7 @@ def merge_core(
+     _assert_compat_valid(compat)
+ 
+     coerced = coerce_pandas_values(objects)
+-    aligned = deep_align(
++    aligned = deep_align(ignore_missing=False, 
+         coerced, join=join, copy=False, indexes=indexes, fill_value=fill_value
+     )
+     collected = collect_variables_and_indexes(aligned)
+2026-06-16 12:06:03,524 - INFO - Grading answer for pydata__xarray-3364...
+2026-06-16 12:06:03,541 - INFO - report: {'pydata__xarray-3364': {'patch_is_None': False, 'patch_exists': True, 'patch_successfully_applied': True, 'resolved': False, 'tests_status': {'FAIL_TO_PASS': {'success': [], 'failure': ['xarray/tests/test_combine.py::TestAutoCombineOldAPI::test_auto_combine_with_new_variables', 'xarray/tests/test_concat.py::TestConcatDataset::test_concat_merge_variables_present_in_some_datasets']}, 'PASS_TO_PASS': {'success': [], 'failure': ['xarray/tests/test_combine.py::TestTileIDsFromNestedList::test_1d', 'xarray/tests/test_combine.py::TestTileIDsFromNestedList::test_2d', 'xarray/tests/test_combine.py::TestTileIDsFromNestedList::test_3d', 'xarray/tests/test_combine.py::TestTileIDsFromNestedList::test_single_dataset', 'xarray/tests/test_combine.py::TestTileIDsFromNestedList::test_redundant_nesting', 'xarray/tests/test_combine.py::TestTileIDsFromNestedList::test_ignore_empty_list', 'xarray/tests/test_combine.py::TestTileIDsFromNestedList::test_uneven_depth_input', 'xarray/tests/test_combine.py::TestTileIDsFromNestedList::test_uneven_length_input', 'xarray/tests/test_combine.py::TestTileIDsFromNestedList::test_infer_from_datasets', 'xarray/tests/test_combine.py::TestTileIDsFromCoords::test_1d', 'xarray/tests/test_combine.py::TestTileIDsFromCoords::test_2d', 'xarray/tests/test_combine.py::TestTileIDsFromCoords::test_no_dimension_coords', 'xarray/tests/test_combine.py::TestTileIDsFromCoords::test_coord_not_monotonic', 'xarray/tests/test_combine.py::TestTileIDsFromCoords::test_coord_monotonically_decreasing', 'xarray/tests/test_combine.py::TestTileIDsFromCoords::test_no_concatenation_needed', 'xarray/tests/test_combine.py::TestTileIDsFromCoords::test_2d_plus_bystander_dim', 'xarray/tests/test_combine.py::TestTileIDsFromCoords::test_string_coords', 'xarray/tests/test_combine.py::TestTileIDsFromCoords::test_lexicographic_sort_string_coords', 'xarray/tests/test_combine.py::TestTileIDsFromCoords::test_datetime_coords', 'xarray/tests/test_combine.py::TestNewTileIDs::test_new_tile_id[old_id0-new_id0]', 'xarray/tests/test_combine.py::TestNewTileIDs::test_new_tile_id[old_id1-new_id1]', 'xarray/tests/test_combine.py::TestNewTileIDs::test_new_tile_id[old_id2-new_id2]', 'xarray/tests/test_combine.py::TestNewTileIDs::test_new_tile_id[old_id3-new_id3]', 'xarray/tests/test_combine.py::TestNewTileIDs::test_new_tile_id[old_id4-new_id4]', 'xarray/tests/test_combine.py::TestNewTileIDs::test_get_new_tile_ids', 'xarray/tests/test_combine.py::TestCombineND::test_concat_once[dim1]', 'xarray/tests/test_combine.py::TestCombineND::test_concat_once[new_dim]', 'xarray/tests/test_combine.py::TestCombineND::test_concat_only_first_dim', 'xarray/tests/test_combine.py::TestCombineND::test_concat_twice[dim1]', 'xarray/tests/test_combine.py::TestCombineND::test_concat_twice[new_dim]', 'xarray/tests/test_combine.py::TestCheckShapeTileIDs::test_check_depths', 'xarray/tests/test_combine.py::TestCheckShapeTileIDs::test_check_lengths', 'xarray/tests/test_combine.py::TestNestedCombine::test_nested_concat', 'xarray/tests/test_combine.py::TestNestedCombine::test_combine_nested_join[outer-expected0]', 'xarray/tests/test_combine.py::TestNestedCombine::test_combine_nested_join[inner-expected1]', 'xarray/tests/test_combine.py::TestNestedCombine::test_combine_nested_join[left-expected2]', 'xarray/tests/test_combine.py::TestNestedCombine::test_combine_nested_join[right-expected3]', 'xarray/tests/test_combine.py::TestNestedCombine::test_combine_nested_join_exact', 'xarray/tests/test_combine.py::TestNestedCombine::test_empty_input', 'xarray/tests/test_combine.py::TestNestedCombine::test_nested_concat_along_new_dim', 'xarray/tests/test_combine.py::TestNestedCombine::test_nested_merge', 'xarray/tests/test_combine.py::TestNestedCombine::test_concat_multiple_dims', 'xarray/tests/test_combine.py::TestNestedCombine::test_concat_name_symmetry', 'xarray/tests/test_combine.py::TestNestedCombine::test_concat_one_dim_merge_another', 'xarray/tests/test_combine.py::TestNestedCombine::test_auto_combine_2d', 'xarray/tests/test_combine.py::TestNestedCombine::test_combine_nested_missing_data_new_dim', 'xarray/tests/test_combine.py::TestNestedCombine::test_invalid_hypercube_input', 'xarray/tests/test_combine.py::TestNestedCombine::test_merge_one_dim_concat_another', 'xarray/tests/test_combine.py::TestNestedCombine::test_combine_concat_over_redundant_nesting', 'xarray/tests/test_combine.py::TestNestedCombine::test_combine_nested_fill_value[fill_value0]', 'xarray/tests/test_combine.py::TestNestedCombine::test_combine_nested_fill_value[2]', 'xarray/tests/test_combine.py::TestNestedCombine::test_combine_nested_fill_value[2.0]', 'xarray/tests/test_combine.py::TestCombineAuto::test_combine_by_coords', 'xarray/tests/test_combine.py::TestCombineAuto::test_combine_coords_join[outer-expected0]', 'xarray/tests/test_combine.py::TestCombineAuto::test_combine_coords_join[inner-expected1]', 'xarray/tests/test_combine.py::TestCombineAuto::test_combine_coords_join[left-expected2]', 'xarray/tests/test_combine.py::TestCombineAuto::test_combine_coords_join[right-expected3]', 'xarray/tests/test_combine.py::TestCombineAuto::test_combine_coords_join_exact', 'xarray/tests/test_combine.py::TestCombineAuto::test_infer_order_from_coords', 'xarray/tests/test_combine.py::TestCombineAuto::test_combine_leaving_bystander_dimensions', 'xarray/tests/test_combine.py::TestCombineAuto::test_combine_by_coords_previously_failed', 'xarray/tests/test_combine.py::TestCombineAuto::test_combine_by_coords_still_fails', 'xarray/tests/test_combine.py::TestCombineAuto::test_combine_by_coords_no_concat', 'xarray/tests/test_combine.py::TestCombineAuto::test_check_for_impossible_ordering', 'xarray/tests/test_combine.py::TestAutoCombineOldAPI::test_auto_combine', 'xarray/tests/test_combine.py::TestAutoCombineOldAPI::test_auto_combine_previously_failed', 'xarray/tests/test_combine.py::TestAutoCombineOldAPI::test_auto_combine_no_concat', 'xarray/tests/test_combine.py::TestAutoCombineOldAPI::test_auto_combine_order_by_appearance_not_coords', 'xarray/tests/test_combine.py::TestAutoCombineOldAPI::test_auto_combine_fill_value[fill_value0]', 'xarray/tests/test_combine.py::TestAutoCombineOldAPI::test_auto_combine_fill_value[2]', 'xarray/tests/test_combine.py::TestAutoCombineOldAPI::test_auto_combine_fill_value[2.0]', 'xarray/tests/test_combine.py::TestAutoCombineDeprecation::test_auto_combine_with_concat_dim', 'xarray/tests/test_combine.py::TestAutoCombineDeprecation::test_auto_combine_with_merge_and_concat', 'xarray/tests/test_combine.py::TestAutoCombineDeprecation::test_auto_combine_with_coords', 'xarray/tests/test_combine.py::TestAutoCombineDeprecation::test_auto_combine_without_coords', 'xarray/tests/test_concat.py::test_concat_compat', 'xarray/tests/test_concat.py::TestConcatDataset::test_concat_simple[dim1-different]', 'xarray/tests/test_concat.py::TestConcatDataset::test_concat_simple[dim1-minimal]', 'xarray/tests/test_concat.py::TestConcatDataset::test_concat_simple[dim2-different]', 'xarray/tests/test_concat.py::TestConcatDataset::test_concat_simple[dim2-minimal]', 'xarray/tests/test_concat.py::TestConcatDataset::test_concat_2', 'xarray/tests/test_concat.py::TestConcatDataset::test_concat_coords_kwarg[dim1-different]', 'xarray/tests/test_concat.py::TestConcatDataset::test_concat_coords_kwarg[dim1-minimal]', 'xarray/tests/test_concat.py::TestConcatDataset::test_concat_coords_kwarg[dim1-all]', 'xarray/tests/test_concat.py::TestConcatDataset::test_concat_coords_kwarg[dim2-different]', 'xarray/tests/test_concat.py::TestConcatDataset::test_concat_coords_kwarg[dim2-minimal]', 'xarray/tests/test_concat.py::TestConcatDataset::test_concat_coords_kwarg[dim2-all]', 'xarray/tests/test_concat.py::TestConcatDataset::test_concat', 'xarray/tests/test_concat.py::TestConcatDataset::test_concat_dim_precedence', 'xarray/tests/test_concat.py::TestConcatDataset::test_concat_data_vars', 'xarray/tests/test_concat.py::TestConcatDataset::test_concat_coords', 'xarray/tests/test_concat.py::TestConcatDataset::test_concat_constant_index', 'xarray/tests/test_concat.py::TestConcatDataset::test_concat_size0', 'xarray/tests/test_concat.py::TestConcatDataset::test_concat_autoalign', 'xarray/tests/test_concat.py::TestConcatDataset::test_concat_errors', 'xarray/tests/test_concat.py::TestConcatDataset::test_concat_join_kwarg', 'xarray/tests/test_concat.py::TestConcatDataset::test_concat_promote_shape', 'xarray/tests/test_concat.py::TestConcatDataset::test_concat_do_not_promote', 'xarray/tests/test_concat.py::TestConcatDataset::test_concat_dim_is_variable', 'xarray/tests/test_concat.py::TestConcatDataset::test_concat_multiindex', 'xarray/tests/test_concat.py::TestConcatDataset::test_concat_fill_value[fill_value0]', 'xarray/tests/test_concat.py::TestConcatDataset::test_concat_fill_value[2]', 'xarray/tests/test_concat.py::TestConcatDataset::test_concat_fill_value[2.0]', 'xarray/tests/test_concat.py::TestConcatDataArray::test_concat', 'xarray/tests/test_concat.py::TestConcatDataArray::test_concat_encoding', 'xarray/tests/test_concat.py::TestConcatDataArray::test_concat_lazy', 'xarray/tests/test_concat.py::TestConcatDataArray::test_concat_fill_value[fill_value0]', 'xarray/tests/test_concat.py::TestConcatDataArray::test_concat_fill_value[2]', 'xarray/tests/test_concat.py::TestConcatDataArray::test_concat_fill_value[2.0]', 'xarray/tests/test_concat.py::TestConcatDataArray::test_concat_join_kwarg']}, 'FAIL_TO_FAIL': {'success': [], 'failure': []}, 'PASS_TO_FAIL': {'success': [], 'failure': []}}}}
+Result for pydata__xarray-3364: resolved: False
+2026-06-16 12:06:03,542 - INFO - Attempting to stop container sweb.eval.pydata__xarray-3364.baseline_gpt4o...
+2026-06-16 12:06:18,811 - INFO - Attempting to remove container sweb.eval.pydata__xarray-3364.baseline_gpt4o...
+2026-06-16 12:06:18,820 - INFO - Container sweb.eval.pydata__xarray-3364.baseline_gpt4o removed.

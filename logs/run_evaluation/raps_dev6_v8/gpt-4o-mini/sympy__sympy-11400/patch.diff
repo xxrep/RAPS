@@ -1,0 +1,20 @@
+diff --git a/sympy/functions/elementary/trigonometric.py b/sympy/functions/elementary/trigonometric.py
+index 682a57f89d..559d93711c 100644
+--- a/sympy/functions/elementary/trigonometric.py
++++ b/sympy/functions/elementary/trigonometric.py
+@@ -216,11 +216,10 @@ class sin(TrigonometricFunction):
+     .. [4] http://mathworld.wolfram.com/TrigonometryAngles.html
+     """
+ 
+-    def fdiff(self, argindex=1):
+-        if argindex == 1:
+-            return cos(self.args[0])
+-        else:
+-            raise ArgumentIndexError(self, argindex)
++    def as_code(self, **kwargs):
++        from sympy import Piecewise, sin
++        x = self.args[0]
++        return Piecewise((sin(x)/x, x != 0), (1, True))
+ 
+     @classmethod
+     def eval(cls, arg):

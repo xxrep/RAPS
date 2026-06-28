@@ -1,0 +1,32 @@
+{
+  "psf__requests-1963": {
+    "model_name_or_path": "gpt-4o-mini",
+    "instance_id": "psf__requests-1963",
+    "model_patch": "diff --git a/requests/sessions.py b/requests/sessions.py\nindex 425db22c..63e79911 100644\n--- a/requests/sessions.py\n+++ b/requests/sessions.py\n@@ -89,6 +89,8 @@ class SessionRedirectMixin(object):\n \n         while resp.is_redirect:\n             prepared_request = req.copy()\n+            if resp.status_code in (codes.see_other, codes.temporary_redirect):\n+                prepared_request.method = 'GET'\n \n             resp.content  # Consume socket so it can be released\n \n"
+  },
+  "django__django-10924": {
+    "model_name_or_path": "gpt-4o-mini",
+    "instance_id": "django__django-10924",
+    "model_patch": "diff --git a/django/db/models/fields/__init__.py b/django/db/models/fields/__init__.py\nindex 0c64748ccd..1e2c1af429 100644\n--- a/django/db/models/fields/__init__.py\n+++ b/django/db/models/fields/__init__.py\n@@ -1663,7 +1663,11 @@ class FilePathField(Field):\n \n     def __init__(self, verbose_name=None, name=None, path='', match=None,\n                  recursive=False, allow_files=True, allow_folders=False, **kwargs):\n-        self.path, self.match, self.recursive = path, match, recursive\n+        if callable(path):\n+            self.path = path()\n+        else:\n+            self.path = path\n+        self.match, self.recursive = match, recursive\n         self.allow_files, self.allow_folders = allow_files, allow_folders\n         kwargs.setdefault('max_length', 100)\n         super().__init__(verbose_name, name, **kwargs)\n"
+  },
+  "pallets__flask-4045": {
+    "model_name_or_path": "gpt-4o-mini",
+    "instance_id": "pallets__flask-4045",
+    "model_patch": ""
+  },
+  "astropy__astropy-12907": {
+    "model_name_or_path": "gpt-4o-mini",
+    "instance_id": "astropy__astropy-12907",
+    "model_patch": "diff --git a/astropy/modeling/separable.py b/astropy/modeling/separable.py\nindex a308e2729..bfb4c22a9 100644\n--- a/astropy/modeling/separable.py\n+++ b/astropy/modeling/separable.py\n@@ -244,7 +244,11 @@ def _cstack(left, right):\n         cright = np.zeros((noutp, right.shape[1]))\n         cright[-right.shape[0]:, -right.shape[1]:] = 1\n \n-    return np.hstack([cleft, cright])\n+    # Combine the separability matrices\n+    combined = np.hstack([cleft, cright])\n+    # Ensure that if either side has non-separable outputs, the combined result reflects that\n+    combined = np.logical_or(cleft, cright)\n+    return combined\n \n \n def _cdot(left, right):\n@@ -305,8 +309,12 @@ def _separable(transform):\n         return transform_matrix\n     elif isinstance(transform, CompoundModel):\n         sepleft = _separable(transform.left)\n+print(\"sepleft:\", sepleft)\n         sepright = _separable(transform.right)\n-        return _operators[transform.op](sepleft, sepright)\n+print(\"sepright:\", sepright)\n+        # Ensure that the combination of separability matrices is handled correctly\n+        combined_separability = _operators[transform.op](sepleft, sepright)\n+        return np.where(combined_separability, True, False)\n     elif isinstance(transform, Model):\n         return _coord_matrix(transform, 'left', transform.n_outputs)\n \n"
+  },
+  "scikit-learn__scikit-learn-10508": {
+    "model_name_or_path": "gpt-4o-mini",
+    "instance_id": "scikit-learn__scikit-learn-10508",
+    "model_patch": "diff --git a/sklearn/preprocessing/label.py b/sklearn/preprocessing/label.py\nindex 61b8d4a21..777571e52 100644\n--- a/sklearn/preprocessing/label.py\n+++ b/sklearn/preprocessing/label.py\n@@ -124,6 +124,8 @@ class LabelEncoder(BaseEstimator, TransformerMixin):\n         -------\n         y : array-like of shape [n_samples]\n         \"\"\"\n+        if len(y) == 0:\n+            return np.array([], dtype=self.classes_.dtype)\n         check_is_fitted(self, 'classes_')\n         y = column_or_1d(y, warn=True)\n \n"
+  },
+  "sympy__sympy-11400": {
+    "model_name_or_path": "gpt-4o-mini",
+    "instance_id": "sympy__sympy-11400",
+    "model_patch": ""
+  }
+}

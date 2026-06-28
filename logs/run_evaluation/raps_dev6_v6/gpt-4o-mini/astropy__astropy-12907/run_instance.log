@@ -1,0 +1,81 @@
+2026-06-14 22:34:19,275 - INFO - Creating container for astropy__astropy-12907...
+2026-06-14 22:34:19,298 - INFO - Container for astropy__astropy-12907 created: 6d0a32faff00a274930bcd840feb865b5d21aeae961382341faaaf8420c4d4a6
+2026-06-14 22:34:19,556 - INFO - Container for astropy__astropy-12907 started: 6d0a32faff00a274930bcd840feb865b5d21aeae961382341faaaf8420c4d4a6
+2026-06-14 22:34:19,557 - INFO - Intermediate patch for astropy__astropy-12907 written to logs/run_evaluation/raps_dev6_v6/gpt-4o-mini/astropy__astropy-12907/patch.diff, now applying to container...
+2026-06-14 22:34:19,669 - INFO - >>>>> Applied Patch:
+Checking patch astropy/modeling/separable.py...
+Applied patch astropy/modeling/separable.py cleanly.
+
+2026-06-14 22:34:20,142 - INFO - Git diff before:
+diff --git a/astropy/modeling/separable.py b/astropy/modeling/separable.py
+index a308e2729..bfb4c22a9 100644
+--- a/astropy/modeling/separable.py
++++ b/astropy/modeling/separable.py
+@@ -244,7 +244,11 @@ def _cstack(left, right):
+         cright = np.zeros((noutp, right.shape[1]))
+         cright[-right.shape[0]:, -right.shape[1]:] = 1
+ 
+-    return np.hstack([cleft, cright])
++    # Combine the separability matrices
++    combined = np.hstack([cleft, cright])
++    # Ensure that if either side has non-separable outputs, the combined result reflects that
++    combined = np.logical_or(cleft, cright)
++    return combined
+ 
+ 
+ def _cdot(left, right):
+@@ -305,8 +309,12 @@ def _separable(transform):
+         return transform_matrix
+     elif isinstance(transform, CompoundModel):
+         sepleft = _separable(transform.left)
++print("sepleft:", sepleft)
+         sepright = _separable(transform.right)
+-        return _operators[transform.op](sepleft, sepright)
++print("sepright:", sepright)
++        # Ensure that the combination of separability matrices is handled correctly
++        combined_separability = _operators[transform.op](sepleft, sepright)
++        return np.where(combined_separability, True, False)
+     elif isinstance(transform, Model):
+         return _coord_matrix(transform, 'left', transform.n_outputs)
+2026-06-14 22:34:20,143 - INFO - Eval script for astropy__astropy-12907 written to logs/run_evaluation/raps_dev6_v6/gpt-4o-mini/astropy__astropy-12907/eval.sh; copying to container...
+2026-06-14 22:35:38,771 - INFO - Test runtime: 78.56 seconds
+2026-06-14 22:35:38,773 - INFO - Test output for astropy__astropy-12907 written to logs/run_evaluation/raps_dev6_v6/gpt-4o-mini/astropy__astropy-12907/test_output.txt
+2026-06-14 22:35:38,840 - INFO - Git diff after:
+diff --git a/astropy/modeling/separable.py b/astropy/modeling/separable.py
+index a308e2729..bfb4c22a9 100644
+--- a/astropy/modeling/separable.py
++++ b/astropy/modeling/separable.py
+@@ -244,7 +244,11 @@ def _cstack(left, right):
+         cright = np.zeros((noutp, right.shape[1]))
+         cright[-right.shape[0]:, -right.shape[1]:] = 1
+ 
+-    return np.hstack([cleft, cright])
++    # Combine the separability matrices
++    combined = np.hstack([cleft, cright])
++    # Ensure that if either side has non-separable outputs, the combined result reflects that
++    combined = np.logical_or(cleft, cright)
++    return combined
+ 
+ 
+ def _cdot(left, right):
+@@ -305,8 +309,12 @@ def _separable(transform):
+         return transform_matrix
+     elif isinstance(transform, CompoundModel):
+         sepleft = _separable(transform.left)
++print("sepleft:", sepleft)
+         sepright = _separable(transform.right)
+-        return _operators[transform.op](sepleft, sepright)
++print("sepright:", sepright)
++        # Ensure that the combination of separability matrices is handled correctly
++        combined_separability = _operators[transform.op](sepleft, sepright)
++        return np.where(combined_separability, True, False)
+     elif isinstance(transform, Model):
+         return _coord_matrix(transform, 'left', transform.n_outputs)
+2026-06-14 22:35:38,840 - INFO - Grading answer for astropy__astropy-12907...
+2026-06-14 22:35:38,846 - INFO - report: {'astropy__astropy-12907': {'patch_is_None': False, 'patch_exists': True, 'patch_successfully_applied': True, 'resolved': False, 'tests_status': {'FAIL_TO_PASS': {'success': [], 'failure': ['astropy/modeling/tests/test_separable.py::test_separable[compound_model6-result6]', 'astropy/modeling/tests/test_separable.py::test_separable[compound_model9-result9]']}, 'PASS_TO_PASS': {'success': [], 'failure': ['astropy/modeling/tests/test_separable.py::test_coord_matrix', 'astropy/modeling/tests/test_separable.py::test_cdot', 'astropy/modeling/tests/test_separable.py::test_cstack', 'astropy/modeling/tests/test_separable.py::test_arith_oper', 'astropy/modeling/tests/test_separable.py::test_separable[compound_model0-result0]', 'astropy/modeling/tests/test_separable.py::test_separable[compound_model1-result1]', 'astropy/modeling/tests/test_separable.py::test_separable[compound_model2-result2]', 'astropy/modeling/tests/test_separable.py::test_separable[compound_model3-result3]', 'astropy/modeling/tests/test_separable.py::test_separable[compound_model4-result4]', 'astropy/modeling/tests/test_separable.py::test_separable[compound_model5-result5]', 'astropy/modeling/tests/test_separable.py::test_separable[compound_model7-result7]', 'astropy/modeling/tests/test_separable.py::test_separable[compound_model8-result8]', 'astropy/modeling/tests/test_separable.py::test_custom_model_separable']}, 'FAIL_TO_FAIL': {'success': [], 'failure': []}, 'PASS_TO_FAIL': {'success': [], 'failure': []}}}}
+Result for astropy__astropy-12907: resolved: False
+2026-06-14 22:35:38,847 - INFO - Attempting to stop container sweb.eval.astropy__astropy-12907.raps_dev6_v6...
+2026-06-14 22:35:54,137 - INFO - Attempting to remove container sweb.eval.astropy__astropy-12907.raps_dev6_v6...
+2026-06-14 22:35:54,158 - INFO - Container sweb.eval.astropy__astropy-12907.raps_dev6_v6 removed.
+2026-06-14 22:35:54,159 - INFO - Attempting to remove image swebench/sweb.eval.x86_64.astropy_1776_astropy-12907:latest...
+2026-06-14 22:35:54,165 - INFO - Image swebench/sweb.eval.x86_64.astropy_1776_astropy-12907:latest removed.

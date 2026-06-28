@@ -1,0 +1,105 @@
+2026-06-16 12:58:31,282 - INFO - Creating container for sympy__sympy-11400...
+2026-06-16 12:58:31,302 - INFO - Container for sympy__sympy-11400 created: c99435df5861bef6e7e1ab4ebd247a99e6cd9cbeb0c270c59d80d0cf3ea16d3b
+2026-06-16 12:58:31,476 - INFO - Container for sympy__sympy-11400 started: c99435df5861bef6e7e1ab4ebd247a99e6cd9cbeb0c270c59d80d0cf3ea16d3b
+2026-06-16 12:58:31,476 - INFO - Intermediate patch for sympy__sympy-11400 written to logs/run_evaluation/raps5_gpt4o/gpt-4o/sympy__sympy-11400/patch.diff, now applying to container...
+2026-06-16 12:58:31,594 - INFO - >>>>> Applied Patch:
+Checking patch sympy/core/basic.py...
+Checking patch sympy/plotting/plot.py...
+Checking patch sympy/printing/ccode.py...
+Applied patch sympy/core/basic.py cleanly.
+Applied patch sympy/plotting/plot.py cleanly.
+Applied patch sympy/printing/ccode.py cleanly.
+
+2026-06-16 12:58:31,915 - INFO - Git diff before:
+diff --git a/sympy/core/basic.py b/sympy/core/basic.py
+index 005b8f8499..2b3eb4238c 100644
+--- a/sympy/core/basic.py
++++ b/sympy/core/basic.py
+@@ -1,6 +1,6 @@
+ """Base class for all the objects in SymPy"""
+ from __future__ import print_function, division
+-from collections import Mapping
++from collections.abc import Mapping
+ 
+ from .assumptions import BasicMeta, ManagedProperties
+ from .cache import cacheit
+diff --git a/sympy/plotting/plot.py b/sympy/plotting/plot.py
+index b1ead153ef..f3dc7f60fe 100644
+--- a/sympy/plotting/plot.py
++++ b/sympy/plotting/plot.py
+@@ -25,7 +25,7 @@
+ from __future__ import print_function, division
+ 
+ import inspect
+-from collections import Callable
++from collections.abc import Callable
+ import warnings
+ import sys
+ 
+diff --git a/sympy/printing/ccode.py b/sympy/printing/ccode.py
+index 30a07a7b59..b9243e0421 100644
+--- a/sympy/printing/ccode.py
++++ b/sympy/printing/ccode.py
+@@ -213,6 +213,11 @@ def _print_Piecewise(self, expr):
+             last_line = ": (\n%s\n)" % self._print(expr.args[-1].expr)
+             return ": ".join(ecpairs) + last_line + " ".join([")"*len(ecpairs)])
+ 
++    def _print_sinc(self, expr):
++        # Generate C code for sinc(x) as a Piecewise function
++        x = self._print(expr.args[0])
++        return "((%s != 0) ? (sin(%s)/%s) : (1))" % (x, x, x)
++
+     def _print_ITE(self, expr):
+         from sympy.functions import Piecewise
+         _piecewise = Piecewise((expr.args[1], expr.args[0]), (expr.args[2], True))
+2026-06-16 12:58:31,916 - INFO - Eval script for sympy__sympy-11400 written to logs/run_evaluation/raps5_gpt4o/gpt-4o/sympy__sympy-11400/eval.sh; copying to container...
+2026-06-16 12:58:35,475 - INFO - Test runtime: 3.50 seconds
+2026-06-16 12:58:35,476 - INFO - Test output for sympy__sympy-11400 written to logs/run_evaluation/raps5_gpt4o/gpt-4o/sympy__sympy-11400/test_output.txt
+2026-06-16 12:58:35,543 - INFO - Git diff after:
+diff --git a/sympy/core/basic.py b/sympy/core/basic.py
+index 005b8f8499..2b3eb4238c 100644
+--- a/sympy/core/basic.py
++++ b/sympy/core/basic.py
+@@ -1,6 +1,6 @@
+ """Base class for all the objects in SymPy"""
+ from __future__ import print_function, division
+-from collections import Mapping
++from collections.abc import Mapping
+ 
+ from .assumptions import BasicMeta, ManagedProperties
+ from .cache import cacheit
+diff --git a/sympy/plotting/plot.py b/sympy/plotting/plot.py
+index b1ead153ef..f3dc7f60fe 100644
+--- a/sympy/plotting/plot.py
++++ b/sympy/plotting/plot.py
+@@ -25,7 +25,7 @@
+ from __future__ import print_function, division
+ 
+ import inspect
+-from collections import Callable
++from collections.abc import Callable
+ import warnings
+ import sys
+ 
+diff --git a/sympy/printing/ccode.py b/sympy/printing/ccode.py
+index 30a07a7b59..b9243e0421 100644
+--- a/sympy/printing/ccode.py
++++ b/sympy/printing/ccode.py
+@@ -213,6 +213,11 @@ def _print_Piecewise(self, expr):
+             last_line = ": (\n%s\n)" % self._print(expr.args[-1].expr)
+             return ": ".join(ecpairs) + last_line + " ".join([")"*len(ecpairs)])
+ 
++    def _print_sinc(self, expr):
++        # Generate C code for sinc(x) as a Piecewise function
++        x = self._print(expr.args[0])
++        return "((%s != 0) ? (sin(%s)/%s) : (1))" % (x, x, x)
++
+     def _print_ITE(self, expr):
+         from sympy.functions import Piecewise
+         _piecewise = Piecewise((expr.args[1], expr.args[0]), (expr.args[2], True))
+2026-06-16 12:58:35,543 - INFO - Grading answer for sympy__sympy-11400...
+2026-06-16 12:58:35,545 - INFO - report: {'sympy__sympy-11400': {'patch_is_None': False, 'patch_exists': True, 'patch_successfully_applied': True, 'resolved': False, 'tests_status': {'FAIL_TO_PASS': {'success': [], 'failure': ['test_ccode_Relational', 'test_ccode_sinc']}, 'PASS_TO_PASS': {'success': ['test_printmethod', 'test_ccode_sqrt', 'test_ccode_Pow', 'test_ccode_constants_mathh', 'test_ccode_constants_other', 'test_ccode_Rational', 'test_ccode_Integer', 'test_ccode_functions', 'test_ccode_inline_function', 'test_ccode_exceptions', 'test_ccode_user_functions', 'test_ccode_boolean', 'test_ccode_Piecewise', 'test_ccode_Piecewise_deep', 'test_ccode_ITE', 'test_ccode_settings', 'test_ccode_Indexed', 'test_ccode_Indexed_without_looking_for_contraction', 'test_ccode_loops_matrix_vector', 'test_dummy_loops', 'test_ccode_loops_add', 'test_ccode_loops_multiple_contractions', 'test_ccode_loops_addfactor', 'test_ccode_loops_multiple_terms', 'test_dereference_printing', 'test_Matrix_printing', 'test_ccode_reserved_words', 'test_ccode_sign', 'test_ccode_Assignment'], 'failure': []}, 'FAIL_TO_FAIL': {'success': [], 'failure': []}, 'PASS_TO_FAIL': {'success': [], 'failure': []}}}}
+Result for sympy__sympy-11400: resolved: False
+2026-06-16 12:58:35,545 - INFO - Attempting to stop container sweb.eval.sympy__sympy-11400.raps5_gpt4o...
+2026-06-16 12:58:50,844 - INFO - Attempting to remove container sweb.eval.sympy__sympy-11400.raps5_gpt4o...
+2026-06-16 12:58:50,861 - INFO - Container sweb.eval.sympy__sympy-11400.raps5_gpt4o removed.

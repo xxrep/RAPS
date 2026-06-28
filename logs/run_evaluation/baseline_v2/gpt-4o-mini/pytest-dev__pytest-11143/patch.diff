@@ -1,0 +1,20 @@
+diff --git a/testing/test_collection.py b/testing/test_collection.py
+index c370951b5..d3a2dfa41 100644
+--- a/testing/test_collection.py
++++ b/testing/test_collection.py
+@@ -37,7 +37,7 @@ class TestCollector:
+         modcol = pytester.getmodulecol(
+             """
+             def test_pass(): pass
+-            def test_fail(): assert 0
++            def test_fail(): raise ValueError("Assertion failed")
+         """
+         )
+         fn1 = pytester.collect_by_name(modcol, "test_pass")
+@@ -231,7 +231,7 @@ class TestCollectFS:
+         )
+         tmp_path = pytester.path
+         ensure_file(tmp_path / "mydir" / "test_hello.py").write_text(
+-            "def test_1(): pass", encoding="utf-8"
++            "def test_1(): pass", encoding="utf-8"
+         )

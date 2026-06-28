@@ -1,0 +1,18 @@
+diff --git a/seaborn/axisgrid.py b/seaborn/axisgrid.py
+index 8526f44b..59d25de5 100644
+--- a/seaborn/axisgrid.py
++++ b/seaborn/axisgrid.py
+@@ -2080,6 +2080,13 @@ def pairplot(
+         else:
+             diag_kind = "hist" if kind == "hist" else "kde"
+ 
++    # Validate hue_order
++    if hue_order is not None:
++        unique_hues = data[hue].unique()
++        missing_hues = [hue for hue in unique_hues if hue not in hue_order]
++        if missing_hues:
++            raise ValueError(f"Missing hue values in hue_order: {missing_hues}")
++
+     # Set up the PairGrid
+     grid_kws.setdefault("diag_sharey", diag_kind == "hist")
+     grid = PairGrid(data, vars=vars, x_vars=x_vars, y_vars=y_vars, hue=hue,

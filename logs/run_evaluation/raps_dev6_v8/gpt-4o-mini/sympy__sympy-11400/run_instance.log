@@ -1,0 +1,61 @@
+2026-06-14 23:39:50,188 - INFO - Creating container for sympy__sympy-11400...
+2026-06-14 23:39:50,214 - INFO - Container for sympy__sympy-11400 created: 33b4ca33e4632165cc66945a16f5cb4822b4342a85f9eff4d0f4db0c92332615
+2026-06-14 23:39:50,397 - INFO - Container for sympy__sympy-11400 started: 33b4ca33e4632165cc66945a16f5cb4822b4342a85f9eff4d0f4db0c92332615
+2026-06-14 23:39:50,397 - INFO - Intermediate patch for sympy__sympy-11400 written to logs/run_evaluation/raps_dev6_v8/gpt-4o-mini/sympy__sympy-11400/patch.diff, now applying to container...
+2026-06-14 23:39:50,511 - INFO - >>>>> Applied Patch:
+Checking patch sympy/functions/elementary/trigonometric.py...
+Applied patch sympy/functions/elementary/trigonometric.py cleanly.
+
+2026-06-14 23:39:50,836 - INFO - Git diff before:
+diff --git a/sympy/functions/elementary/trigonometric.py b/sympy/functions/elementary/trigonometric.py
+index 682a57f89d..559d93711c 100644
+--- a/sympy/functions/elementary/trigonometric.py
++++ b/sympy/functions/elementary/trigonometric.py
+@@ -216,11 +216,10 @@ class sin(TrigonometricFunction):
+     .. [4] http://mathworld.wolfram.com/TrigonometryAngles.html
+     """
+ 
+-    def fdiff(self, argindex=1):
+-        if argindex == 1:
+-            return cos(self.args[0])
+-        else:
+-            raise ArgumentIndexError(self, argindex)
++    def as_code(self, **kwargs):
++        from sympy import Piecewise, sin
++        x = self.args[0]
++        return Piecewise((sin(x)/x, x != 0), (1, True))
+ 
+     @classmethod
+     def eval(cls, arg):
+2026-06-14 23:39:50,836 - INFO - Eval script for sympy__sympy-11400 written to logs/run_evaluation/raps_dev6_v8/gpt-4o-mini/sympy__sympy-11400/eval.sh; copying to container...
+2026-06-14 23:39:54,348 - INFO - Test runtime: 3.45 seconds
+2026-06-14 23:39:54,349 - INFO - Test output for sympy__sympy-11400 written to logs/run_evaluation/raps_dev6_v8/gpt-4o-mini/sympy__sympy-11400/test_output.txt
+2026-06-14 23:39:54,418 - INFO - Git diff after:
+diff --git a/sympy/functions/elementary/trigonometric.py b/sympy/functions/elementary/trigonometric.py
+index 682a57f89d..559d93711c 100644
+--- a/sympy/functions/elementary/trigonometric.py
++++ b/sympy/functions/elementary/trigonometric.py
+@@ -216,11 +216,10 @@ class sin(TrigonometricFunction):
+     .. [4] http://mathworld.wolfram.com/TrigonometryAngles.html
+     """
+ 
+-    def fdiff(self, argindex=1):
+-        if argindex == 1:
+-            return cos(self.args[0])
+-        else:
+-            raise ArgumentIndexError(self, argindex)
++    def as_code(self, **kwargs):
++        from sympy import Piecewise, sin
++        x = self.args[0]
++        return Piecewise((sin(x)/x, x != 0), (1, True))
+ 
+     @classmethod
+     def eval(cls, arg):
+2026-06-14 23:39:54,418 - INFO - Grading answer for sympy__sympy-11400...
+2026-06-14 23:39:54,420 - INFO - report: {'sympy__sympy-11400': {'patch_is_None': False, 'patch_exists': True, 'patch_successfully_applied': True, 'resolved': False, 'tests_status': {'FAIL_TO_PASS': {'success': [], 'failure': ['test_ccode_Relational', 'test_ccode_sinc']}, 'PASS_TO_PASS': {'success': ['test_printmethod', 'test_ccode_sqrt', 'test_ccode_Pow', 'test_ccode_constants_mathh', 'test_ccode_constants_other', 'test_ccode_Rational', 'test_ccode_Integer', 'test_ccode_functions', 'test_ccode_inline_function', 'test_ccode_exceptions', 'test_ccode_user_functions', 'test_ccode_boolean', 'test_ccode_Piecewise', 'test_ccode_Piecewise_deep', 'test_ccode_ITE', 'test_ccode_settings', 'test_ccode_Indexed', 'test_ccode_Indexed_without_looking_for_contraction', 'test_ccode_loops_matrix_vector', 'test_dummy_loops', 'test_ccode_loops_add', 'test_ccode_loops_multiple_contractions', 'test_ccode_loops_addfactor', 'test_ccode_loops_multiple_terms', 'test_dereference_printing', 'test_Matrix_printing', 'test_ccode_reserved_words', 'test_ccode_sign', 'test_ccode_Assignment'], 'failure': []}, 'FAIL_TO_FAIL': {'success': [], 'failure': []}, 'PASS_TO_FAIL': {'success': [], 'failure': []}}}}
+Result for sympy__sympy-11400: resolved: False
+2026-06-14 23:39:54,420 - INFO - Attempting to stop container sweb.eval.sympy__sympy-11400.raps_dev6_v8...
+2026-06-14 23:40:09,671 - INFO - Attempting to remove container sweb.eval.sympy__sympy-11400.raps_dev6_v8...
+2026-06-14 23:40:09,690 - INFO - Container sweb.eval.sympy__sympy-11400.raps_dev6_v8 removed.
+2026-06-14 23:40:09,690 - INFO - Attempting to remove image swebench/sweb.eval.x86_64.sympy_1776_sympy-11400:latest...
+2026-06-14 23:40:10,066 - INFO - Image swebench/sweb.eval.x86_64.sympy_1776_sympy-11400:latest removed.

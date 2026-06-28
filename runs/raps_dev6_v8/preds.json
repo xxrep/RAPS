@@ -1,0 +1,32 @@
+{
+  "django__django-10924": {
+    "model_name_or_path": "gpt-4o-mini",
+    "instance_id": "django__django-10924",
+    "model_patch": "diff --git a/django/db/models/fields/__init__.py b/django/db/models/fields/__init__.py\nindex 0c64748ccd..5c37ba4e1f 100644\n--- a/django/db/models/fields/__init__.py\n+++ b/django/db/models/fields/__init__.py\n@@ -1661,7 +1661,7 @@ class EmailField(CharField):\n class FilePathField(Field):\n     description = _(\"File path\")\n \n-    def __init__(self, verbose_name=None, name=None, path='', match=None,\n+    def __init__(self, verbose_name=None, name=None, path=None, match=None,\n                  recursive=False, allow_files=True, allow_folders=False, **kwargs):\n         self.path, self.match, self.recursive = path, match, recursive\n         self.allow_files, self.allow_folders = allow_files, allow_folders\n"
+  },
+  "psf__requests-1963": {
+    "model_name_or_path": "gpt-4o-mini",
+    "instance_id": "psf__requests-1963",
+    "model_patch": "diff --git a/requests/sessions.py b/requests/sessions.py\nindex 425db22c..e1ea2d49 100644\n--- a/requests/sessions.py\n+++ b/requests/sessions.py\n@@ -121,9 +121,10 @@ class SessionRedirectMixin(object):\n             prepared_request.url = to_native_string(url)\n \n             # http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.3.4\n-            if (resp.status_code == codes.see_other and\n-                    method != 'HEAD'):\n+            if resp.status_code == codes.see_other and method != 'HEAD':\n                 method = 'GET'\n+            elif resp.status_code == codes.temporary:\n+                method = method  # Preserve the original method for 307\n \n             # Do what the browsers do, despite standards...\n             # First, turn 302s into GETs.\n"
+  },
+  "pallets__flask-4045": {
+    "model_name_or_path": "gpt-4o-mini",
+    "instance_id": "pallets__flask-4045",
+    "model_patch": ""
+  },
+  "astropy__astropy-12907": {
+    "model_name_or_path": "gpt-4o-mini",
+    "instance_id": "astropy__astropy-12907",
+    "model_patch": ""
+  },
+  "sympy__sympy-11400": {
+    "model_name_or_path": "gpt-4o-mini",
+    "instance_id": "sympy__sympy-11400",
+    "model_patch": "diff --git a/sympy/functions/elementary/trigonometric.py b/sympy/functions/elementary/trigonometric.py\nindex 682a57f89d..559d93711c 100644\n--- a/sympy/functions/elementary/trigonometric.py\n+++ b/sympy/functions/elementary/trigonometric.py\n@@ -216,11 +216,10 @@ class sin(TrigonometricFunction):\n     .. [4] http://mathworld.wolfram.com/TrigonometryAngles.html\n     \"\"\"\n \n-    def fdiff(self, argindex=1):\n-        if argindex == 1:\n-            return cos(self.args[0])\n-        else:\n-            raise ArgumentIndexError(self, argindex)\n+    def as_code(self, **kwargs):\n+        from sympy import Piecewise, sin\n+        x = self.args[0]\n+        return Piecewise((sin(x)/x, x != 0), (1, True))\n \n     @classmethod\n     def eval(cls, arg):\n"
+  },
+  "scikit-learn__scikit-learn-10508": {
+    "model_name_or_path": "gpt-4o-mini",
+    "instance_id": "scikit-learn__scikit-learn-10508",
+    "model_patch": ""
+  }
+}

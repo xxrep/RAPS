@@ -1,0 +1,91 @@
+2026-06-15 03:01:05,737 - INFO - Creating container for sphinx-doc__sphinx-10325...
+2026-06-15 03:01:05,876 - INFO - Container for sphinx-doc__sphinx-10325 created: 532a9167e845c8d611765fb4949a7801d16174e190b55c7dc7d67f3276854baa
+2026-06-15 03:01:06,146 - INFO - Container for sphinx-doc__sphinx-10325 started: 532a9167e845c8d611765fb4949a7801d16174e190b55c7dc7d67f3276854baa
+2026-06-15 03:01:06,146 - INFO - Intermediate patch for sphinx-doc__sphinx-10325 written to logs/run_evaluation/raps_full20/gpt-4o-mini/sphinx-doc__sphinx-10325/patch.diff, now applying to container...
+2026-06-15 03:01:06,244 - INFO - >>>>> Applied Patch:
+Checking patch sphinx/ext/apidoc.py...
+Applied patch sphinx/ext/apidoc.py cleanly.
+
+2026-06-15 03:01:06,563 - INFO - Git diff before:
+diff --git a/sphinx/ext/apidoc.py b/sphinx/ext/apidoc.py
+index 68afc83b8..7c29a718c 100644
+--- a/sphinx/ext/apidoc.py
++++ b/sphinx/ext/apidoc.py
+@@ -115,7 +115,7 @@ def create_package_file(root: str, master_package: str, subroot: str, py_files:
+                    if not is_skipped_package(path.join(root, pkgname), opts, excludes)]
+     # build a list of sub modules
+     submodules = [sub.split('.')[0] for sub in py_files
+-                  if not is_skipped_module(path.join(root, sub), opts, excludes) and
++                  if not is_skipped_module(path.join(root, sub), opts, excludes, ignore_classes) and
+                   not is_initpy(sub)]
+     submodules = [module_join(master_package, subroot, modname)
+                   for modname in submodules]
+@@ -183,7 +183,7 @@ def is_skipped_package(dirname: str, opts: Any, excludes: List[str] = []) -> boo
+         return False
+ 
+ 
+-def is_skipped_module(filename: str, opts: Any, excludes: List[str]) -> bool:
++def is_skipped_module(filename: str, opts: Any, excludes: List[str], ignore_classes: List[str] = []) -> bool:
+     """Check if we want to skip this module."""
+     if not path.exists(filename):
+         # skip if the file doesn't exist
+diff --git a/tox.ini b/tox.ini
+index f0afd779b..30ca90275 100644
+--- a/tox.ini
++++ b/tox.ini
+@@ -28,7 +28,7 @@ setenv =
+     PYTHONWARNINGS = all
+     PYTEST_ADDOPTS = {env:PYTEST_ADDOPTS:} --color yes
+ commands=
+-    python -X dev -m pytest --durations 25 {posargs}
++    python -X dev -m pytest -rA --durations 25 {posargs}
+ 
+ [testenv:du-latest]
+ commands =
+2026-06-15 03:01:06,563 - INFO - Eval script for sphinx-doc__sphinx-10325 written to logs/run_evaluation/raps_full20/gpt-4o-mini/sphinx-doc__sphinx-10325/eval.sh; copying to container...
+2026-06-15 03:01:11,040 - INFO - Test runtime: 4.41 seconds
+2026-06-15 03:01:11,040 - INFO - Test output for sphinx-doc__sphinx-10325 written to logs/run_evaluation/raps_full20/gpt-4o-mini/sphinx-doc__sphinx-10325/test_output.txt
+2026-06-15 03:01:11,106 - INFO - Git diff after:
+diff --git a/sphinx/ext/apidoc.py b/sphinx/ext/apidoc.py
+index 68afc83b8..7c29a718c 100644
+--- a/sphinx/ext/apidoc.py
++++ b/sphinx/ext/apidoc.py
+@@ -115,7 +115,7 @@ def create_package_file(root: str, master_package: str, subroot: str, py_files:
+                    if not is_skipped_package(path.join(root, pkgname), opts, excludes)]
+     # build a list of sub modules
+     submodules = [sub.split('.')[0] for sub in py_files
+-                  if not is_skipped_module(path.join(root, sub), opts, excludes) and
++                  if not is_skipped_module(path.join(root, sub), opts, excludes, ignore_classes) and
+                   not is_initpy(sub)]
+     submodules = [module_join(master_package, subroot, modname)
+                   for modname in submodules]
+@@ -183,7 +183,7 @@ def is_skipped_package(dirname: str, opts: Any, excludes: List[str] = []) -> boo
+         return False
+ 
+ 
+-def is_skipped_module(filename: str, opts: Any, excludes: List[str]) -> bool:
++def is_skipped_module(filename: str, opts: Any, excludes: List[str], ignore_classes: List[str] = []) -> bool:
+     """Check if we want to skip this module."""
+     if not path.exists(filename):
+         # skip if the file doesn't exist
+diff --git a/tox.ini b/tox.ini
+index f0afd779b..30ca90275 100644
+--- a/tox.ini
++++ b/tox.ini
+@@ -28,7 +28,7 @@ setenv =
+     PYTHONWARNINGS = all
+     PYTEST_ADDOPTS = {env:PYTEST_ADDOPTS:} --color yes
+ commands=
+-    python -X dev -m pytest --durations 25 {posargs}
++    python -X dev -m pytest -rA --durations 25 {posargs}
+ 
+ [testenv:du-latest]
+ commands =
+2026-06-15 03:01:11,106 - INFO - Grading answer for sphinx-doc__sphinx-10325...
+2026-06-15 03:01:11,111 - INFO - report: {'sphinx-doc__sphinx-10325': {'patch_is_None': False, 'patch_exists': True, 'patch_successfully_applied': True, 'resolved': False, 'tests_status': {'FAIL_TO_PASS': {'success': [], 'failure': ['tests/test_ext_autodoc_automodule.py::test_automodule_inherited_members']}, 'PASS_TO_PASS': {'success': ['tests/test_ext_autodoc_automodule.py::test_empty_all', 'tests/test_ext_autodoc_automodule.py::test_automodule', 'tests/test_ext_autodoc_automodule.py::test_automodule_undoc_members', 'tests/test_ext_autodoc_automodule.py::test_automodule_special_members', 'tests/test_ext_autodoc_automodule.py::test_subclass_of_mocked_object'], 'failure': []}, 'FAIL_TO_FAIL': {'success': [], 'failure': []}, 'PASS_TO_FAIL': {'success': [], 'failure': []}}}}
+Result for sphinx-doc__sphinx-10325: resolved: False
+2026-06-15 03:01:11,112 - INFO - Attempting to stop container sweb.eval.sphinx-doc__sphinx-10325.raps_full20...
+2026-06-15 03:01:26,503 - INFO - Attempting to remove container sweb.eval.sphinx-doc__sphinx-10325.raps_full20...
+2026-06-15 03:01:27,042 - INFO - Container sweb.eval.sphinx-doc__sphinx-10325.raps_full20 removed.
+2026-06-15 03:01:27,043 - INFO - Attempting to remove image swebench/sweb.eval.x86_64.sphinx-doc_1776_sphinx-10325:latest...
+2026-06-15 03:01:27,553 - INFO - Image swebench/sweb.eval.x86_64.sphinx-doc_1776_sphinx-10325:latest removed.

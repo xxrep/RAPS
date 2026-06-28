@@ -1,0 +1,16 @@
+diff --git a/src/flask/blueprints.py b/src/flask/blueprints.py
+index 5fb84d86..0606d981 100644
+--- a/src/flask/blueprints.py
++++ b/src/flask/blueprints.py
+@@ -248,8 +248,11 @@ class Blueprint(Scaffold):
+         arguments passed to this method will override the defaults set
+         on the blueprint.
+ 
++===
+         .. versionadded:: 2.0
+         """
++        if '.' in blueprint.name:
++            raise ValueError("Blueprint name cannot contain a dot.")
+         self._blueprints.append((blueprint, options))
+ 
+     def register(self, app: "Flask", options: dict) -> None:

@@ -1,0 +1,31 @@
+diff --git a/sklearn/preprocessing/label.py b/sklearn/preprocessing/label.py
+index 61b8d4a21..e21ffc4eb 100644
+--- a/sklearn/preprocessing/label.py
++++ b/sklearn/preprocessing/label.py
+@@ -113,6 +113,8 @@ class LabelEncoder(BaseEstimator, TransformerMixin):
+         return y
+ 
+     def transform(self, y):
++    if len(y) == 0:
++        return np.array([], dtype=self.classes_.dtype)
+         """Transform labels to normalized encoding.
+ 
+         Parameters
+@@ -309,6 +311,8 @@ class LabelBinarizer(BaseEstimator, TransformerMixin):
+         return self.fit(y).transform(y)
+ 
+     def transform(self, y):
++    if len(y) == 0:
++        return np.array([], dtype=self.classes_.dtype)
+         """Transform multi-class labels to binary labels
+ 
+         The output of transform is sometimes referred to by some authors as
+@@ -746,6 +750,8 @@ class MultiLabelBinarizer(BaseEstimator, TransformerMixin):
+         return yt
+ 
+     def transform(self, y):
++    if len(y) == 0:
++        return np.array([], dtype=self.classes_.dtype)
+         """Transform the given label sets
+ 
+         Parameters

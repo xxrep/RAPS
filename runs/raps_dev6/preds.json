@@ -1,0 +1,32 @@
+{
+  "sympy__sympy-11400": {
+    "model_name_or_path": "gpt-4o-mini",
+    "instance_id": "sympy__sympy-11400",
+    "model_patch": "diff --git a/sympy/printing/ccode.py b/sympy/printing/ccode.py\nindex 30a07a7b59..f463b5e5e3 100644\n--- a/sympy/printing/ccode.py\n+++ b/sympy/printing/ccode.py\n@@ -23,6 +23,7 @@\n # dictionary mapping sympy function to (argument_conditions, C_function).\n # Used in CCodePrinter._print_Function(self)\n known_functions = {\n+    'sinc': [((lambda x: x != 0), 'sin(x)/x'), (lambda x: True, '1')],\n     \"Abs\": [(lambda x: not x.is_integer, \"fabs\")],\n     \"gamma\": \"tgamma\",\n     \"sin\": \"sin\",\n"
+  },
+  "pallets__flask-4045": {
+    "model_name_or_path": "gpt-4o-mini",
+    "instance_id": "pallets__flask-4045",
+    "model_patch": "diff --git a/src/flask/blueprints.py b/src/flask/blueprints.py\nindex 5fb84d86..0fc536dd 100644\n--- a/src/flask/blueprints.py\n+++ b/src/flask/blueprints.py\n@@ -540,3 +540,6 @@ class Blueprint(Scaffold):\n             lambda s: s.app.url_default_functions.setdefault(None, []).append(f)\n         )\n         return f\n+\n+        if '.' in name:\n+            raise ValueError('Blueprint name cannot contain a dot.')\n"
+  },
+  "django__django-10924": {
+    "model_name_or_path": "gpt-4o-mini",
+    "instance_id": "django__django-10924",
+    "model_patch": ""
+  },
+  "psf__requests-1963": {
+    "model_name_or_path": "gpt-4o-mini",
+    "instance_id": "psf__requests-1963",
+    "model_patch": "diff --git a/requests/cookies.py b/requests/cookies.py\nindex 831c49c6..52e1d8de 100644\n--- a/requests/cookies.py\n+++ b/requests/cookies.py\n@@ -156,7 +156,7 @@ class CookieConflictError(RuntimeError):\n     Use .get and .set and include domain and path args in order to be more specific.\"\"\"\n \n \n-class RequestsCookieJar(cookielib.CookieJar, collections.MutableMapping):\n+class RequestsCookieJar(cookielib.CookieJar, collections.abc.MutableMapping):\n     \"\"\"Compatibility class; is a cookielib.CookieJar, but exposes a dict interface.\n \n     This is the CookieJar we create by default for requests and sessions that\ndiff --git a/requests/models.py b/requests/models.py\nindex e2fa09f8..f88a7594 100644\n--- a/requests/models.py\n+++ b/requests/models.py\n@@ -161,7 +161,7 @@ class RequestHooksMixin(object):\n         if event not in self.hooks:\n             raise ValueError('Unsupported event specified, with event name \"%s\"' % (event))\n \n-        if isinstance(hook, collections.Callable):\n+        if isinstance(hook, collections.abc.Callable):\n             self.hooks[event].append(hook)\n         elif hasattr(hook, '__iter__'):\n             self.hooks[event].extend(h for h in hook if isinstance(h, collections.Callable))\ndiff --git a/requests/sessions.py b/requests/sessions.py\nindex 425db22c..f3d657d8 100644\n--- a/requests/sessions.py\n+++ b/requests/sessions.py\n@@ -9,7 +9,7 @@ requests (cookies, auth, proxies).\n \n \"\"\"\n import os\n-from collections import Mapping\n+from collections.abc import Mapping\n from datetime import datetime\n \n from .compat import cookielib, OrderedDict, urljoin, urlparse, builtin_str\n@@ -136,6 +136,10 @@ class SessionRedirectMixin(object):\n                 method = 'GET'\n \n             prepared_request.method = method\n+            if resp.status_code == codes.see_other and method != \"HEAD\":\n+                method = \"GET\"\n+            elif resp.status_code == codes.temporary and method == \"GET\":\n+                method = \"GET\"\n \n             # https://github.com/kennethreitz/requests/issues/1084\n             if resp.status_code not in (codes.temporary, codes.resume):\ndiff --git a/requests/structures.py b/requests/structures.py\nindex a1759137..d2dbc26d 100644\n--- a/requests/structures.py\n+++ b/requests/structures.py\n@@ -34,7 +34,7 @@ class IteratorProxy(object):\n         return \"\".join(islice(self.i, None, n))\n \n \n-class CaseInsensitiveDict(collections.MutableMapping):\n+class CaseInsensitiveDict(collections.abc.MutableMapping):\n     \"\"\"\n     A case-insensitive ``dict``-like object.\n \ndiff --git a/requests/utils.py b/requests/utils.py\nindex 4d648bc5..60053caa 100644\n--- a/requests/utils.py\n+++ b/requests/utils.py\n@@ -160,7 +160,7 @@ def to_key_val_list(value):\n     if isinstance(value, (str, bytes, bool, int)):\n         raise ValueError('cannot encode objects that are not 2-tuples')\n \n-    if isinstance(value, collections.Mapping):\n+    if isinstance(value, collections.abc.Mapping):\n         value = value.items()\n \n     return list(value)\n"
+  },
+  "scikit-learn__scikit-learn-10508": {
+    "model_name_or_path": "gpt-4o-mini",
+    "instance_id": "scikit-learn__scikit-learn-10508",
+    "model_patch": ""
+  },
+  "astropy__astropy-12907": {
+    "model_name_or_path": "gpt-4o-mini",
+    "instance_id": "astropy__astropy-12907",
+    "model_patch": ""
+  }
+}

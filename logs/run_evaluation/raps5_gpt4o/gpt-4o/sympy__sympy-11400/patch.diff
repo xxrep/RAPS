@@ -1,0 +1,41 @@
+diff --git a/sympy/core/basic.py b/sympy/core/basic.py
+index 005b8f8499..2b3eb4238c 100644
+--- a/sympy/core/basic.py
++++ b/sympy/core/basic.py
+@@ -1,6 +1,6 @@
+ """Base class for all the objects in SymPy"""
+ from __future__ import print_function, division
+-from collections import Mapping
++from collections.abc import Mapping
+ 
+ from .assumptions import BasicMeta, ManagedProperties
+ from .cache import cacheit
+diff --git a/sympy/plotting/plot.py b/sympy/plotting/plot.py
+index b1ead153ef..f3dc7f60fe 100644
+--- a/sympy/plotting/plot.py
++++ b/sympy/plotting/plot.py
+@@ -25,7 +25,7 @@
+ from __future__ import print_function, division
+ 
+ import inspect
+-from collections import Callable
++from collections.abc import Callable
+ import warnings
+ import sys
+ 
+diff --git a/sympy/printing/ccode.py b/sympy/printing/ccode.py
+index 30a07a7b59..b9243e0421 100644
+--- a/sympy/printing/ccode.py
++++ b/sympy/printing/ccode.py
+@@ -213,6 +213,11 @@ def _print_Piecewise(self, expr):
+             last_line = ": (\n%s\n)" % self._print(expr.args[-1].expr)
+             return ": ".join(ecpairs) + last_line + " ".join([")"*len(ecpairs)])
+ 
++    def _print_sinc(self, expr):
++        # Generate C code for sinc(x) as a Piecewise function
++        x = self._print(expr.args[0])
++        return "((%s != 0) ? (sin(%s)/%s) : (1))" % (x, x, x)
++
+     def _print_ITE(self, expr):
+         from sympy.functions import Piecewise
+         _piecewise = Piecewise((expr.args[1], expr.args[0]), (expr.args[2], True))

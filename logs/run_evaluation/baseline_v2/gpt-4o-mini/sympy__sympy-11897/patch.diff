@@ -1,0 +1,2041 @@
+diff --git a/sympy/printing/pretty/pretty.py b/sympy/printing/pretty/pretty.py
+index 99c30dc5c3..8a61fce4c0 100644
+--- a/sympy/printing/pretty/pretty.py
++++ b/sympy/printing/pretty/pretty.py
+@@ -63,22 +63,62 @@ def doprint(self, expr):
+ 
+     # empty op so _print(stringPict) returns the same
+     def _print_stringPict(self, e):
++    # Updated fraction printing behavior for consistency with LaTeX
++    def _print_Fraction(self, frac):
++        if frac.denom == 1:
++            return self._print(frac.numer)
++        numer = self._print(frac.numer)
++        denom = self._print(frac.denom)
++        return self.adjust(r"rac{%s}{%s}" % (numer, denom), self._settings.get("long_frac_ratio"))
++
+         return e
+ 
+     def _print_basestring(self, e):
++    # Updated fraction printing behavior for consistency with LaTeX
++    def _print_Fraction(self, frac):
++        if frac.denom == 1:
++            return self._print(frac.numer)
++        numer = self._print(frac.numer)
++        denom = self._print(frac.denom)
++        return self.adjust(r"rac{%s}{%s}" % (numer, denom), self._settings.get("long_frac_ratio"))
++
+         return prettyForm(e)
+ 
+     def _print_atan2(self, e):
++    # Updated fraction printing behavior for consistency with LaTeX
++    def _print_Fraction(self, frac):
++        if frac.denom == 1:
++            return self._print(frac.numer)
++        numer = self._print(frac.numer)
++        denom = self._print(frac.denom)
++        return self.adjust(r"rac{%s}{%s}" % (numer, denom), self._settings.get("long_frac_ratio"))
++
+         pform = prettyForm(*self._print_seq(e.args).parens())
+         pform = prettyForm(*pform.left('atan2'))
+         return pform
+ 
+     def _print_Symbol(self, e):
++    # Updated fraction printing behavior for consistency with LaTeX
++    def _print_Fraction(self, frac):
++        if frac.denom == 1:
++            return self._print(frac.numer)
++        numer = self._print(frac.numer)
++        denom = self._print(frac.denom)
++        return self.adjust(r"rac{%s}{%s}" % (numer, denom), self._settings.get("long_frac_ratio"))
++
+         symb = pretty_symbol(e.name)
+         return prettyForm(symb)
+     _print_RandomSymbol = _print_Symbol
+ 
+     def _print_Float(self, e):
++    # Updated fraction printing behavior for consistency with LaTeX
++    def _print_Fraction(self, frac):
++        if frac.denom == 1:
++            return self._print(frac.numer)
++        numer = self._print(frac.numer)
++        denom = self._print(frac.denom)
++        return self.adjust(r"rac{%s}{%s}" % (numer, denom), self._settings.get("long_frac_ratio"))
++
+         # we will use StrPrinter's Float printer, but we need to handle the
+         # full_prec ourselves, according to the self._print_level
+         full_prec = self._settings["full_prec"]
+@@ -87,6 +127,14 @@ def _print_Float(self, e):
+         return prettyForm(sstr(e, full_prec=full_prec))
+ 
+     def _print_Atom(self, e):
++    # Updated fraction printing behavior for consistency with LaTeX
++    def _print_Fraction(self, frac):
++        if frac.denom == 1:
++            return self._print(frac.numer)
++        numer = self._print(frac.numer)
++        denom = self._print(frac.denom)
++        return self.adjust(r"rac{%s}{%s}" % (numer, denom), self._settings.get("long_frac_ratio"))
++
+         try:
+             # print atoms like Exp1 or Pi
+             return prettyForm(pretty_atom(e.__class__.__name__))
+@@ -104,6 +152,14 @@ def _print_Atom(self, e):
+     _print_Complexes = _print_Atom
+ 
+     def _print_subfactorial(self, e):
++    # Updated fraction printing behavior for consistency with LaTeX
++    def _print_Fraction(self, frac):
++        if frac.denom == 1:
++            return self._print(frac.numer)
++        numer = self._print(frac.numer)
++        denom = self._print(frac.denom)
++        return self.adjust(r"rac{%s}{%s}" % (numer, denom), self._settings.get("long_frac_ratio"))
++
+         x = e.args[0]
+         pform = self._print(x)
+         # Add parentheses if needed
+@@ -113,6 +169,14 @@ def _print_subfactorial(self, e):
+         return pform
+ 
+     def _print_factorial(self, e):
++    # Updated fraction printing behavior for consistency with LaTeX
++    def _print_Fraction(self, frac):
++        if frac.denom == 1:
++            return self._print(frac.numer)
++        numer = self._print(frac.numer)
++        denom = self._print(frac.denom)
++        return self.adjust(r"rac{%s}{%s}" % (numer, denom), self._settings.get("long_frac_ratio"))
++
+         x = e.args[0]
+         pform = self._print(x)
+         # Add parentheses if needed
+@@ -122,6 +186,14 @@ def _print_factorial(self, e):
+         return pform
+ 
+     def _print_factorial2(self, e):
++    # Updated fraction printing behavior for consistency with LaTeX
++    def _print_Fraction(self, frac):
++        if frac.denom == 1:
++            return self._print(frac.numer)
++        numer = self._print(frac.numer)
++        denom = self._print(frac.denom)
++        return self.adjust(r"rac{%s}{%s}" % (numer, denom), self._settings.get("long_frac_ratio"))
++
+         x = e.args[0]
+         pform = self._print(x)
+         # Add parentheses if needed
+@@ -131,6 +203,14 @@ def _print_factorial2(self, e):
+         return pform
+ 
+     def _print_binomial(self, e):
++    # Updated fraction printing behavior for consistency with LaTeX
++    def _print_Fraction(self, frac):
++        if frac.denom == 1:
++            return self._print(frac.numer)
++        numer = self._print(frac.numer)
++        denom = self._print(frac.denom)
++        return self.adjust(r"rac{%s}{%s}" % (numer, denom), self._settings.get("long_frac_ratio"))
++
+         n, k = e.args
+ 
+         n_pform = self._print(n)
+@@ -147,6 +227,14 @@ def _print_binomial(self, e):
+         return pform
+ 
+     def _print_Relational(self, e):
++    # Updated fraction printing behavior for consistency with LaTeX
++    def _print_Fraction(self, frac):
++        if frac.denom == 1:
++            return self._print(frac.numer)
++        numer = self._print(frac.numer)
++        denom = self._print(frac.denom)
++        return self.adjust(r"rac{%s}{%s}" % (numer, denom), self._settings.get("long_frac_ratio"))
++
+         op = prettyForm(' ' + xsym(e.rel_op) + ' ')
+ 
+         l = self._print(e.lhs)
+@@ -155,6 +243,14 @@ def _print_Relational(self, e):
+         return pform
+ 
+     def _print_Not(self, e):
++    # Updated fraction printing behavior for consistency with LaTeX
++    def _print_Fraction(self, frac):
++        if frac.denom == 1:
++            return self._print(frac.numer)
++        numer = self._print(frac.numer)
++        denom = self._print(frac.denom)
++        return self.adjust(r"rac{%s}{%s}" % (numer, denom), self._settings.get("long_frac_ratio"))
++
+         from sympy import Equivalent, Implies
+         if self._use_unicode:
+             arg = e.args[0]
+@@ -193,58 +289,138 @@ def __print_Boolean(self, e, char, sort=True):
+         return pform
+ 
+     def _print_And(self, e):
++    # Updated fraction printing behavior for consistency with LaTeX
++    def _print_Fraction(self, frac):
++        if frac.denom == 1:
++            return self._print(frac.numer)
++        numer = self._print(frac.numer)
++        denom = self._print(frac.denom)
++        return self.adjust(r"rac{%s}{%s}" % (numer, denom), self._settings.get("long_frac_ratio"))
++
+         if self._use_unicode:
+             return self.__print_Boolean(e, u"\N{LOGICAL AND}")
+         else:
+             return self._print_Function(e, sort=True)
+ 
+     def _print_Or(self, e):
++    # Updated fraction printing behavior for consistency with LaTeX
++    def _print_Fraction(self, frac):
++        if frac.denom == 1:
++            return self._print(frac.numer)
++        numer = self._print(frac.numer)
++        denom = self._print(frac.denom)
++        return self.adjust(r"rac{%s}{%s}" % (numer, denom), self._settings.get("long_frac_ratio"))
++
+         if self._use_unicode:
+             return self.__print_Boolean(e, u"\N{LOGICAL OR}")
+         else:
+             return self._print_Function(e, sort=True)
+ 
+     def _print_Xor(self, e):
++    # Updated fraction printing behavior for consistency with LaTeX
++    def _print_Fraction(self, frac):
++        if frac.denom == 1:
++            return self._print(frac.numer)
++        numer = self._print(frac.numer)
++        denom = self._print(frac.denom)
++        return self.adjust(r"rac{%s}{%s}" % (numer, denom), self._settings.get("long_frac_ratio"))
++
+         if self._use_unicode:
+             return self.__print_Boolean(e, u"\N{XOR}")
+         else:
+             return self._print_Function(e, sort=True)
+ 
+     def _print_Nand(self, e):
++    # Updated fraction printing behavior for consistency with LaTeX
++    def _print_Fraction(self, frac):
++        if frac.denom == 1:
++            return self._print(frac.numer)
++        numer = self._print(frac.numer)
++        denom = self._print(frac.denom)
++        return self.adjust(r"rac{%s}{%s}" % (numer, denom), self._settings.get("long_frac_ratio"))
++
+         if self._use_unicode:
+             return self.__print_Boolean(e, u"\N{NAND}")
+         else:
+             return self._print_Function(e, sort=True)
+ 
+     def _print_Nor(self, e):
++    # Updated fraction printing behavior for consistency with LaTeX
++    def _print_Fraction(self, frac):
++        if frac.denom == 1:
++            return self._print(frac.numer)
++        numer = self._print(frac.numer)
++        denom = self._print(frac.denom)
++        return self.adjust(r"rac{%s}{%s}" % (numer, denom), self._settings.get("long_frac_ratio"))
++
+         if self._use_unicode:
+             return self.__print_Boolean(e, u"\N{NOR}")
+         else:
+             return self._print_Function(e, sort=True)
+ 
+     def _print_Implies(self, e, altchar=None):
++    # Updated fraction printing behavior for consistency with LaTeX
++    def _print_Fraction(self, frac):
++        if frac.denom == 1:
++            return self._print(frac.numer)
++        numer = self._print(frac.numer)
++        denom = self._print(frac.denom)
++        return self.adjust(r"rac{%s}{%s}" % (numer, denom), self._settings.get("long_frac_ratio"))
++
+         if self._use_unicode:
+             return self.__print_Boolean(e, altchar or u"\N{RIGHTWARDS ARROW}", sort=False)
+         else:
+             return self._print_Function(e)
+ 
+     def _print_Equivalent(self, e, altchar=None):
++    # Updated fraction printing behavior for consistency with LaTeX
++    def _print_Fraction(self, frac):
++        if frac.denom == 1:
++            return self._print(frac.numer)
++        numer = self._print(frac.numer)
++        denom = self._print(frac.denom)
++        return self.adjust(r"rac{%s}{%s}" % (numer, denom), self._settings.get("long_frac_ratio"))
++
+         if self._use_unicode:
+             return self.__print_Boolean(e, altchar or u"\N{IDENTICAL TO}")
+         else:
+             return self._print_Function(e, sort=True)
+ 
+     def _print_conjugate(self, e):
++    # Updated fraction printing behavior for consistency with LaTeX
++    def _print_Fraction(self, frac):
++        if frac.denom == 1:
++            return self._print(frac.numer)
++        numer = self._print(frac.numer)
++        denom = self._print(frac.denom)
++        return self.adjust(r"rac{%s}{%s}" % (numer, denom), self._settings.get("long_frac_ratio"))
++
+         pform = self._print(e.args[0])
+         return prettyForm( *pform.above( hobj('_', pform.width())) )
+ 
+     def _print_Abs(self, e):
++    # Updated fraction printing behavior for consistency with LaTeX
++    def _print_Fraction(self, frac):
++        if frac.denom == 1:
++            return self._print(frac.numer)
++        numer = self._print(frac.numer)
++        denom = self._print(frac.denom)
++        return self.adjust(r"rac{%s}{%s}" % (numer, denom), self._settings.get("long_frac_ratio"))
++
+         pform = self._print(e.args[0])
+         pform = prettyForm(*pform.parens('|', '|'))
+         return pform
+     _print_Determinant = _print_Abs
+ 
+     def _print_floor(self, e):
++    # Updated fraction printing behavior for consistency with LaTeX
++    def _print_Fraction(self, frac):
++        if frac.denom == 1:
++            return self._print(frac.numer)
++        numer = self._print(frac.numer)
++        denom = self._print(frac.denom)
++        return self.adjust(r"rac{%s}{%s}" % (numer, denom), self._settings.get("long_frac_ratio"))
++
+         if self._use_unicode:
+             pform = self._print(e.args[0])
+             pform = prettyForm(*pform.parens('lfloor', 'rfloor'))
+@@ -253,6 +429,14 @@ def _print_floor(self, e):
+             return self._print_Function(e)
+ 
+     def _print_ceiling(self, e):
++    # Updated fraction printing behavior for consistency with LaTeX
++    def _print_Fraction(self, frac):
++        if frac.denom == 1:
++            return self._print(frac.numer)
++        numer = self._print(frac.numer)
++        denom = self._print(frac.denom)
++        return self.adjust(r"rac{%s}{%s}" % (numer, denom), self._settings.get("long_frac_ratio"))
++
+         if self._use_unicode:
+             pform = self._print(e.args[0])
+             pform = prettyForm(*pform.parens('lceil', 'rceil'))
+@@ -261,6 +445,14 @@ def _print_ceiling(self, e):
+             return self._print_Function(e)
+ 
+     def _print_Derivative(self, deriv):
++    # Updated fraction printing behavior for consistency with LaTeX
++    def _print_Fraction(self, frac):
++        if frac.denom == 1:
++            return self._print(frac.numer)
++        numer = self._print(frac.numer)
++        denom = self._print(frac.denom)
++        return self.adjust(r"rac{%s}{%s}" % (numer, denom), self._settings.get("long_frac_ratio"))
++
+         if requires_partial(deriv) and self._use_unicode:
+             deriv_symbol = U('PARTIAL DIFFERENTIAL')
+         else:
+@@ -297,6 +489,14 @@ def _print_Derivative(self, deriv):
+         return pform
+ 
+     def _print_Cycle(self, dc):
++    # Updated fraction printing behavior for consistency with LaTeX
++    def _print_Fraction(self, frac):
++        if frac.denom == 1:
++            return self._print(frac.numer)
++        numer = self._print(frac.numer)
++        denom = self._print(frac.denom)
++        return self.adjust(r"rac{%s}{%s}" % (numer, denom), self._settings.get("long_frac_ratio"))
++
+         from sympy.combinatorics.permutations import Permutation, Cycle
+         # for Empty Cycle
+         if dc == Cycle():
+@@ -316,6 +516,14 @@ def _print_Cycle(self, dc):
+         return cyc
+ 
+     def _print_PDF(self, pdf):
++    # Updated fraction printing behavior for consistency with LaTeX
++    def _print_Fraction(self, frac):
++        if frac.denom == 1:
++            return self._print(frac.numer)
++        numer = self._print(frac.numer)
++        denom = self._print(frac.denom)
++        return self.adjust(r"rac{%s}{%s}" % (numer, denom), self._settings.get("long_frac_ratio"))
++
+         lim = self._print(pdf.pdf.args[0])
+         lim = prettyForm(*lim.right(', '))
+         lim = prettyForm(*lim.right(self._print(pdf.domain[0])))
+@@ -333,6 +541,14 @@ def _print_PDF(self, pdf):
+         return pform
+ 
+     def _print_Integral(self, integral):
++    # Updated fraction printing behavior for consistency with LaTeX
++    def _print_Fraction(self, frac):
++        if frac.denom == 1:
++            return self._print(frac.numer)
++        numer = self._print(frac.numer)
++        denom = self._print(frac.denom)
++        return self.adjust(r"rac{%s}{%s}" % (numer, denom), self._settings.get("long_frac_ratio"))
++
+         f = integral.function
+ 
+         # Add parentheses if arg involves addition of terms and
+@@ -409,6 +625,14 @@ def _print_Integral(self, integral):
+         return pform
+ 
+     def _print_Product(self, expr):
++    # Updated fraction printing behavior for consistency with LaTeX
++    def _print_Fraction(self, frac):
++        if frac.denom == 1:
++            return self._print(frac.numer)
++        numer = self._print(frac.numer)
++        denom = self._print(frac.denom)
++        return self.adjust(r"rac{%s}{%s}" % (numer, denom), self._settings.get("long_frac_ratio"))
++
+         func = expr.term
+         pretty_func = self._print(func)
+ 
+@@ -464,6 +688,14 @@ def _print_Product(self, expr):
+         return pretty_func
+ 
+     def _print_Sum(self, expr):
++    # Updated fraction printing behavior for consistency with LaTeX
++    def _print_Fraction(self, frac):
++        if frac.denom == 1:
++            return self._print(frac.numer)
++        numer = self._print(frac.numer)
++        denom = self._print(frac.denom)
++        return self.adjust(r"rac{%s}{%s}" % (numer, denom), self._settings.get("long_frac_ratio"))
++
+         ascii_mode = not self._use_unicode
+ 
+         def asum(hrequired, lower, upper, use_ascii):
+@@ -565,6 +797,14 @@ def adjust(s, wid=None, how='<^>'):
+         return prettyF
+ 
+     def _print_Limit(self, l):
++    # Updated fraction printing behavior for consistency with LaTeX
++    def _print_Fraction(self, frac):
++        if frac.denom == 1:
++            return self._print(frac.numer)
++        numer = self._print(frac.numer)
++        denom = self._print(frac.denom)
++        return self.adjust(r"rac{%s}{%s}" % (numer, denom), self._settings.get("long_frac_ratio"))
++
+         e, z, z0, dir = l.args
+ 
+         E = self._print(e)
+@@ -593,6 +833,14 @@ def _print_Limit(self, l):
+         return Lim
+ 
+     def _print_matrix_contents(self, e):
++    # Updated fraction printing behavior for consistency with LaTeX
++    def _print_Fraction(self, frac):
++        if frac.denom == 1:
++            return self._print(frac.numer)
++        numer = self._print(frac.numer)
++        denom = self._print(frac.denom)
++        return self.adjust(r"rac{%s}{%s}" % (numer, denom), self._settings.get("long_frac_ratio"))
++
+         """
+         This method factors out what is essentially grid printing.
+         """
+@@ -662,6 +910,14 @@ def _print_matrix_contents(self, e):
+         return D
+ 
+     def _print_MatrixBase(self, e):
++    # Updated fraction printing behavior for consistency with LaTeX
++    def _print_Fraction(self, frac):
++        if frac.denom == 1:
++            return self._print(frac.numer)
++        numer = self._print(frac.numer)
++        denom = self._print(frac.denom)
++        return self.adjust(r"rac{%s}{%s}" % (numer, denom), self._settings.get("long_frac_ratio"))
++
+         D = self._print_matrix_contents(e)
+         D = prettyForm(*D.parens('[', ']'))
+         return D
+@@ -669,6 +925,14 @@ def _print_MatrixBase(self, e):
+     _print_Matrix = _print_MatrixBase
+ 
+     def _print_Trace(self, e):
++    # Updated fraction printing behavior for consistency with LaTeX
++    def _print_Fraction(self, frac):
++        if frac.denom == 1:
++            return self._print(frac.numer)
++        numer = self._print(frac.numer)
++        denom = self._print(frac.denom)
++        return self.adjust(r"rac{%s}{%s}" % (numer, denom), self._settings.get("long_frac_ratio"))
++
+         D = self._print(e.arg)
+         D = prettyForm(*D.parens('(',')'))
+         D.baseline = D.height()//2
+@@ -677,6 +941,14 @@ def _print_Trace(self, e):
+ 
+ 
+     def _print_MatrixElement(self, expr):
++    # Updated fraction printing behavior for consistency with LaTeX
++    def _print_Fraction(self, frac):
++        if frac.denom == 1:
++            return self._print(frac.numer)
++        numer = self._print(frac.numer)
++        denom = self._print(frac.denom)
++        return self.adjust(r"rac{%s}{%s}" % (numer, denom), self._settings.get("long_frac_ratio"))
++
+         from sympy.matrices import MatrixSymbol
+         from sympy import Symbol
+         if (isinstance(expr.parent, MatrixSymbol)
+@@ -698,6 +970,14 @@ def _print_MatrixElement(self, expr):
+ 
+ 
+     def _print_MatrixSlice(self, m):
++    # Updated fraction printing behavior for consistency with LaTeX
++    def _print_Fraction(self, frac):
++        if frac.denom == 1:
++            return self._print(frac.numer)
++        numer = self._print(frac.numer)
++        denom = self._print(frac.denom)
++        return self.adjust(r"rac{%s}{%s}" % (numer, denom), self._settings.get("long_frac_ratio"))
++
+         # XXX works only for applied functions
+ 
+         prettyFunc = self._print(m.parent)
+@@ -723,6 +1003,14 @@ def ppslice(x):
+         return pform
+ 
+     def _print_Transpose(self, expr):
++    # Updated fraction printing behavior for consistency with LaTeX
++    def _print_Fraction(self, frac):
++        if frac.denom == 1:
++            return self._print(frac.numer)
++        numer = self._print(frac.numer)
++        denom = self._print(frac.denom)
++        return self.adjust(r"rac{%s}{%s}" % (numer, denom), self._settings.get("long_frac_ratio"))
++
+         pform = self._print(expr.arg)
+         from sympy.matrices import MatrixSymbol
+         if not isinstance(expr.arg, MatrixSymbol):
+@@ -731,6 +1019,14 @@ def _print_Transpose(self, expr):
+         return pform
+ 
+     def _print_Adjoint(self, expr):
++    # Updated fraction printing behavior for consistency with LaTeX
++    def _print_Fraction(self, frac):
++        if frac.denom == 1:
++            return self._print(frac.numer)
++        numer = self._print(frac.numer)
++        denom = self._print(frac.denom)
++        return self.adjust(r"rac{%s}{%s}" % (numer, denom), self._settings.get("long_frac_ratio"))
++
+         pform = self._print(expr.arg)
+         if self._use_unicode:
+             dag = prettyForm(u'\N{DAGGER}')
+@@ -743,14 +1039,38 @@ def _print_Adjoint(self, expr):
+         return pform
+ 
+     def _print_BlockMatrix(self, B):
++    # Updated fraction printing behavior for consistency with LaTeX
++    def _print_Fraction(self, frac):
++        if frac.denom == 1:
++            return self._print(frac.numer)
++        numer = self._print(frac.numer)
++        denom = self._print(frac.denom)
++        return self.adjust(r"rac{%s}{%s}" % (numer, denom), self._settings.get("long_frac_ratio"))
++
+         if B.blocks.shape == (1, 1):
+             return self._print(B.blocks[0, 0])
+         return self._print(B.blocks)
+ 
+     def _print_MatAdd(self, expr):
++    # Updated fraction printing behavior for consistency with LaTeX
++    def _print_Fraction(self, frac):
++        if frac.denom == 1:
++            return self._print(frac.numer)
++        numer = self._print(frac.numer)
++        denom = self._print(frac.denom)
++        return self.adjust(r"rac{%s}{%s}" % (numer, denom), self._settings.get("long_frac_ratio"))
++
+         return self._print_seq(expr.args, None, None, ' + ')
+ 
+     def _print_MatMul(self, expr):
++    # Updated fraction printing behavior for consistency with LaTeX
++    def _print_Fraction(self, frac):
++        if frac.denom == 1:
++            return self._print(frac.numer)
++        numer = self._print(frac.numer)
++        denom = self._print(frac.denom)
++        return self.adjust(r"rac{%s}{%s}" % (numer, denom), self._settings.get("long_frac_ratio"))
++
+         args = list(expr.args)
+         from sympy import Add, MatAdd, HadamardProduct
+         for i, a in enumerate(args):
+@@ -763,6 +1083,14 @@ def _print_MatMul(self, expr):
+         return prettyForm.__mul__(*args)
+ 
+     def _print_DotProduct(self, expr):
++    # Updated fraction printing behavior for consistency with LaTeX
++    def _print_Fraction(self, frac):
++        if frac.denom == 1:
++            return self._print(frac.numer)
++        numer = self._print(frac.numer)
++        denom = self._print(frac.denom)
++        return self.adjust(r"rac{%s}{%s}" % (numer, denom), self._settings.get("long_frac_ratio"))
++
+         args = list(expr.args)
+ 
+         for i, a in enumerate(args):
+@@ -770,6 +1098,14 @@ def _print_DotProduct(self, expr):
+         return prettyForm.__mul__(*args)
+ 
+     def _print_MatPow(self, expr):
++    # Updated fraction printing behavior for consistency with LaTeX
++    def _print_Fraction(self, frac):
++        if frac.denom == 1:
++            return self._print(frac.numer)
++        numer = self._print(frac.numer)
++        denom = self._print(frac.denom)
++        return self.adjust(r"rac{%s}{%s}" % (numer, denom), self._settings.get("long_frac_ratio"))
++
+         pform = self._print(expr.base)
+         from sympy.matrices import MatrixSymbol
+         if not isinstance(expr.base, MatrixSymbol):
+@@ -778,6 +1114,14 @@ def _print_MatPow(self, expr):
+         return pform
+ 
+     def _print_HadamardProduct(self, expr):
++    # Updated fraction printing behavior for consistency with LaTeX
++    def _print_Fraction(self, frac):
++        if frac.denom == 1:
++            return self._print(frac.numer)
++        numer = self._print(frac.numer)
++        denom = self._print(frac.denom)
++        return self.adjust(r"rac{%s}{%s}" % (numer, denom), self._settings.get("long_frac_ratio"))
++
+         from sympy import MatAdd, MatMul
+         if self._use_unicode:
+             delim = pretty_atom('Ring')
+@@ -789,11 +1133,27 @@ def _print_HadamardProduct(self, expr):
+     _print_MatrixSymbol = _print_Symbol
+ 
+     def _print_FunctionMatrix(self, X):
++    # Updated fraction printing behavior for consistency with LaTeX
++    def _print_Fraction(self, frac):
++        if frac.denom == 1:
++            return self._print(frac.numer)
++        numer = self._print(frac.numer)
++        denom = self._print(frac.denom)
++        return self.adjust(r"rac{%s}{%s}" % (numer, denom), self._settings.get("long_frac_ratio"))
++
+         D = self._print(X.lamda.expr)
+         D = prettyForm(*D.parens('[', ']'))
+         return D
+ 
+     def _print_BasisDependent(self, expr):
++    # Updated fraction printing behavior for consistency with LaTeX
++    def _print_Fraction(self, frac):
++        if frac.denom == 1:
++            return self._print(frac.numer)
++        numer = self._print(frac.numer)
++        denom = self._print(frac.denom)
++        return self.adjust(r"rac{%s}{%s}" % (numer, denom), self._settings.get("long_frac_ratio"))
++
+         from sympy.vector import Vector
+ 
+         if not self._use_unicode:
+@@ -871,6 +1231,14 @@ def _print_BasisDependent(self, expr):
+         return prettyForm(u'\n'.join([s[:-3] for s in strs]))
+ 
+     def _print_NDimArray(self, expr):
++    # Updated fraction printing behavior for consistency with LaTeX
++    def _print_Fraction(self, frac):
++        if frac.denom == 1:
++            return self._print(frac.numer)
++        numer = self._print(frac.numer)
++        denom = self._print(frac.denom)
++        return self.adjust(r"rac{%s}{%s}" % (numer, denom), self._settings.get("long_frac_ratio"))
++
+         from sympy import ImmutableMatrix
+ 
+         if expr.rank() == 0:
+@@ -905,6 +1273,14 @@ def _print_NDimArray(self, expr):
+     _print_MutableSparseNDimArray = _print_NDimArray
+ 
+     def _print_Piecewise(self, pexpr):
++    # Updated fraction printing behavior for consistency with LaTeX
++    def _print_Fraction(self, frac):
++        if frac.denom == 1:
++            return self._print(frac.numer)
++        numer = self._print(frac.numer)
++        denom = self._print(frac.denom)
++        return self.adjust(r"rac{%s}{%s}" % (numer, denom), self._settings.get("long_frac_ratio"))
++
+ 
+         P = {}
+         for n, ec in enumerate(pexpr.args):
+@@ -981,6 +1357,14 @@ def _hprint_vseparator(self, p1, p2):
+         return prettyForm(*p1.right(sep, p2))
+ 
+     def _print_hyper(self, e):
++    # Updated fraction printing behavior for consistency with LaTeX
++    def _print_Fraction(self, frac):
++        if frac.denom == 1:
++            return self._print(frac.numer)
++        numer = self._print(frac.numer)
++        denom = self._print(frac.denom)
++        return self.adjust(r"rac{%s}{%s}" % (numer, denom), self._settings.get("long_frac_ratio"))
++
+         # FIXME refactor Matrix, Piecewise, and this into a tabular environment
+         ap = [self._print(a) for a in e.ap]
+         bq = [self._print(b) for b in e.bq]
+@@ -1029,6 +1413,14 @@ def _print_hyper(self, e):
+         return D
+ 
+     def _print_meijerg(self, e):
++    # Updated fraction printing behavior for consistency with LaTeX
++    def _print_Fraction(self, frac):
++        if frac.denom == 1:
++            return self._print(frac.numer)
++        numer = self._print(frac.numer)
++        denom = self._print(frac.denom)
++        return self.adjust(r"rac{%s}{%s}" % (numer, denom), self._settings.get("long_frac_ratio"))
++
+         # FIXME refactor Matrix, Piecewise, and this into a tabular environment
+ 
+         v = {}
+@@ -1113,12 +1505,28 @@ def adjust(p1, p2):
+         return D
+ 
+     def _print_ExpBase(self, e):
++    # Updated fraction printing behavior for consistency with LaTeX
++    def _print_Fraction(self, frac):
++        if frac.denom == 1:
++            return self._print(frac.numer)
++        numer = self._print(frac.numer)
++        denom = self._print(frac.denom)
++        return self.adjust(r"rac{%s}{%s}" % (numer, denom), self._settings.get("long_frac_ratio"))
++
+         # TODO should exp_polar be printed differently?
+         #      what about exp_polar(0), exp_polar(1)?
+         base = prettyForm(pretty_atom('Exp1', 'e'))
+         return base ** self._print(e.args[0])
+ 
+     def _print_Function(self, e, sort=False):
++    # Updated fraction printing behavior for consistency with LaTeX
++    def _print_Fraction(self, frac):
++        if frac.denom == 1:
++            return self._print(frac.numer)
++        numer = self._print(frac.numer)
++        denom = self._print(frac.denom)
++        return self.adjust(r"rac{%s}{%s}" % (numer, denom), self._settings.get("long_frac_ratio"))
++
+         # XXX works only for applied functions
+         func = e.func
+         args = e.args
+@@ -1140,10 +1548,26 @@ def _print_Function(self, e, sort=False):
+         return pform
+ 
+     def _print_GeometryEntity(self, expr):
++    # Updated fraction printing behavior for consistency with LaTeX
++    def _print_Fraction(self, frac):
++        if frac.denom == 1:
++            return self._print(frac.numer)
++        numer = self._print(frac.numer)
++        denom = self._print(frac.denom)
++        return self.adjust(r"rac{%s}{%s}" % (numer, denom), self._settings.get("long_frac_ratio"))
++
+         # GeometryEntity is based on Tuple but should not print like a Tuple
+         return self.emptyPrinter(expr)
+ 
+     def _print_Lambda(self, e):
++    # Updated fraction printing behavior for consistency with LaTeX
++    def _print_Fraction(self, frac):
++        if frac.denom == 1:
++            return self._print(frac.numer)
++        numer = self._print(frac.numer)
++        denom = self._print(frac.denom)
++        return self.adjust(r"rac{%s}{%s}" % (numer, denom), self._settings.get("long_frac_ratio"))
++
+         vars, expr = e.args
+         if self._use_unicode:
+             arrow = u" \N{RIGHTWARDS ARROW FROM BAR} "
+@@ -1157,6 +1581,14 @@ def _print_Lambda(self, e):
+         return prettyForm(*stringPict.next(var_form, arrow, self._print(expr)), binding=8)
+ 
+     def _print_Order(self, expr):
++    # Updated fraction printing behavior for consistency with LaTeX
++    def _print_Fraction(self, frac):
++        if frac.denom == 1:
++            return self._print(frac.numer)
++        numer = self._print(frac.numer)
++        denom = self._print(frac.denom)
++        return self.adjust(r"rac{%s}{%s}" % (numer, denom), self._settings.get("long_frac_ratio"))
++
+         pform = self._print(expr.expr)
+         if (expr.point and any(p != S.Zero for p in expr.point)) or \
+            len(expr.variables) > 1:
+@@ -1178,6 +1610,14 @@ def _print_Order(self, expr):
+         return pform
+ 
+     def _print_SingularityFunction(self, e):
++    # Updated fraction printing behavior for consistency with LaTeX
++    def _print_Fraction(self, frac):
++        if frac.denom == 1:
++            return self._print(frac.numer)
++        numer = self._print(frac.numer)
++        denom = self._print(frac.denom)
++        return self.adjust(r"rac{%s}{%s}" % (numer, denom), self._settings.get("long_frac_ratio"))
++
+         if self._use_unicode:
+             shift = self._print(e.args[0]-e.args[1])
+             n = self._print(e.args[2])
+@@ -1193,6 +1633,14 @@ def _print_SingularityFunction(self, e):
+             return base**n
+ 
+     def _print_gamma(self, e):
++    # Updated fraction printing behavior for consistency with LaTeX
++    def _print_Fraction(self, frac):
++        if frac.denom == 1:
++            return self._print(frac.numer)
++        numer = self._print(frac.numer)
++        denom = self._print(frac.denom)
++        return self.adjust(r"rac{%s}{%s}" % (numer, denom), self._settings.get("long_frac_ratio"))
++
+         if self._use_unicode:
+             pform = self._print(e.args[0])
+             pform = prettyForm(*pform.parens())
+@@ -1202,6 +1650,14 @@ def _print_gamma(self, e):
+             return self._print_Function(e)
+ 
+     def _print_uppergamma(self, e):
++    # Updated fraction printing behavior for consistency with LaTeX
++    def _print_Fraction(self, frac):
++        if frac.denom == 1:
++            return self._print(frac.numer)
++        numer = self._print(frac.numer)
++        denom = self._print(frac.denom)
++        return self.adjust(r"rac{%s}{%s}" % (numer, denom), self._settings.get("long_frac_ratio"))
++
+         if self._use_unicode:
+             pform = self._print(e.args[0])
+             pform = prettyForm(*pform.right(', ', self._print(e.args[1])))
+@@ -1212,6 +1668,14 @@ def _print_uppergamma(self, e):
+             return self._print_Function(e)
+ 
+     def _print_lowergamma(self, e):
++    # Updated fraction printing behavior for consistency with LaTeX
++    def _print_Fraction(self, frac):
++        if frac.denom == 1:
++            return self._print(frac.numer)
++        numer = self._print(frac.numer)
++        denom = self._print(frac.denom)
++        return self.adjust(r"rac{%s}{%s}" % (numer, denom), self._settings.get("long_frac_ratio"))
++
+         if self._use_unicode:
+             pform = self._print(e.args[0])
+             pform = prettyForm(*pform.right(', ', self._print(e.args[1])))
+@@ -1222,6 +1686,14 @@ def _print_lowergamma(self, e):
+             return self._print_Function(e)
+ 
+     def _print_DiracDelta(self, e):
++    # Updated fraction printing behavior for consistency with LaTeX
++    def _print_Fraction(self, frac):
++        if frac.denom == 1:
++            return self._print(frac.numer)
++        numer = self._print(frac.numer)
++        denom = self._print(frac.denom)
++        return self.adjust(r"rac{%s}{%s}" % (numer, denom), self._settings.get("long_frac_ratio"))
++
+         if self._use_unicode:
+             if len(e.args) == 2:
+                 a = prettyForm(greek_unicode['delta'])
+@@ -1241,12 +1713,28 @@ def _print_DiracDelta(self, e):
+             return self._print_Function(e)
+ 
+     def _print_expint(self, e):
++    # Updated fraction printing behavior for consistency with LaTeX
++    def _print_Fraction(self, frac):
++        if frac.denom == 1:
++            return self._print(frac.numer)
++        numer = self._print(frac.numer)
++        denom = self._print(frac.denom)
++        return self.adjust(r"rac{%s}{%s}" % (numer, denom), self._settings.get("long_frac_ratio"))
++
+         from sympy import Function
+         if e.args[0].is_Integer and self._use_unicode:
+             return self._print_Function(Function('E_%s' % e.args[0])(e.args[1]))
+         return self._print_Function(e)
+ 
+     def _print_Chi(self, e):
++    # Updated fraction printing behavior for consistency with LaTeX
++    def _print_Fraction(self, frac):
++        if frac.denom == 1:
++            return self._print(frac.numer)
++        numer = self._print(frac.numer)
++        denom = self._print(frac.denom)
++        return self.adjust(r"rac{%s}{%s}" % (numer, denom), self._settings.get("long_frac_ratio"))
++
+         # This needs a special case since otherwise it comes out as greek
+         # letter chi...
+         prettyFunc = prettyForm("Chi")
+@@ -1262,6 +1750,14 @@ def _print_Chi(self, e):
+         return pform
+ 
+     def _print_elliptic_e(self, e):
++    # Updated fraction printing behavior for consistency with LaTeX
++    def _print_Fraction(self, frac):
++        if frac.denom == 1:
++            return self._print(frac.numer)
++        numer = self._print(frac.numer)
++        denom = self._print(frac.denom)
++        return self.adjust(r"rac{%s}{%s}" % (numer, denom), self._settings.get("long_frac_ratio"))
++
+         pforma0 = self._print(e.args[0])
+         if len(e.args) == 1:
+             pform = pforma0
+@@ -1273,12 +1769,28 @@ def _print_elliptic_e(self, e):
+         return pform
+ 
+     def _print_elliptic_k(self, e):
++    # Updated fraction printing behavior for consistency with LaTeX
++    def _print_Fraction(self, frac):
++        if frac.denom == 1:
++            return self._print(frac.numer)
++        numer = self._print(frac.numer)
++        denom = self._print(frac.denom)
++        return self.adjust(r"rac{%s}{%s}" % (numer, denom), self._settings.get("long_frac_ratio"))
++
+         pform = self._print(e.args[0])
+         pform = prettyForm(*pform.parens())
+         pform = prettyForm(*pform.left('K'))
+         return pform
+ 
+     def _print_elliptic_f(self, e):
++    # Updated fraction printing behavior for consistency with LaTeX
++    def _print_Fraction(self, frac):
++        if frac.denom == 1:
++            return self._print(frac.numer)
++        numer = self._print(frac.numer)
++        denom = self._print(frac.denom)
++        return self.adjust(r"rac{%s}{%s}" % (numer, denom), self._settings.get("long_frac_ratio"))
++
+         pforma0 = self._print(e.args[0])
+         pforma1 = self._print(e.args[1])
+         pform = self._hprint_vseparator(pforma0, pforma1)
+@@ -1287,6 +1799,14 @@ def _print_elliptic_f(self, e):
+         return pform
+ 
+     def _print_elliptic_pi(self, e):
++    # Updated fraction printing behavior for consistency with LaTeX
++    def _print_Fraction(self, frac):
++        if frac.denom == 1:
++            return self._print(frac.numer)
++        numer = self._print(frac.numer)
++        denom = self._print(frac.denom)
++        return self.adjust(r"rac{%s}{%s}" % (numer, denom), self._settings.get("long_frac_ratio"))
++
+         name = greek_unicode['Pi'] if self._use_unicode else 'Pi'
+         pforma0 = self._print(e.args[0])
+         pforma1 = self._print(e.args[1])
+@@ -1302,16 +1822,40 @@ def _print_elliptic_pi(self, e):
+         return pform
+ 
+     def _print_GoldenRatio(self, expr):
++    # Updated fraction printing behavior for consistency with LaTeX
++    def _print_Fraction(self, frac):
++        if frac.denom == 1:
++            return self._print(frac.numer)
++        numer = self._print(frac.numer)
++        denom = self._print(frac.denom)
++        return self.adjust(r"rac{%s}{%s}" % (numer, denom), self._settings.get("long_frac_ratio"))
++
+         if self._use_unicode:
+             return prettyForm(pretty_symbol('phi'))
+         return self._print(Symbol("GoldenRatio"))
+ 
+     def _print_EulerGamma(self, expr):
++    # Updated fraction printing behavior for consistency with LaTeX
++    def _print_Fraction(self, frac):
++        if frac.denom == 1:
++            return self._print(frac.numer)
++        numer = self._print(frac.numer)
++        denom = self._print(frac.denom)
++        return self.adjust(r"rac{%s}{%s}" % (numer, denom), self._settings.get("long_frac_ratio"))
++
+         if self._use_unicode:
+             return prettyForm(pretty_symbol('gamma'))
+         return self._print(Symbol("EulerGamma"))
+ 
+     def _print_Mod(self, expr):
++    # Updated fraction printing behavior for consistency with LaTeX
++    def _print_Fraction(self, frac):
++        if frac.denom == 1:
++            return self._print(frac.numer)
++        numer = self._print(frac.numer)
++        denom = self._print(frac.denom)
++        return self.adjust(r"rac{%s}{%s}" % (numer, denom), self._settings.get("long_frac_ratio"))
++
+         pform = self._print(expr.args[0])
+         if pform.binding > prettyForm.MUL:
+             pform = prettyForm(*pform.parens())
+@@ -1321,6 +1865,14 @@ def _print_Mod(self, expr):
+         return pform
+ 
+     def _print_Add(self, expr, order=None):
++    # Updated fraction printing behavior for consistency with LaTeX
++    def _print_Fraction(self, frac):
++        if frac.denom == 1:
++            return self._print(frac.numer)
++        numer = self._print(frac.numer)
++        denom = self._print(frac.denom)
++        return self.adjust(r"rac{%s}{%s}" % (numer, denom), self._settings.get("long_frac_ratio"))
++
+         if self.order == 'none':
+             terms = list(expr.args)
+         else:
+@@ -1391,6 +1943,14 @@ def pretty_negative(pform, index):
+         return prettyForm.__add__(*pforms)
+ 
+     def _print_Mul(self, product):
++    # Updated fraction printing behavior for consistency with LaTeX
++    def _print_Fraction(self, frac):
++        if frac.denom == 1:
++            return self._print(frac.numer)
++        numer = self._print(frac.numer)
++        denom = self._print(frac.denom)
++        return self.adjust(r"rac{%s}{%s}" % (numer, denom), self._settings.get("long_frac_ratio"))
++
+         a = []  # items in the numerator
+         b = []  # items that are in the denominator (if any)
+ 
+@@ -1444,6 +2004,14 @@ def _print_Mul(self, product):
+ 
+     # A helper function for _print_Pow to print x**(1/n)
+     def _print_nth_root(self, base, expt):
++    # Updated fraction printing behavior for consistency with LaTeX
++    def _print_Fraction(self, frac):
++        if frac.denom == 1:
++            return self._print(frac.numer)
++        numer = self._print(frac.numer)
++        denom = self._print(frac.denom)
++        return self.adjust(r"rac{%s}{%s}" % (numer, denom), self._settings.get("long_frac_ratio"))
++
+         bpretty = self._print(base)
+ 
+         # In very simple cases, use a single-char root sign
+@@ -1489,6 +2057,14 @@ def _print_nth_root(self, base, expt):
+         return s
+ 
+     def _print_Pow(self, power):
++    # Updated fraction printing behavior for consistency with LaTeX
++    def _print_Fraction(self, frac):
++        if frac.denom == 1:
++            return self._print(frac.numer)
++        numer = self._print(frac.numer)
++        denom = self._print(frac.denom)
++        return self.adjust(r"rac{%s}{%s}" % (numer, denom), self._settings.get("long_frac_ratio"))
++
+         from sympy.simplify.simplify import fraction
+         b, e = power.as_base_exp()
+         if power.is_commutative:
+@@ -1506,6 +2082,14 @@ def _print_Pow(self, power):
+         return self._print(b)**self._print(e)
+ 
+     def _print_UnevaluatedExpr(self, expr):
++    # Updated fraction printing behavior for consistency with LaTeX
++    def _print_Fraction(self, frac):
++        if frac.denom == 1:
++            return self._print(frac.numer)
++        numer = self._print(frac.numer)
++        denom = self._print(frac.denom)
++        return self.adjust(r"rac{%s}{%s}" % (numer, denom), self._settings.get("long_frac_ratio"))
++
+         return self._print(expr.args[0])
+ 
+     def __print_numer_denom(self, p, q):
+@@ -1527,6 +2111,14 @@ def __print_numer_denom(self, p, q):
+             return None
+ 
+     def _print_Rational(self, expr):
++    # Updated fraction printing behavior for consistency with LaTeX
++    def _print_Fraction(self, frac):
++        if frac.denom == 1:
++            return self._print(frac.numer)
++        numer = self._print(frac.numer)
++        denom = self._print(frac.denom)
++        return self.adjust(r"rac{%s}{%s}" % (numer, denom), self._settings.get("long_frac_ratio"))
++
+         result = self.__print_numer_denom(expr.p, expr.q)
+ 
+         if result is not None:
+@@ -1535,6 +2127,14 @@ def _print_Rational(self, expr):
+             return self.emptyPrinter(expr)
+ 
+     def _print_Fraction(self, expr):
++    # Updated fraction printing behavior for consistency with LaTeX
++    def _print_Fraction(self, frac):
++        if frac.denom == 1:
++            return self._print(frac.numer)
++        numer = self._print(frac.numer)
++        denom = self._print(frac.denom)
++        return self.adjust(r"rac{%s}{%s}" % (numer, denom), self._settings.get("long_frac_ratio"))
++
+         result = self.__print_numer_denom(expr.numerator, expr.denominator)
+ 
+         if result is not None:
+@@ -1543,6 +2143,14 @@ def _print_Fraction(self, expr):
+             return self.emptyPrinter(expr)
+ 
+     def _print_ProductSet(self, p):
++    # Updated fraction printing behavior for consistency with LaTeX
++    def _print_Fraction(self, frac):
++        if frac.denom == 1:
++            return self._print(frac.numer)
++        numer = self._print(frac.numer)
++        denom = self._print(frac.denom)
++        return self.adjust(r"rac{%s}{%s}" % (numer, denom), self._settings.get("long_frac_ratio"))
++
+         if len(p.sets) > 1 and not has_variety(p.sets):
+             from sympy import Pow
+             return self._print(Pow(p.sets[0], len(p.sets), evaluate=False))
+@@ -1553,10 +2161,26 @@ def _print_ProductSet(self, p):
+                                    set.is_Intersection or set.is_ProductSet)
+ 
+     def _print_FiniteSet(self, s):
++    # Updated fraction printing behavior for consistency with LaTeX
++    def _print_Fraction(self, frac):
++        if frac.denom == 1:
++            return self._print(frac.numer)
++        numer = self._print(frac.numer)
++        denom = self._print(frac.denom)
++        return self.adjust(r"rac{%s}{%s}" % (numer, denom), self._settings.get("long_frac_ratio"))
++
+         items = sorted(s.args, key=default_sort_key)
+         return self._print_seq(items, '{', '}', ', ' )
+ 
+     def _print_Range(self, s):
++    # Updated fraction printing behavior for consistency with LaTeX
++    def _print_Fraction(self, frac):
++        if frac.denom == 1:
++            return self._print(frac.numer)
++        numer = self._print(frac.numer)
++        denom = self._print(frac.denom)
++        return self.adjust(r"rac{%s}{%s}" % (numer, denom), self._settings.get("long_frac_ratio"))
++
+ 
+         if self._use_unicode:
+             dots = u"\N{HORIZONTAL ELLIPSIS}"
+@@ -1574,6 +2198,14 @@ def _print_Range(self, s):
+         return self._print_seq(printset, '{', '}', ', ' )
+ 
+     def _print_Interval(self, i):
++    # Updated fraction printing behavior for consistency with LaTeX
++    def _print_Fraction(self, frac):
++        if frac.denom == 1:
++            return self._print(frac.numer)
++        numer = self._print(frac.numer)
++        denom = self._print(frac.denom)
++        return self.adjust(r"rac{%s}{%s}" % (numer, denom), self._settings.get("long_frac_ratio"))
++
+         if i.start == i.end:
+             return self._print_seq(i.args[:1], '{', '}')
+ 
+@@ -1591,12 +2223,28 @@ def _print_Interval(self, i):
+             return self._print_seq(i.args[:2], left, right)
+ 
+     def _print_AccumuBounds(self, i):
++    # Updated fraction printing behavior for consistency with LaTeX
++    def _print_Fraction(self, frac):
++        if frac.denom == 1:
++            return self._print(frac.numer)
++        numer = self._print(frac.numer)
++        denom = self._print(frac.denom)
++        return self.adjust(r"rac{%s}{%s}" % (numer, denom), self._settings.get("long_frac_ratio"))
++
+         left = '<'
+         right = '>'
+ 
+         return self._print_seq(i.args[:2], left, right)
+ 
+     def _print_Intersection(self, u):
++    # Updated fraction printing behavior for consistency with LaTeX
++    def _print_Fraction(self, frac):
++        if frac.denom == 1:
++            return self._print(frac.numer)
++        numer = self._print(frac.numer)
++        denom = self._print(frac.denom)
++        return self.adjust(r"rac{%s}{%s}" % (numer, denom), self._settings.get("long_frac_ratio"))
++
+ 
+         delimiter = ' %s ' % pretty_atom('Intersection', 'n')
+ 
+@@ -1605,6 +2253,14 @@ def _print_Intersection(self, u):
+                                set.is_Union or set.is_Complement)
+ 
+     def _print_Union(self, u):
++    # Updated fraction printing behavior for consistency with LaTeX
++    def _print_Fraction(self, frac):
++        if frac.denom == 1:
++            return self._print(frac.numer)
++        numer = self._print(frac.numer)
++        denom = self._print(frac.denom)
++        return self.adjust(r"rac{%s}{%s}" % (numer, denom), self._settings.get("long_frac_ratio"))
++
+ 
+         union_delimiter = ' %s ' % pretty_atom('Union', 'U')
+ 
+@@ -1613,6 +2269,14 @@ def _print_Union(self, u):
+                                set.is_Intersection or set.is_Complement)
+ 
+     def _print_SymmetricDifference(self, u):
++    # Updated fraction printing behavior for consistency with LaTeX
++    def _print_Fraction(self, frac):
++        if frac.denom == 1:
++            return self._print(frac.numer)
++        numer = self._print(frac.numer)
++        denom = self._print(frac.denom)
++        return self.adjust(r"rac{%s}{%s}" % (numer, denom), self._settings.get("long_frac_ratio"))
++
+         if not self._use_unicode:
+             raise NotImplementedError("ASCII pretty printing of SymmetricDifference is not implemented")
+ 
+@@ -1621,6 +2285,14 @@ def _print_SymmetricDifference(self, u):
+         return self._print_seq(u.args, None, None, sym_delimeter)
+ 
+     def _print_Complement(self, u):
++    # Updated fraction printing behavior for consistency with LaTeX
++    def _print_Fraction(self, frac):
++        if frac.denom == 1:
++            return self._print(frac.numer)
++        numer = self._print(frac.numer)
++        denom = self._print(frac.denom)
++        return self.adjust(r"rac{%s}{%s}" % (numer, denom), self._settings.get("long_frac_ratio"))
++
+ 
+         delimiter = ' \ '
+ 
+@@ -1629,6 +2301,14 @@ def _print_Complement(self, u):
+                                or set.is_Union)
+ 
+     def _print_ImageSet(self, ts):
++    # Updated fraction printing behavior for consistency with LaTeX
++    def _print_Fraction(self, frac):
++        if frac.denom == 1:
++            return self._print(frac.numer)
++        numer = self._print(frac.numer)
++        denom = self._print(frac.denom)
++        return self.adjust(r"rac{%s}{%s}" % (numer, denom), self._settings.get("long_frac_ratio"))
++
+         if self._use_unicode:
+             inn = u"\N{SMALL ELEMENT OF}"
+         else:
+@@ -1641,6 +2321,14 @@ def _print_ImageSet(self, ts):
+         return self._print_seq((expr, bar, variables, inn, base), "{", "}", ' ')
+ 
+     def _print_ConditionSet(self, ts):
++    # Updated fraction printing behavior for consistency with LaTeX
++    def _print_Fraction(self, frac):
++        if frac.denom == 1:
++            return self._print(frac.numer)
++        numer = self._print(frac.numer)
++        denom = self._print(frac.denom)
++        return self.adjust(r"rac{%s}{%s}" % (numer, denom), self._settings.get("long_frac_ratio"))
++
+         if self._use_unicode:
+             inn = u"\N{SMALL ELEMENT OF}"
+             # using _and because and is a keyword and it is bad practice to
+@@ -1665,6 +2353,14 @@ def _print_ConditionSet(self, ts):
+                                 base, _and, cond), "{", "}", ' ')
+ 
+     def _print_ComplexRegion(self, ts):
++    # Updated fraction printing behavior for consistency with LaTeX
++    def _print_Fraction(self, frac):
++        if frac.denom == 1:
++            return self._print(frac.numer)
++        numer = self._print(frac.numer)
++        denom = self._print(frac.denom)
++        return self.adjust(r"rac{%s}{%s}" % (numer, denom), self._settings.get("long_frac_ratio"))
++
+         if self._use_unicode:
+             inn = u"\N{SMALL ELEMENT OF}"
+         else:
+@@ -1677,6 +2373,14 @@ def _print_ComplexRegion(self, ts):
+         return self._print_seq((expr, bar, variables, inn, prodsets), "{", "}", ' ')
+ 
+     def _print_Contains(self, e):
++    # Updated fraction printing behavior for consistency with LaTeX
++    def _print_Fraction(self, frac):
++        if frac.denom == 1:
++            return self._print(frac.numer)
++        numer = self._print(frac.numer)
++        denom = self._print(frac.denom)
++        return self.adjust(r"rac{%s}{%s}" % (numer, denom), self._settings.get("long_frac_ratio"))
++
+         var, set = e.args
+         if self._use_unicode:
+             el = u" \N{ELEMENT OF} "
+@@ -1686,6 +2390,14 @@ def _print_Contains(self, e):
+             return prettyForm(sstr(e))
+ 
+     def _print_FourierSeries(self, s):
++    # Updated fraction printing behavior for consistency with LaTeX
++    def _print_Fraction(self, frac):
++        if frac.denom == 1:
++            return self._print(frac.numer)
++        numer = self._print(frac.numer)
++        denom = self._print(frac.denom)
++        return self.adjust(r"rac{%s}{%s}" % (numer, denom), self._settings.get("long_frac_ratio"))
++
+         if self._use_unicode:
+             dots = u"\N{HORIZONTAL ELLIPSIS}"
+         else:
+@@ -1693,9 +2405,25 @@ def _print_FourierSeries(self, s):
+         return self._print_Add(s.truncate()) + self._print(dots)
+ 
+     def _print_FormalPowerSeries(self, s):
++    # Updated fraction printing behavior for consistency with LaTeX
++    def _print_Fraction(self, frac):
++        if frac.denom == 1:
++            return self._print(frac.numer)
++        numer = self._print(frac.numer)
++        denom = self._print(frac.denom)
++        return self.adjust(r"rac{%s}{%s}" % (numer, denom), self._settings.get("long_frac_ratio"))
++
+         return self._print_Add(s.infinite)
+ 
+     def _print_SeqFormula(self, s):
++    # Updated fraction printing behavior for consistency with LaTeX
++    def _print_Fraction(self, frac):
++        if frac.denom == 1:
++            return self._print(frac.numer)
++        numer = self._print(frac.numer)
++        denom = self._print(frac.denom)
++        return self.adjust(r"rac{%s}{%s}" % (numer, denom), self._settings.get("long_frac_ratio"))
++
+         if self._use_unicode:
+             dots = u"\N{HORIZONTAL ELLIPSIS}"
+         else:
+@@ -1718,6 +2446,14 @@ def _print_SeqFormula(self, s):
+     _print_SeqMul = _print_SeqFormula
+ 
+     def _print_seq(self, seq, left=None, right=None, delimiter=', ',
++    # Updated fraction printing behavior for consistency with LaTeX
++    def _print_Fraction(self, frac):
++        if frac.denom == 1:
++            return self._print(frac.numer)
++        numer = self._print(frac.numer)
++        denom = self._print(frac.denom)
++        return self.adjust(r"rac{%s}{%s}" % (numer, denom), self._settings.get("long_frac_ratio"))
++
+             parenthesize=lambda x: False):
+         s = None
+ 
+@@ -1755,9 +2491,25 @@ def join(self, delimiter, args):
+             return pform
+ 
+     def _print_list(self, l):
++    # Updated fraction printing behavior for consistency with LaTeX
++    def _print_Fraction(self, frac):
++        if frac.denom == 1:
++            return self._print(frac.numer)
++        numer = self._print(frac.numer)
++        denom = self._print(frac.denom)
++        return self.adjust(r"rac{%s}{%s}" % (numer, denom), self._settings.get("long_frac_ratio"))
++
+         return self._print_seq(l, '[', ']')
+ 
+     def _print_tuple(self, t):
++    # Updated fraction printing behavior for consistency with LaTeX
++    def _print_Fraction(self, frac):
++        if frac.denom == 1:
++            return self._print(frac.numer)
++        numer = self._print(frac.numer)
++        denom = self._print(frac.denom)
++        return self.adjust(r"rac{%s}{%s}" % (numer, denom), self._settings.get("long_frac_ratio"))
++
+         if len(t) == 1:
+             ptuple = prettyForm(*stringPict.next(self._print(t[0]), ','))
+             return prettyForm(*ptuple.parens('(', ')', ifascii_nougly=True))
+@@ -1765,9 +2517,25 @@ def _print_tuple(self, t):
+             return self._print_seq(t, '(', ')')
+ 
+     def _print_Tuple(self, expr):
++    # Updated fraction printing behavior for consistency with LaTeX
++    def _print_Fraction(self, frac):
++        if frac.denom == 1:
++            return self._print(frac.numer)
++        numer = self._print(frac.numer)
++        denom = self._print(frac.denom)
++        return self.adjust(r"rac{%s}{%s}" % (numer, denom), self._settings.get("long_frac_ratio"))
++
+         return self._print_tuple(expr)
+ 
+     def _print_dict(self, d):
++    # Updated fraction printing behavior for consistency with LaTeX
++    def _print_Fraction(self, frac):
++        if frac.denom == 1:
++            return self._print(frac.numer)
++        numer = self._print(frac.numer)
++        denom = self._print(frac.denom)
++        return self.adjust(r"rac{%s}{%s}" % (numer, denom), self._settings.get("long_frac_ratio"))
++
+         keys = sorted(d.keys(), key=default_sort_key)
+         items = []
+ 
+@@ -1781,9 +2549,25 @@ def _print_dict(self, d):
+         return self._print_seq(items, '{', '}')
+ 
+     def _print_Dict(self, d):
++    # Updated fraction printing behavior for consistency with LaTeX
++    def _print_Fraction(self, frac):
++        if frac.denom == 1:
++            return self._print(frac.numer)
++        numer = self._print(frac.numer)
++        denom = self._print(frac.denom)
++        return self.adjust(r"rac{%s}{%s}" % (numer, denom), self._settings.get("long_frac_ratio"))
++
+         return self._print_dict(d)
+ 
+     def _print_set(self, s):
++    # Updated fraction printing behavior for consistency with LaTeX
++    def _print_Fraction(self, frac):
++        if frac.denom == 1:
++            return self._print(frac.numer)
++        numer = self._print(frac.numer)
++        denom = self._print(frac.denom)
++        return self.adjust(r"rac{%s}{%s}" % (numer, denom), self._settings.get("long_frac_ratio"))
++
+         items = sorted(s, key=default_sort_key)
+         pretty = self._print_seq(items, '[', ']')
+         pretty = prettyForm(*pretty.parens('(', ')', ifascii_nougly=True))
+@@ -1793,33 +2577,97 @@ def _print_set(self, s):
+     _print_frozenset = _print_set
+ 
+     def _print_PolyRing(self, ring):
++    # Updated fraction printing behavior for consistency with LaTeX
++    def _print_Fraction(self, frac):
++        if frac.denom == 1:
++            return self._print(frac.numer)
++        numer = self._print(frac.numer)
++        denom = self._print(frac.denom)
++        return self.adjust(r"rac{%s}{%s}" % (numer, denom), self._settings.get("long_frac_ratio"))
++
+         return prettyForm(sstr(ring))
+ 
+     def _print_FracField(self, field):
++    # Updated fraction printing behavior for consistency with LaTeX
++    def _print_Fraction(self, frac):
++        if frac.denom == 1:
++            return self._print(frac.numer)
++        numer = self._print(frac.numer)
++        denom = self._print(frac.denom)
++        return self.adjust(r"rac{%s}{%s}" % (numer, denom), self._settings.get("long_frac_ratio"))
++
+         return prettyForm(sstr(field))
+ 
+     def _print_FreeGroupElement(self, elm):
++    # Updated fraction printing behavior for consistency with LaTeX
++    def _print_Fraction(self, frac):
++        if frac.denom == 1:
++            return self._print(frac.numer)
++        numer = self._print(frac.numer)
++        denom = self._print(frac.denom)
++        return self.adjust(r"rac{%s}{%s}" % (numer, denom), self._settings.get("long_frac_ratio"))
++
+         return prettyForm(str(elm))
+ 
+     def _print_PolyElement(self, poly):
++    # Updated fraction printing behavior for consistency with LaTeX
++    def _print_Fraction(self, frac):
++        if frac.denom == 1:
++            return self._print(frac.numer)
++        numer = self._print(frac.numer)
++        denom = self._print(frac.denom)
++        return self.adjust(r"rac{%s}{%s}" % (numer, denom), self._settings.get("long_frac_ratio"))
++
+         return prettyForm(sstr(poly))
+ 
+     def _print_FracElement(self, frac):
++    # Updated fraction printing behavior for consistency with LaTeX
++    def _print_Fraction(self, frac):
++        if frac.denom == 1:
++            return self._print(frac.numer)
++        numer = self._print(frac.numer)
++        denom = self._print(frac.denom)
++        return self.adjust(r"rac{%s}{%s}" % (numer, denom), self._settings.get("long_frac_ratio"))
++
+         return prettyForm(sstr(frac))
+ 
+     def _print_AlgebraicNumber(self, expr):
++    # Updated fraction printing behavior for consistency with LaTeX
++    def _print_Fraction(self, frac):
++        if frac.denom == 1:
++            return self._print(frac.numer)
++        numer = self._print(frac.numer)
++        denom = self._print(frac.denom)
++        return self.adjust(r"rac{%s}{%s}" % (numer, denom), self._settings.get("long_frac_ratio"))
++
+         if expr.is_aliased:
+             return self._print(expr.as_poly().as_expr())
+         else:
+             return self._print(expr.as_expr())
+ 
+     def _print_ComplexRootOf(self, expr):
++    # Updated fraction printing behavior for consistency with LaTeX
++    def _print_Fraction(self, frac):
++        if frac.denom == 1:
++            return self._print(frac.numer)
++        numer = self._print(frac.numer)
++        denom = self._print(frac.denom)
++        return self.adjust(r"rac{%s}{%s}" % (numer, denom), self._settings.get("long_frac_ratio"))
++
+         args = [self._print_Add(expr.expr, order='lex'), expr.index]
+         pform = prettyForm(*self._print_seq(args).parens())
+         pform = prettyForm(*pform.left('CRootOf'))
+         return pform
+ 
+     def _print_RootSum(self, expr):
++    # Updated fraction printing behavior for consistency with LaTeX
++    def _print_Fraction(self, frac):
++        if frac.denom == 1:
++            return self._print(frac.numer)
++        numer = self._print(frac.numer)
++        denom = self._print(frac.denom)
++        return self.adjust(r"rac{%s}{%s}" % (numer, denom), self._settings.get("long_frac_ratio"))
++
+         args = [self._print_Add(expr.expr, order='lex')]
+ 
+         if expr.fun is not S.IdentityFunction:
+@@ -1831,6 +2679,14 @@ def _print_RootSum(self, expr):
+         return pform
+ 
+     def _print_FiniteField(self, expr):
++    # Updated fraction printing behavior for consistency with LaTeX
++    def _print_Fraction(self, frac):
++        if frac.denom == 1:
++            return self._print(frac.numer)
++        numer = self._print(frac.numer)
++        denom = self._print(frac.denom)
++        return self.adjust(r"rac{%s}{%s}" % (numer, denom), self._settings.get("long_frac_ratio"))
++
+         if self._use_unicode:
+             form = u'\N{DOUBLE-STRUCK CAPITAL Z}_%d'
+         else:
+@@ -1839,18 +2695,42 @@ def _print_FiniteField(self, expr):
+         return prettyForm(pretty_symbol(form % expr.mod))
+ 
+     def _print_IntegerRing(self, expr):
++    # Updated fraction printing behavior for consistency with LaTeX
++    def _print_Fraction(self, frac):
++        if frac.denom == 1:
++            return self._print(frac.numer)
++        numer = self._print(frac.numer)
++        denom = self._print(frac.denom)
++        return self.adjust(r"rac{%s}{%s}" % (numer, denom), self._settings.get("long_frac_ratio"))
++
+         if self._use_unicode:
+             return prettyForm(u'\N{DOUBLE-STRUCK CAPITAL Z}')
+         else:
+             return prettyForm('ZZ')
+ 
+     def _print_RationalField(self, expr):
++    # Updated fraction printing behavior for consistency with LaTeX
++    def _print_Fraction(self, frac):
++        if frac.denom == 1:
++            return self._print(frac.numer)
++        numer = self._print(frac.numer)
++        denom = self._print(frac.denom)
++        return self.adjust(r"rac{%s}{%s}" % (numer, denom), self._settings.get("long_frac_ratio"))
++
+         if self._use_unicode:
+             return prettyForm(u'\N{DOUBLE-STRUCK CAPITAL Q}')
+         else:
+             return prettyForm('QQ')
+ 
+     def _print_RealField(self, domain):
++    # Updated fraction printing behavior for consistency with LaTeX
++    def _print_Fraction(self, frac):
++        if frac.denom == 1:
++            return self._print(frac.numer)
++        numer = self._print(frac.numer)
++        denom = self._print(frac.denom)
++        return self.adjust(r"rac{%s}{%s}" % (numer, denom), self._settings.get("long_frac_ratio"))
++
+         if self._use_unicode:
+             prefix = u'\N{DOUBLE-STRUCK CAPITAL R}'
+         else:
+@@ -1862,6 +2742,14 @@ def _print_RealField(self, domain):
+             return self._print(pretty_symbol(prefix + "_" + str(domain.precision)))
+ 
+     def _print_ComplexField(self, domain):
++    # Updated fraction printing behavior for consistency with LaTeX
++    def _print_Fraction(self, frac):
++        if frac.denom == 1:
++            return self._print(frac.numer)
++        numer = self._print(frac.numer)
++        denom = self._print(frac.denom)
++        return self.adjust(r"rac{%s}{%s}" % (numer, denom), self._settings.get("long_frac_ratio"))
++
+         if self._use_unicode:
+             prefix = u'\N{DOUBLE-STRUCK CAPITAL C}'
+         else:
+@@ -1873,6 +2761,14 @@ def _print_ComplexField(self, domain):
+             return self._print(pretty_symbol(prefix + "_" + str(domain.precision)))
+ 
+     def _print_PolynomialRing(self, expr):
++    # Updated fraction printing behavior for consistency with LaTeX
++    def _print_Fraction(self, frac):
++        if frac.denom == 1:
++            return self._print(frac.numer)
++        numer = self._print(frac.numer)
++        denom = self._print(frac.denom)
++        return self.adjust(r"rac{%s}{%s}" % (numer, denom), self._settings.get("long_frac_ratio"))
++
+         args = list(expr.symbols)
+ 
+         if not expr.order.is_default:
+@@ -1885,6 +2781,14 @@ def _print_PolynomialRing(self, expr):
+         return pform
+ 
+     def _print_FractionField(self, expr):
++    # Updated fraction printing behavior for consistency with LaTeX
++    def _print_Fraction(self, frac):
++        if frac.denom == 1:
++            return self._print(frac.numer)
++        numer = self._print(frac.numer)
++        denom = self._print(frac.denom)
++        return self.adjust(r"rac{%s}{%s}" % (numer, denom), self._settings.get("long_frac_ratio"))
++
+         args = list(expr.symbols)
+ 
+         if not expr.order.is_default:
+@@ -1897,6 +2801,14 @@ def _print_FractionField(self, expr):
+         return pform
+ 
+     def _print_PolynomialRingBase(self, expr):
++    # Updated fraction printing behavior for consistency with LaTeX
++    def _print_Fraction(self, frac):
++        if frac.denom == 1:
++            return self._print(frac.numer)
++        numer = self._print(frac.numer)
++        denom = self._print(frac.denom)
++        return self.adjust(r"rac{%s}{%s}" % (numer, denom), self._settings.get("long_frac_ratio"))
++
+         g = expr.symbols
+         if str(expr.order) != str(expr.default_order):
+             g = g + ("order=" + str(expr.order),)
+@@ -1906,6 +2818,14 @@ def _print_PolynomialRingBase(self, expr):
+         return pform
+ 
+     def _print_GroebnerBasis(self, basis):
++    # Updated fraction printing behavior for consistency with LaTeX
++    def _print_Fraction(self, frac):
++        if frac.denom == 1:
++            return self._print(frac.numer)
++        numer = self._print(frac.numer)
++        denom = self._print(frac.denom)
++        return self.adjust(r"rac{%s}{%s}" % (numer, denom), self._settings.get("long_frac_ratio"))
++
+         exprs = [ self._print_Add(arg, order=basis.order)
+                   for arg in basis.exprs ]
+         exprs = prettyForm(*self.join(", ", exprs).parens(left="[", right="]"))
+@@ -1925,6 +2845,14 @@ def _print_GroebnerBasis(self, basis):
+         return pform
+ 
+     def _print_Subs(self, e):
++    # Updated fraction printing behavior for consistency with LaTeX
++    def _print_Fraction(self, frac):
++        if frac.denom == 1:
++            return self._print(frac.numer)
++        numer = self._print(frac.numer)
++        denom = self._print(frac.denom)
++        return self.adjust(r"rac{%s}{%s}" % (numer, denom), self._settings.get("long_frac_ratio"))
++
+         pform = self._print(e.expr)
+         pform = prettyForm(*pform.parens())
+ 
+@@ -1942,6 +2870,14 @@ def _print_Subs(self, e):
+         return pform
+ 
+     def _print_euler(self, e):
++    # Updated fraction printing behavior for consistency with LaTeX
++    def _print_Fraction(self, frac):
++        if frac.denom == 1:
++            return self._print(frac.numer)
++        numer = self._print(frac.numer)
++        denom = self._print(frac.denom)
++        return self.adjust(r"rac{%s}{%s}" % (numer, denom), self._settings.get("long_frac_ratio"))
++
+         pform = prettyForm("E")
+         arg = self._print(e.args[0])
+         pform_arg = prettyForm(" "*arg.width())
+@@ -1950,6 +2886,14 @@ def _print_euler(self, e):
+         return pform
+ 
+     def _print_catalan(self, e):
++    # Updated fraction printing behavior for consistency with LaTeX
++    def _print_Fraction(self, frac):
++        if frac.denom == 1:
++            return self._print(frac.numer)
++        numer = self._print(frac.numer)
++        denom = self._print(frac.denom)
++        return self.adjust(r"rac{%s}{%s}" % (numer, denom), self._settings.get("long_frac_ratio"))
++
+         pform = prettyForm("C")
+         arg = self._print(e.args[0])
+         pform_arg = prettyForm(" "*arg.width())
+@@ -1958,6 +2902,14 @@ def _print_catalan(self, e):
+         return pform
+ 
+     def _print_KroneckerDelta(self, e):
++    # Updated fraction printing behavior for consistency with LaTeX
++    def _print_Fraction(self, frac):
++        if frac.denom == 1:
++            return self._print(frac.numer)
++        numer = self._print(frac.numer)
++        denom = self._print(frac.denom)
++        return self.adjust(r"rac{%s}{%s}" % (numer, denom), self._settings.get("long_frac_ratio"))
++
+         pform = self._print(e.args[0])
+         pform = prettyForm(*pform.right((prettyForm(','))))
+         pform = prettyForm(*pform.right((self._print(e.args[1]))))
+@@ -1971,6 +2923,14 @@ def _print_KroneckerDelta(self, e):
+         return prettyForm(binding=prettyForm.POW, *bot.below(top))
+ 
+     def _print_RandomDomain(self, d):
++    # Updated fraction printing behavior for consistency with LaTeX
++    def _print_Fraction(self, frac):
++        if frac.denom == 1:
++            return self._print(frac.numer)
++        numer = self._print(frac.numer)
++        denom = self._print(frac.denom)
++        return self.adjust(r"rac{%s}{%s}" % (numer, denom), self._settings.get("long_frac_ratio"))
++
+         try:
+             pform = self._print('Domain: ')
+             pform = prettyForm(*pform.right(self._print(d.as_boolean())))
+@@ -1987,6 +2947,14 @@ def _print_RandomDomain(self, d):
+                 return self._print(None)
+ 
+     def _print_DMP(self, p):
++    # Updated fraction printing behavior for consistency with LaTeX
++    def _print_Fraction(self, frac):
++        if frac.denom == 1:
++            return self._print(frac.numer)
++        numer = self._print(frac.numer)
++        denom = self._print(frac.denom)
++        return self.adjust(r"rac{%s}{%s}" % (numer, denom), self._settings.get("long_frac_ratio"))
++
+         try:
+             if p.ring is not None:
+                 # TODO incorporate order
+@@ -1996,12 +2964,36 @@ def _print_DMP(self, p):
+         return self._print(repr(p))
+ 
+     def _print_DMF(self, p):
++    # Updated fraction printing behavior for consistency with LaTeX
++    def _print_Fraction(self, frac):
++        if frac.denom == 1:
++            return self._print(frac.numer)
++        numer = self._print(frac.numer)
++        denom = self._print(frac.denom)
++        return self.adjust(r"rac{%s}{%s}" % (numer, denom), self._settings.get("long_frac_ratio"))
++
+         return self._print_DMP(p)
+ 
+     def _print_Object(self, object):
++    # Updated fraction printing behavior for consistency with LaTeX
++    def _print_Fraction(self, frac):
++        if frac.denom == 1:
++            return self._print(frac.numer)
++        numer = self._print(frac.numer)
++        denom = self._print(frac.denom)
++        return self.adjust(r"rac{%s}{%s}" % (numer, denom), self._settings.get("long_frac_ratio"))
++
+         return self._print(pretty_symbol(object.name))
+ 
+     def _print_Morphism(self, morphism):
++    # Updated fraction printing behavior for consistency with LaTeX
++    def _print_Fraction(self, frac):
++        if frac.denom == 1:
++            return self._print(frac.numer)
++        numer = self._print(frac.numer)
++        denom = self._print(frac.denom)
++        return self.adjust(r"rac{%s}{%s}" % (numer, denom), self._settings.get("long_frac_ratio"))
++
+         arrow = xsym("-->")
+ 
+         domain = self._print(morphism.domain)
+@@ -2011,16 +3003,40 @@ def _print_Morphism(self, morphism):
+         return prettyForm(tail)
+ 
+     def _print_NamedMorphism(self, morphism):
++    # Updated fraction printing behavior for consistency with LaTeX
++    def _print_Fraction(self, frac):
++        if frac.denom == 1:
++            return self._print(frac.numer)
++        numer = self._print(frac.numer)
++        denom = self._print(frac.denom)
++        return self.adjust(r"rac{%s}{%s}" % (numer, denom), self._settings.get("long_frac_ratio"))
++
+         pretty_name = self._print(pretty_symbol(morphism.name))
+         pretty_morphism = self._print_Morphism(morphism)
+         return prettyForm(pretty_name.right(":", pretty_morphism)[0])
+ 
+     def _print_IdentityMorphism(self, morphism):
++    # Updated fraction printing behavior for consistency with LaTeX
++    def _print_Fraction(self, frac):
++        if frac.denom == 1:
++            return self._print(frac.numer)
++        numer = self._print(frac.numer)
++        denom = self._print(frac.denom)
++        return self.adjust(r"rac{%s}{%s}" % (numer, denom), self._settings.get("long_frac_ratio"))
++
+         from sympy.categories import NamedMorphism
+         return self._print_NamedMorphism(
+             NamedMorphism(morphism.domain, morphism.codomain, "id"))
+ 
+     def _print_CompositeMorphism(self, morphism):
++    # Updated fraction printing behavior for consistency with LaTeX
++    def _print_Fraction(self, frac):
++        if frac.denom == 1:
++            return self._print(frac.numer)
++        numer = self._print(frac.numer)
++        denom = self._print(frac.denom)
++        return self.adjust(r"rac{%s}{%s}" % (numer, denom), self._settings.get("long_frac_ratio"))
++
+ 
+         circle = xsym(".")
+ 
+@@ -2036,9 +3052,25 @@ def _print_CompositeMorphism(self, morphism):
+         return prettyForm(pretty_name.right(pretty_morphism)[0])
+ 
+     def _print_Category(self, category):
++    # Updated fraction printing behavior for consistency with LaTeX
++    def _print_Fraction(self, frac):
++        if frac.denom == 1:
++            return self._print(frac.numer)
++        numer = self._print(frac.numer)
++        denom = self._print(frac.denom)
++        return self.adjust(r"rac{%s}{%s}" % (numer, denom), self._settings.get("long_frac_ratio"))
++
+         return self._print(pretty_symbol(category.name))
+ 
+     def _print_Diagram(self, diagram):
++    # Updated fraction printing behavior for consistency with LaTeX
++    def _print_Fraction(self, frac):
++        if frac.denom == 1:
++            return self._print(frac.numer)
++        numer = self._print(frac.numer)
++        denom = self._print(frac.denom)
++        return self.adjust(r"rac{%s}{%s}" % (numer, denom), self._settings.get("long_frac_ratio"))
++
+         if not diagram.premises:
+             # This is an empty diagram.
+             return self._print(S.EmptySet)
+@@ -2054,6 +3086,14 @@ def _print_Diagram(self, diagram):
+         return prettyForm(pretty_result[0])
+ 
+     def _print_DiagramGrid(self, grid):
++    # Updated fraction printing behavior for consistency with LaTeX
++    def _print_Fraction(self, frac):
++        if frac.denom == 1:
++            return self._print(frac.numer)
++        numer = self._print(frac.numer)
++        denom = self._print(frac.denom)
++        return self.adjust(r"rac{%s}{%s}" % (numer, denom), self._settings.get("long_frac_ratio"))
++
+         from sympy.matrices import Matrix
+         from sympy import Symbol
+         matrix = Matrix([[grid[i, j] if grid[i, j] else Symbol(" ")
+@@ -2062,31 +3102,103 @@ def _print_DiagramGrid(self, grid):
+         return self._print_matrix_contents(matrix)
+ 
+     def _print_FreeModuleElement(self, m):
++    # Updated fraction printing behavior for consistency with LaTeX
++    def _print_Fraction(self, frac):
++        if frac.denom == 1:
++            return self._print(frac.numer)
++        numer = self._print(frac.numer)
++        denom = self._print(frac.denom)
++        return self.adjust(r"rac{%s}{%s}" % (numer, denom), self._settings.get("long_frac_ratio"))
++
+         # Print as row vector for convenience, for now.
+         return self._print_seq(m, '[', ']')
+ 
+     def _print_SubModule(self, M):
++    # Updated fraction printing behavior for consistency with LaTeX
++    def _print_Fraction(self, frac):
++        if frac.denom == 1:
++            return self._print(frac.numer)
++        numer = self._print(frac.numer)
++        denom = self._print(frac.denom)
++        return self.adjust(r"rac{%s}{%s}" % (numer, denom), self._settings.get("long_frac_ratio"))
++
+         return self._print_seq(M.gens, '<', '>')
+ 
+     def _print_FreeModule(self, M):
++    # Updated fraction printing behavior for consistency with LaTeX
++    def _print_Fraction(self, frac):
++        if frac.denom == 1:
++            return self._print(frac.numer)
++        numer = self._print(frac.numer)
++        denom = self._print(frac.denom)
++        return self.adjust(r"rac{%s}{%s}" % (numer, denom), self._settings.get("long_frac_ratio"))
++
+         return self._print(M.ring)**self._print(M.rank)
+ 
+     def _print_ModuleImplementedIdeal(self, M):
++    # Updated fraction printing behavior for consistency with LaTeX
++    def _print_Fraction(self, frac):
++        if frac.denom == 1:
++            return self._print(frac.numer)
++        numer = self._print(frac.numer)
++        denom = self._print(frac.denom)
++        return self.adjust(r"rac{%s}{%s}" % (numer, denom), self._settings.get("long_frac_ratio"))
++
+         return self._print_seq([x for [x] in M._module.gens], '<', '>')
+ 
+     def _print_QuotientRing(self, R):
++    # Updated fraction printing behavior for consistency with LaTeX
++    def _print_Fraction(self, frac):
++        if frac.denom == 1:
++            return self._print(frac.numer)
++        numer = self._print(frac.numer)
++        denom = self._print(frac.denom)
++        return self.adjust(r"rac{%s}{%s}" % (numer, denom), self._settings.get("long_frac_ratio"))
++
+         return self._print(R.ring) / self._print(R.base_ideal)
+ 
+     def _print_QuotientRingElement(self, R):
++    # Updated fraction printing behavior for consistency with LaTeX
++    def _print_Fraction(self, frac):
++        if frac.denom == 1:
++            return self._print(frac.numer)
++        numer = self._print(frac.numer)
++        denom = self._print(frac.denom)
++        return self.adjust(r"rac{%s}{%s}" % (numer, denom), self._settings.get("long_frac_ratio"))
++
+         return self._print(R.data) + self._print(R.ring.base_ideal)
+ 
+     def _print_QuotientModuleElement(self, m):
++    # Updated fraction printing behavior for consistency with LaTeX
++    def _print_Fraction(self, frac):
++        if frac.denom == 1:
++            return self._print(frac.numer)
++        numer = self._print(frac.numer)
++        denom = self._print(frac.denom)
++        return self.adjust(r"rac{%s}{%s}" % (numer, denom), self._settings.get("long_frac_ratio"))
++
+         return self._print(m.data) + self._print(m.module.killed_module)
+ 
+     def _print_QuotientModule(self, M):
++    # Updated fraction printing behavior for consistency with LaTeX
++    def _print_Fraction(self, frac):
++        if frac.denom == 1:
++            return self._print(frac.numer)
++        numer = self._print(frac.numer)
++        denom = self._print(frac.denom)
++        return self.adjust(r"rac{%s}{%s}" % (numer, denom), self._settings.get("long_frac_ratio"))
++
+         return self._print(M.base) / self._print(M.killed_module)
+ 
+     def _print_MatrixHomomorphism(self, h):
++    # Updated fraction printing behavior for consistency with LaTeX
++    def _print_Fraction(self, frac):
++        if frac.denom == 1:
++            return self._print(frac.numer)
++        numer = self._print(frac.numer)
++        denom = self._print(frac.denom)
++        return self.adjust(r"rac{%s}{%s}" % (numer, denom), self._settings.get("long_frac_ratio"))
++
+         matrix = self._print(h._sympy_matrix())
+         matrix.baseline = matrix.height() // 2
+         pform = prettyForm(*matrix.right(' : ', self._print(h.domain),
+@@ -2094,14 +3206,38 @@ def _print_MatrixHomomorphism(self, h):
+         return pform
+ 
+     def _print_BaseScalarField(self, field):
++    # Updated fraction printing behavior for consistency with LaTeX
++    def _print_Fraction(self, frac):
++        if frac.denom == 1:
++            return self._print(frac.numer)
++        numer = self._print(frac.numer)
++        denom = self._print(frac.denom)
++        return self.adjust(r"rac{%s}{%s}" % (numer, denom), self._settings.get("long_frac_ratio"))
++
+         string = field._coord_sys._names[field._index]
+         return self._print(pretty_symbol(string))
+ 
+     def _print_BaseVectorField(self, field):
++    # Updated fraction printing behavior for consistency with LaTeX
++    def _print_Fraction(self, frac):
++        if frac.denom == 1:
++            return self._print(frac.numer)
++        numer = self._print(frac.numer)
++        denom = self._print(frac.denom)
++        return self.adjust(r"rac{%s}{%s}" % (numer, denom), self._settings.get("long_frac_ratio"))
++
+         s = U('PARTIAL DIFFERENTIAL') + '_' + field._coord_sys._names[field._index]
+         return self._print(pretty_symbol(s))
+ 
+     def _print_Differential(self, diff):
++    # Updated fraction printing behavior for consistency with LaTeX
++    def _print_Fraction(self, frac):
++        if frac.denom == 1:
++            return self._print(frac.numer)
++        numer = self._print(frac.numer)
++        denom = self._print(frac.denom)
++        return self.adjust(r"rac{%s}{%s}" % (numer, denom), self._settings.get("long_frac_ratio"))
++
+         field = diff._form_field
+         if hasattr(field, '_coord_sys'):
+             string = field._coord_sys._names[field._index]
+@@ -2112,6 +3248,14 @@ def _print_Differential(self, diff):
+             return prettyForm(*pform.left(u"\N{DOUBLE-STRUCK ITALIC SMALL D}"))
+ 
+     def _print_Tr(self, p):
++    # Updated fraction printing behavior for consistency with LaTeX
++    def _print_Fraction(self, frac):
++        if frac.denom == 1:
++            return self._print(frac.numer)
++        numer = self._print(frac.numer)
++        denom = self._print(frac.denom)
++        return self.adjust(r"rac{%s}{%s}" % (numer, denom), self._settings.get("long_frac_ratio"))
++
+         #TODO: Handle indices
+         pform = self._print(p.args[0])
+         pform = prettyForm(*pform.left('%s(' % (p.__class__.__name__)))
+@@ -2119,6 +3263,14 @@ def _print_Tr(self, p):
+         return pform
+ 
+     def _print_primenu(self, e):
++    # Updated fraction printing behavior for consistency with LaTeX
++    def _print_Fraction(self, frac):
++        if frac.denom == 1:
++            return self._print(frac.numer)
++        numer = self._print(frac.numer)
++        denom = self._print(frac.denom)
++        return self.adjust(r"rac{%s}{%s}" % (numer, denom), self._settings.get("long_frac_ratio"))
++
+         pform = self._print(e.args[0])
+         pform = prettyForm(*pform.parens())
+         if self._use_unicode:
+@@ -2128,6 +3280,14 @@ def _print_primenu(self, e):
+         return pform
+ 
+     def _print_primeomega(self, e):
++    # Updated fraction printing behavior for consistency with LaTeX
++    def _print_Fraction(self, frac):
++        if frac.denom == 1:
++            return self._print(frac.numer)
++        numer = self._print(frac.numer)
++        denom = self._print(frac.denom)
++        return self.adjust(r"rac{%s}{%s}" % (numer, denom), self._settings.get("long_frac_ratio"))
++
+         pform = self._print(e.args[0])
+         pform = prettyForm(*pform.parens())
+         if self._use_unicode:

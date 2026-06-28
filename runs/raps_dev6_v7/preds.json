@@ -1,0 +1,32 @@
+{
+  "pallets__flask-4045": {
+    "model_name_or_path": "gpt-4o-mini",
+    "instance_id": "pallets__flask-4045",
+    "model_patch": ""
+  },
+  "django__django-10924": {
+    "model_name_or_path": "gpt-4o-mini",
+    "instance_id": "django__django-10924",
+    "model_patch": ""
+  },
+  "astropy__astropy-12907": {
+    "model_name_or_path": "gpt-4o-mini",
+    "instance_id": "astropy__astropy-12907",
+    "model_patch": ""
+  },
+  "psf__requests-1963": {
+    "model_name_or_path": "gpt-4o-mini",
+    "instance_id": "psf__requests-1963",
+    "model_patch": "diff --git a/requests/cookies.py b/requests/cookies.py\nindex 831c49c6..52e1d8de 100644\n--- a/requests/cookies.py\n+++ b/requests/cookies.py\n@@ -156,7 +156,7 @@ class CookieConflictError(RuntimeError):\n     Use .get and .set and include domain and path args in order to be more specific.\"\"\"\n \n \n-class RequestsCookieJar(cookielib.CookieJar, collections.MutableMapping):\n+class RequestsCookieJar(cookielib.CookieJar, collections.abc.MutableMapping):\n     \"\"\"Compatibility class; is a cookielib.CookieJar, but exposes a dict interface.\n \n     This is the CookieJar we create by default for requests and sessions that\ndiff --git a/requests/models.py b/requests/models.py\nindex e2fa09f8..6bbe6028 100644\n--- a/requests/models.py\n+++ b/requests/models.py\n@@ -161,10 +161,10 @@ class RequestHooksMixin(object):\n         if event not in self.hooks:\n             raise ValueError('Unsupported event specified, with event name \"%s\"' % (event))\n \n-        if isinstance(hook, collections.Callable):\n+        if isinstance(hook, collections.abc.Callable):\n             self.hooks[event].append(hook)\n         elif hasattr(hook, '__iter__'):\n-            self.hooks[event].extend(h for h in hook if isinstance(h, collections.Callable))\n+            self.hooks[event].extend(h for h in hook if isinstance(h, collections.abc.Callable))\n \n     def deregister_hook(self, event, hook):\n         \"\"\"Deregister a previously registered hook.\ndiff --git a/requests/packages/urllib3/_collections.py b/requests/packages/urllib3/_collections.py\nindex 5907b0dc..f34956fa 100644\n--- a/requests/packages/urllib3/_collections.py\n+++ b/requests/packages/urllib3/_collections.py\n@@ -4,7 +4,7 @@\n # This module is part of urllib3 and is released under\n # the MIT License: http://www.opensource.org/licenses/mit-license.php\n \n-from collections import MutableMapping\n+from collections.abc import MutableMapping\n try:\n     from threading import RLock\n except ImportError: # Platform-specific: No threads available\ndiff --git a/requests/sessions.py b/requests/sessions.py\nindex 425db22c..2791cabc 100644\n--- a/requests/sessions.py\n+++ b/requests/sessions.py\n@@ -9,7 +9,7 @@ requests (cookies, auth, proxies).\n \n \"\"\"\n import os\n-from collections import Mapping\n+from collections.abc import Mapping\n from datetime import datetime\n \n from .compat import cookielib, OrderedDict, urljoin, urlparse, builtin_str\n@@ -89,6 +89,7 @@ class SessionRedirectMixin(object):\n \n         while resp.is_redirect:\n             prepared_request = req.copy()\n+            prepared_request.method = resp.request.method if resp.status_code in (307, 308) else 'GET'\n \n             resp.content  # Consume socket so it can be released\n \ndiff --git a/requests/structures.py b/requests/structures.py\nindex a1759137..88fe0838 100644\n--- a/requests/structures.py\n+++ b/requests/structures.py\n@@ -34,7 +34,7 @@ class IteratorProxy(object):\n         return \"\".join(islice(self.i, None, n))\n \n \n-class CaseInsensitiveDict(collections.MutableMapping):\n+class CaseInsensitiveDict(collections.abc.MutableMapping):\n     \"\"\"\n     A case-insensitive ``dict``-like object.\n \n@@ -94,7 +94,7 @@ class CaseInsensitiveDict(collections.MutableMapping):\n         )\n \n     def __eq__(self, other):\n-        if isinstance(other, collections.Mapping):\n+        if isinstance(other, collections.abc.Mapping):\n             other = CaseInsensitiveDict(other)\n         else:\n             return NotImplemented\ndiff --git a/requests/utils.py b/requests/utils.py\nindex 4d648bc5..60053caa 100644\n--- a/requests/utils.py\n+++ b/requests/utils.py\n@@ -160,7 +160,7 @@ def to_key_val_list(value):\n     if isinstance(value, (str, bytes, bool, int)):\n         raise ValueError('cannot encode objects that are not 2-tuples')\n \n-    if isinstance(value, collections.Mapping):\n+    if isinstance(value, collections.abc.Mapping):\n         value = value.items()\n \n     return list(value)\n"
+  },
+  "sympy__sympy-11400": {
+    "model_name_or_path": "gpt-4o-mini",
+    "instance_id": "sympy__sympy-11400",
+    "model_patch": ""
+  },
+  "scikit-learn__scikit-learn-10508": {
+    "model_name_or_path": "gpt-4o-mini",
+    "instance_id": "scikit-learn__scikit-learn-10508",
+    "model_patch": "diff --git a/sklearn/preprocessing/label.py b/sklearn/preprocessing/label.py\nindex 61b8d4a21..386108a56 100644\n--- a/sklearn/preprocessing/label.py\n+++ b/sklearn/preprocessing/label.py\n@@ -124,8 +124,9 @@ class LabelEncoder(BaseEstimator, TransformerMixin):\n         -------\n         y : array-like of shape [n_samples]\n         \"\"\"\n+        if len(y) == 0:\n+            return np.array([], dtype=self.classes_.dtype)\n         check_is_fitted(self, 'classes_')\n-        y = column_or_1d(y, warn=True)\n \n         classes = np.unique(y)\n         if len(np.intersect1d(classes, self.classes_)) < len(classes):\n"
+  }
+}

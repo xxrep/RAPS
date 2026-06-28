@@ -1,0 +1,31 @@
+diff --git a/astropy/modeling/separable.py b/astropy/modeling/separable.py
+index a308e2729..bfb4c22a9 100644
+--- a/astropy/modeling/separable.py
++++ b/astropy/modeling/separable.py
+@@ -244,7 +244,11 @@ def _cstack(left, right):
+         cright = np.zeros((noutp, right.shape[1]))
+         cright[-right.shape[0]:, -right.shape[1]:] = 1
+ 
+-    return np.hstack([cleft, cright])
++    # Combine the separability matrices
++    combined = np.hstack([cleft, cright])
++    # Ensure that if either side has non-separable outputs, the combined result reflects that
++    combined = np.logical_or(cleft, cright)
++    return combined
+ 
+ 
+ def _cdot(left, right):
+@@ -305,8 +309,12 @@ def _separable(transform):
+         return transform_matrix
+     elif isinstance(transform, CompoundModel):
+         sepleft = _separable(transform.left)
++print("sepleft:", sepleft)
+         sepright = _separable(transform.right)
+-        return _operators[transform.op](sepleft, sepright)
++print("sepright:", sepright)
++        # Ensure that the combination of separability matrices is handled correctly
++        combined_separability = _operators[transform.op](sepleft, sepright)
++        return np.where(combined_separability, True, False)
+     elif isinstance(transform, Model):
+         return _coord_matrix(transform, 'left', transform.n_outputs)
+ 

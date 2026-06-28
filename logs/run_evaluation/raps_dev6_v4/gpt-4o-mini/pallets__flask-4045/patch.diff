@@ -1,0 +1,13 @@
+diff --git a/src/flask/app.py b/src/flask/app.py
+index f0f31486..381e16af 100644
+--- a/src/flask/app.py
++++ b/src/flask/app.py
+@@ -1002,6 +1002,8 @@ class Flask(Scaffold):
+ 
+     @setupmethod
+     def register_blueprint(self, blueprint: "Blueprint", **options: t.Any) -> None:
++        if "." in blueprint.name:
++            raise BadRequest("Blueprint name cannot contain a dot.")
+         """Register a :class:`~flask.Blueprint` on the application. Keyword
+         arguments passed to this method will override the defaults set on the
+         blueprint.

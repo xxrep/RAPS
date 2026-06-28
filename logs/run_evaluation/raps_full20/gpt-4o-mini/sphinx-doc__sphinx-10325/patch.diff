@@ -1,0 +1,22 @@
+diff --git a/sphinx/ext/apidoc.py b/sphinx/ext/apidoc.py
+index 68afc83b8..7c29a718c 100644
+--- a/sphinx/ext/apidoc.py
++++ b/sphinx/ext/apidoc.py
+@@ -115,7 +115,7 @@ def create_package_file(root: str, master_package: str, subroot: str, py_files:
+                    if not is_skipped_package(path.join(root, pkgname), opts, excludes)]
+     # build a list of sub modules
+     submodules = [sub.split('.')[0] for sub in py_files
+-                  if not is_skipped_module(path.join(root, sub), opts, excludes) and
++                  if not is_skipped_module(path.join(root, sub), opts, excludes, ignore_classes) and
+                   not is_initpy(sub)]
+     submodules = [module_join(master_package, subroot, modname)
+                   for modname in submodules]
+@@ -183,7 +183,7 @@ def is_skipped_package(dirname: str, opts: Any, excludes: List[str] = []) -> boo
+         return False
+ 
+ 
+-def is_skipped_module(filename: str, opts: Any, excludes: List[str]) -> bool:
++def is_skipped_module(filename: str, opts: Any, excludes: List[str], ignore_classes: List[str] = []) -> bool:
+     """Check if we want to skip this module."""
+     if not path.exists(filename):
+         # skip if the file doesn't exist

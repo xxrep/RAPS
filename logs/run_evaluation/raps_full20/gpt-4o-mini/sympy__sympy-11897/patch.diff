@@ -1,0 +1,20 @@
+diff --git a/sympy/printing/latex.py b/sympy/printing/latex.py
+index 1edc712358..50d87b64bd 100644
+--- a/sympy/printing/latex.py
++++ b/sympy/printing/latex.py
+@@ -172,7 +172,14 @@ def parenthesize(self, item, level, strict=False):
+             return self._print(item)
+ 
+     def doprint(self, expr):
+-        tex = Printer.doprint(self, expr)
++        if isinstance(expr, Add):
++            terms = expr.args
++            tex = " + ".join(self.doprint(term) for term in terms)
++        elif isinstance(expr, Mul):
++            factors = expr.args
++            tex = " \\cdot ".join(self.doprint(factor) for factor in factors)
++        else:
++            tex = Printer.doprint(self, expr)
+ 
+         if self._settings['mode'] == 'plain':
+             return tex

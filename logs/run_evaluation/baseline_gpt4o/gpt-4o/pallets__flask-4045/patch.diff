@@ -1,0 +1,46 @@
+diff --git a/src/flask/blueprints.py b/src/flask/blueprints.py
+index 5fb84d86..3a157bcc 100644
+--- a/src/flask/blueprints.py
++++ b/src/flask/blueprints.py
+@@ -167,7 +167,6 @@ class Blueprint(Scaffold):
+     #: Blueprint local JSON decoder class to use. Set to ``None`` to use
+     #: the app's :class:`~flask.Flask.json_decoder`.
+     json_decoder = None
+-
+     def __init__(
+         self,
+         name: str,
+@@ -181,6 +180,9 @@ class Blueprint(Scaffold):
+         root_path: t.Optional[str] = None,
+         cli_group: t.Optional[str] = _sentinel,  # type: ignore
+     ):
++        if "." in name:
++            raise ValueError("Blueprint names must not contain dots (\".\") to avoid ambiguity with nested blueprints.")
++
+         super().__init__(
+             import_name=import_name,
+             static_folder=static_folder,
+@@ -188,9 +190,11 @@ class Blueprint(Scaffold):
+             template_folder=template_folder,
+             root_path=root_path,
+         )
++
+         self.name = name
+         self.url_prefix = url_prefix
+         self.subdomain = subdomain
++
+         self.deferred_functions: t.List[DeferredSetupFunction] = []
+ 
+         if url_defaults is None:
+@@ -199,11 +203,6 @@ class Blueprint(Scaffold):
+         self.url_values_defaults = url_defaults
+         self.cli_group = cli_group
+         self._blueprints: t.List[t.Tuple["Blueprint", dict]] = []
+-
+-    def _is_setup_finished(self) -> bool:
+-        return self.warn_on_modifications and self._got_registered_once
+-
+-    def record(self, func: t.Callable) -> None:
+         """Registers a function that is called when the blueprint is
+         registered on the application.  This function is called with the
+         state as argument as returned by the :meth:`make_setup_state`

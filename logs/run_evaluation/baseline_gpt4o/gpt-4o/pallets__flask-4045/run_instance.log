@@ -1,0 +1,111 @@
+2026-06-16 12:05:38,269 - INFO - Creating container for pallets__flask-4045...
+2026-06-16 12:05:38,289 - INFO - Container for pallets__flask-4045 created: 735a43073fee04b6563f022162c3c7d97c37d172684f2e210ae1e65c82be9c75
+2026-06-16 12:05:38,486 - INFO - Container for pallets__flask-4045 started: 735a43073fee04b6563f022162c3c7d97c37d172684f2e210ae1e65c82be9c75
+2026-06-16 12:05:38,486 - INFO - Intermediate patch for pallets__flask-4045 written to logs/run_evaluation/baseline_gpt4o/gpt-4o/pallets__flask-4045/patch.diff, now applying to container...
+2026-06-16 12:05:38,605 - INFO - >>>>> Applied Patch:
+Checking patch src/flask/blueprints.py...
+Applied patch src/flask/blueprints.py cleanly.
+
+2026-06-16 12:05:38,688 - INFO - Git diff before:
+diff --git a/src/flask/blueprints.py b/src/flask/blueprints.py
+index 5fb84d86..3a157bcc 100644
+--- a/src/flask/blueprints.py
++++ b/src/flask/blueprints.py
+@@ -167,7 +167,6 @@ class Blueprint(Scaffold):
+     #: Blueprint local JSON decoder class to use. Set to ``None`` to use
+     #: the app's :class:`~flask.Flask.json_decoder`.
+     json_decoder = None
+-
+     def __init__(
+         self,
+         name: str,
+@@ -181,6 +180,9 @@ class Blueprint(Scaffold):
+         root_path: t.Optional[str] = None,
+         cli_group: t.Optional[str] = _sentinel,  # type: ignore
+     ):
++        if "." in name:
++            raise ValueError("Blueprint names must not contain dots (\".\") to avoid ambiguity with nested blueprints.")
++
+         super().__init__(
+             import_name=import_name,
+             static_folder=static_folder,
+@@ -188,9 +190,11 @@ class Blueprint(Scaffold):
+             template_folder=template_folder,
+             root_path=root_path,
+         )
++
+         self.name = name
+         self.url_prefix = url_prefix
+         self.subdomain = subdomain
++
+         self.deferred_functions: t.List[DeferredSetupFunction] = []
+ 
+         if url_defaults is None:
+@@ -199,11 +203,6 @@ class Blueprint(Scaffold):
+         self.url_values_defaults = url_defaults
+         self.cli_group = cli_group
+         self._blueprints: t.List[t.Tuple["Blueprint", dict]] = []
+-
+-    def _is_setup_finished(self) -> bool:
+-        return self.warn_on_modifications and self._got_registered_once
+-
+-    def record(self, func: t.Callable) -> None:
+         """Registers a function that is called when the blueprint is
+         registered on the application.  This function is called with the
+         state as argument as returned by the :meth:`make_setup_state`
+2026-06-16 12:05:38,688 - INFO - Eval script for pallets__flask-4045 written to logs/run_evaluation/baseline_gpt4o/gpt-4o/pallets__flask-4045/eval.sh; copying to container...
+2026-06-16 12:05:47,953 - INFO - Test runtime: 9.20 seconds
+2026-06-16 12:05:47,956 - INFO - Test output for pallets__flask-4045 written to logs/run_evaluation/baseline_gpt4o/gpt-4o/pallets__flask-4045/test_output.txt
+2026-06-16 12:05:48,017 - INFO - Git diff after:
+diff --git a/src/flask/blueprints.py b/src/flask/blueprints.py
+index 5fb84d86..3a157bcc 100644
+--- a/src/flask/blueprints.py
++++ b/src/flask/blueprints.py
+@@ -167,7 +167,6 @@ class Blueprint(Scaffold):
+     #: Blueprint local JSON decoder class to use. Set to ``None`` to use
+     #: the app's :class:`~flask.Flask.json_decoder`.
+     json_decoder = None
+-
+     def __init__(
+         self,
+         name: str,
+@@ -181,6 +180,9 @@ class Blueprint(Scaffold):
+         root_path: t.Optional[str] = None,
+         cli_group: t.Optional[str] = _sentinel,  # type: ignore
+     ):
++        if "." in name:
++            raise ValueError("Blueprint names must not contain dots (\".\") to avoid ambiguity with nested blueprints.")
++
+         super().__init__(
+             import_name=import_name,
+             static_folder=static_folder,
+@@ -188,9 +190,11 @@ class Blueprint(Scaffold):
+             template_folder=template_folder,
+             root_path=root_path,
+         )
++
+         self.name = name
+         self.url_prefix = url_prefix
+         self.subdomain = subdomain
++
+         self.deferred_functions: t.List[DeferredSetupFunction] = []
+ 
+         if url_defaults is None:
+@@ -199,11 +203,6 @@ class Blueprint(Scaffold):
+         self.url_values_defaults = url_defaults
+         self.cli_group = cli_group
+         self._blueprints: t.List[t.Tuple["Blueprint", dict]] = []
+-
+-    def _is_setup_finished(self) -> bool:
+-        return self.warn_on_modifications and self._got_registered_once
+-
+-    def record(self, func: t.Callable) -> None:
+         """Registers a function that is called when the blueprint is
+         registered on the application.  This function is called with the
+         state as argument as returned by the :meth:`make_setup_state`
+2026-06-16 12:05:48,017 - INFO - Grading answer for pallets__flask-4045...
+2026-06-16 12:05:48,050 - INFO - report: {'pallets__flask-4045': {'patch_is_None': False, 'patch_exists': True, 'patch_successfully_applied': True, 'resolved': False, 'tests_status': {'FAIL_TO_PASS': {'success': ['tests/test_blueprints.py::test_dotted_name_not_allowed'], 'failure': ['tests/test_blueprints.py::test_route_decorator_custom_endpoint_with_dots']}, 'PASS_TO_PASS': {'success': ['tests/test_basic.py::test_method_route_no_methods', 'tests/test_basic.py::test_disallow_string_for_allowed_methods', 'tests/test_basic.py::test_error_handler_unknown_code', 'tests/test_basic.py::test_request_locals', 'tests/test_basic.py::test_exception_propagation', 'tests/test_basic.py::test_werkzeug_passthrough_errors[None-True-True-True]', 'tests/test_basic.py::test_werkzeug_passthrough_errors[None-True-True-False]', 'tests/test_basic.py::test_werkzeug_passthrough_errors[None-True-False-True]', 'tests/test_basic.py::test_werkzeug_passthrough_errors[None-True-False-False]', 'tests/test_basic.py::test_werkzeug_passthrough_errors[None-False-True-True]', 'tests/test_basic.py::test_werkzeug_passthrough_errors[None-False-True-False]', 'tests/test_basic.py::test_werkzeug_passthrough_errors[None-False-False-True]', 'tests/test_basic.py::test_werkzeug_passthrough_errors[None-False-False-False]', 'tests/test_basic.py::test_werkzeug_passthrough_errors[True-True-True-True]', 'tests/test_basic.py::test_werkzeug_passthrough_errors[True-True-True-False]', 'tests/test_basic.py::test_werkzeug_passthrough_errors[True-True-False-True]', 'tests/test_basic.py::test_werkzeug_passthrough_errors[True-True-False-False]', 'tests/test_basic.py::test_werkzeug_passthrough_errors[True-False-True-True]', 'tests/test_basic.py::test_werkzeug_passthrough_errors[True-False-True-False]', 'tests/test_basic.py::test_werkzeug_passthrough_errors[True-False-False-True]', 'tests/test_basic.py::test_werkzeug_passthrough_errors[True-False-False-False]', 'tests/test_basic.py::test_werkzeug_passthrough_errors[False-True-True-True]', 'tests/test_basic.py::test_werkzeug_passthrough_errors[False-True-True-False]', 'tests/test_basic.py::test_werkzeug_passthrough_errors[False-True-False-True]', 'tests/test_basic.py::test_werkzeug_passthrough_errors[False-True-False-False]', 'tests/test_basic.py::test_werkzeug_passthrough_errors[False-False-True-True]', 'tests/test_basic.py::test_werkzeug_passthrough_errors[False-False-True-False]', 'tests/test_basic.py::test_werkzeug_passthrough_errors[False-False-False-True]', 'tests/test_basic.py::test_werkzeug_passthrough_errors[False-False-False-False]', 'tests/test_basic.py::test_get_method_on_g', 'tests/test_basic.py::test_g_iteration_protocol', 'tests/test_basic.py::test_run_defaults', 'tests/test_basic.py::test_run_server_port', 'tests/test_basic.py::test_run_from_config[None-None-pocoo.org:8080-pocoo.org-8080]', 'tests/test_basic.py::test_run_from_config[localhost-None-pocoo.org:8080-localhost-8080]', 'tests/test_basic.py::test_run_from_config[None-80-pocoo.org:8080-pocoo.org-80]', 'tests/test_basic.py::test_run_from_config[localhost-80-pocoo.org:8080-localhost-80]', 'tests/test_basic.py::test_run_from_config[localhost-0-localhost:8080-localhost-0]', 'tests/test_basic.py::test_run_from_config[None-None-localhost:8080-localhost-8080]', 'tests/test_basic.py::test_run_from_config[None-None-localhost:0-localhost-0]', 'tests/test_basic.py::test_app_freed_on_zero_refcount'], 'failure': ['tests/test_blueprints.py::test_template_filter', 'tests/test_blueprints.py::test_add_template_filter', 'tests/test_blueprints.py::test_template_filter_with_name', 'tests/test_blueprints.py::test_add_template_filter_with_name', 'tests/test_blueprints.py::test_template_test', 'tests/test_blueprints.py::test_add_template_test', 'tests/test_blueprints.py::test_template_test_with_name', 'tests/test_blueprints.py::test_add_template_test_with_name', 'tests/test_blueprints.py::test_template_global']}, 'FAIL_TO_FAIL': {'success': [], 'failure': []}, 'PASS_TO_FAIL': {'success': [], 'failure': []}}}}
+Result for pallets__flask-4045: resolved: False
+2026-06-16 12:05:48,050 - INFO - Attempting to stop container sweb.eval.pallets__flask-4045.baseline_gpt4o...
+2026-06-16 12:06:03,350 - INFO - Attempting to remove container sweb.eval.pallets__flask-4045.baseline_gpt4o...
+2026-06-16 12:06:03,363 - INFO - Container sweb.eval.pallets__flask-4045.baseline_gpt4o removed.

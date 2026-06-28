@@ -1,0 +1,98 @@
+2026-06-14 21:31:35,667 - INFO - Creating container for scikit-learn__scikit-learn-10508...
+2026-06-14 21:31:35,716 - INFO - Container for scikit-learn__scikit-learn-10508 created: 957f5c4a7d589f570ea413ac6532a3ebd489f2a705514a97296e085313e6d3e0
+2026-06-14 21:31:36,115 - INFO - Container for scikit-learn__scikit-learn-10508 started: 957f5c4a7d589f570ea413ac6532a3ebd489f2a705514a97296e085313e6d3e0
+2026-06-14 21:31:36,116 - INFO - Intermediate patch for scikit-learn__scikit-learn-10508 written to logs/run_evaluation/raps_dev6_v4/gpt-4o-mini/scikit-learn__scikit-learn-10508/patch.diff, now applying to container...
+2026-06-14 21:31:36,235 - INFO - >>>>> Applied Patch:
+/tmp/patch.diff:20: trailing whitespace.
+ 
+/tmp/patch.diff:30: trailing whitespace.
+ 
+/tmp/patch.diff:38: trailing whitespace.
+ 
+Checking patch patch.txt...
+Checking patch sklearn/preprocessing/label.py...
+Applied patch patch.txt cleanly.
+Applied patch sklearn/preprocessing/label.py cleanly.
+warning: 3 lines add whitespace errors.
+
+2026-06-14 21:31:36,500 - INFO - Git diff before:
+diff --git a/sklearn/preprocessing/label.py b/sklearn/preprocessing/label.py
+index 61b8d4a21..938a41045 100644
+--- a/sklearn/preprocessing/label.py
++++ b/sklearn/preprocessing/label.py
+@@ -92,7 +92,8 @@ class LabelEncoder(BaseEstimator, TransformerMixin):
+         -------
+         self : returns an instance of self.
+         """
+-        y = column_or_1d(y, warn=True)
++        if len(y) == 0:
++            return np.array([])
+         self.classes_ = np.unique(y)
+         return self
+ 
+@@ -108,7 +109,8 @@ class LabelEncoder(BaseEstimator, TransformerMixin):
+         -------
+         y : array-like of shape [n_samples]
+         """
+-        y = column_or_1d(y, warn=True)
++        if len(y) == 0:
++            return np.array([])
+         self.classes_, y = np.unique(y, return_inverse=True)
+         return y
+ 
+@@ -125,7 +127,8 @@ class LabelEncoder(BaseEstimator, TransformerMixin):
+         y : array-like of shape [n_samples]
+         """
+         check_is_fitted(self, 'classes_')
+-        y = column_or_1d(y, warn=True)
++        if len(y) == 0:
++            return np.array([])
+ 
+         classes = np.unique(y)
+         if len(np.intersect1d(classes, self.classes_)) < len(classes):
+2026-06-14 21:31:36,500 - INFO - Eval script for scikit-learn__scikit-learn-10508 written to logs/run_evaluation/raps_dev6_v4/gpt-4o-mini/scikit-learn__scikit-learn-10508/eval.sh; copying to container...
+2026-06-14 21:31:40,402 - INFO - Test runtime: 3.84 seconds
+2026-06-14 21:31:40,402 - INFO - Test output for scikit-learn__scikit-learn-10508 written to logs/run_evaluation/raps_dev6_v4/gpt-4o-mini/scikit-learn__scikit-learn-10508/test_output.txt
+2026-06-14 21:31:40,465 - INFO - Git diff after:
+diff --git a/sklearn/preprocessing/label.py b/sklearn/preprocessing/label.py
+index 61b8d4a21..938a41045 100644
+--- a/sklearn/preprocessing/label.py
++++ b/sklearn/preprocessing/label.py
+@@ -92,7 +92,8 @@ class LabelEncoder(BaseEstimator, TransformerMixin):
+         -------
+         self : returns an instance of self.
+         """
+-        y = column_or_1d(y, warn=True)
++        if len(y) == 0:
++            return np.array([])
+         self.classes_ = np.unique(y)
+         return self
+ 
+@@ -108,7 +109,8 @@ class LabelEncoder(BaseEstimator, TransformerMixin):
+         -------
+         y : array-like of shape [n_samples]
+         """
+-        y = column_or_1d(y, warn=True)
++        if len(y) == 0:
++            return np.array([])
+         self.classes_, y = np.unique(y, return_inverse=True)
+         return y
+ 
+@@ -125,7 +127,8 @@ class LabelEncoder(BaseEstimator, TransformerMixin):
+         y : array-like of shape [n_samples]
+         """
+         check_is_fitted(self, 'classes_')
+-        y = column_or_1d(y, warn=True)
++        if len(y) == 0:
++            return np.array([])
+ 
+         classes = np.unique(y)
+         if len(np.intersect1d(classes, self.classes_)) < len(classes):
+2026-06-14 21:31:40,465 - INFO - Grading answer for scikit-learn__scikit-learn-10508...
+2026-06-14 21:31:40,470 - INFO - report: {'scikit-learn__scikit-learn-10508': {'patch_is_None': False, 'patch_exists': True, 'patch_successfully_applied': True, 'resolved': False, 'tests_status': {'FAIL_TO_PASS': {'success': [], 'failure': ['sklearn/preprocessing/tests/test_label.py::test_label_encoder_errors', 'sklearn/preprocessing/tests/test_label.py::test_label_encoder_empty_array']}, 'PASS_TO_PASS': {'success': ['sklearn/preprocessing/tests/test_label.py::test_label_binarizer', 'sklearn/preprocessing/tests/test_label.py::test_label_binarizer_unseen_labels', 'sklearn/preprocessing/tests/test_label.py::test_label_binarizer_set_label_encoding', 'sklearn/preprocessing/tests/test_label.py::test_label_binarizer_errors', 'sklearn/preprocessing/tests/test_label.py::test_label_encoder_fit_transform', 'sklearn/preprocessing/tests/test_label.py::test_sparse_output_multilabel_binarizer', 'sklearn/preprocessing/tests/test_label.py::test_multilabel_binarizer', 'sklearn/preprocessing/tests/test_label.py::test_multilabel_binarizer_empty_sample', 'sklearn/preprocessing/tests/test_label.py::test_multilabel_binarizer_unknown_class', 'sklearn/preprocessing/tests/test_label.py::test_multilabel_binarizer_given_classes', 'sklearn/preprocessing/tests/test_label.py::test_multilabel_binarizer_same_length_sequence', 'sklearn/preprocessing/tests/test_label.py::test_multilabel_binarizer_non_integer_labels', 'sklearn/preprocessing/tests/test_label.py::test_multilabel_binarizer_non_unique', 'sklearn/preprocessing/tests/test_label.py::test_multilabel_binarizer_inverse_validation', 'sklearn/preprocessing/tests/test_label.py::test_label_binarize_with_class_order', 'sklearn/preprocessing/tests/test_label.py::test_invalid_input_label_binarize', 'sklearn/preprocessing/tests/test_label.py::test_inverse_binarize_multiclass'], 'failure': ['sklearn/preprocessing/tests/test_label.py::test_label_encoder']}, 'FAIL_TO_FAIL': {'success': [], 'failure': []}, 'PASS_TO_FAIL': {'success': [], 'failure': []}}}}
+Result for scikit-learn__scikit-learn-10508: resolved: False
+2026-06-14 21:31:40,471 - INFO - Attempting to stop container sweb.eval.scikit-learn__scikit-learn-10508.raps_dev6_v4...
+2026-06-14 21:31:55,758 - INFO - Attempting to remove container sweb.eval.scikit-learn__scikit-learn-10508.raps_dev6_v4...
+2026-06-14 21:31:55,768 - INFO - Container sweb.eval.scikit-learn__scikit-learn-10508.raps_dev6_v4 removed.
+2026-06-14 21:31:55,768 - INFO - Attempting to remove image swebench/sweb.eval.x86_64.scikit-learn_1776_scikit-learn-10508:latest...
+2026-06-14 21:31:56,703 - INFO - Image swebench/sweb.eval.x86_64.scikit-learn_1776_scikit-learn-10508:latest removed.

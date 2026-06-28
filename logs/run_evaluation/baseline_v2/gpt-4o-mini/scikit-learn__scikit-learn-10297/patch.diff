@@ -1,0 +1,58 @@
+diff --git a/sklearn/linear_model/ridge.py b/sklearn/linear_model/ridge.py
+index 911c74ae3..9a850f6fb 100644
+--- a/sklearn/linear_model/ridge.py
++++ b/sklearn/linear_model/ridge.py
+@@ -472,6 +472,8 @@ class _BaseRidge(six.with_metaclass(ABCMeta, LinearModel)):
+         self.random_state = random_state
+ 
+     def fit(self, X, y, sample_weight=None):
++        if self.store_cv_values: 
++            self.cv_values_ = np.empty((X.shape[0], len(self.alphas)))
+ 
+         if self.solver in ('sag', 'saga'):
+             _dtype = np.float64
+@@ -652,6 +654,8 @@ class Ridge(_BaseRidge, RegressorMixin):
+                                     random_state=random_state)
+ 
+     def fit(self, X, y, sample_weight=None):
++        if self.store_cv_values: 
++            self.cv_values_ = np.empty((X.shape[0], len(self.alphas)))
+         """Fit Ridge regression model
+ 
+         Parameters
+@@ -792,6 +796,8 @@ class RidgeClassifier(LinearClassifierMixin, _BaseRidge):
+         self.class_weight = class_weight
+ 
+     def fit(self, X, y, sample_weight=None):
++        if self.store_cv_values: 
++            self.cv_values_ = np.empty((X.shape[0], len(self.alphas)))
+         """Fit Ridge regression model.
+ 
+         Parameters
+@@ -979,6 +985,8 @@ class _RidgeGCV(LinearModel):
+         return y - (c / G_diag), c
+ 
+     def fit(self, X, y, sample_weight=None):
++        if self.store_cv_values: 
++            self.cv_values_ = np.empty((X.shape[0], len(self.alphas)))
+         """Fit Ridge regression model
+ 
+         Parameters
+@@ -1098,6 +1106,8 @@ class _BaseRidgeCV(LinearModel):
+         self.store_cv_values = store_cv_values
+ 
+     def fit(self, X, y, sample_weight=None):
++        if self.store_cv_values: 
++            self.cv_values_ = np.empty((X.shape[0], len(self.alphas)))
+         """Fit Ridge regression model
+ 
+         Parameters
+@@ -1340,6 +1350,8 @@ class RidgeClassifierCV(LinearClassifierMixin, _BaseRidgeCV):
+         self.class_weight = class_weight
+ 
+     def fit(self, X, y, sample_weight=None):
++        if self.store_cv_values: 
++            self.cv_values_ = np.empty((X.shape[0], len(self.alphas)))
+         """Fit the ridge classifier.
+ 
+         Parameters

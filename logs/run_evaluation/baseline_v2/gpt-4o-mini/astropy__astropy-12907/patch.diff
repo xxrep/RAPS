@@ -1,0 +1,25 @@
+diff --git a/astropy/modeling/separable.py b/astropy/modeling/separable.py
+index 1234567..890abcd 100644
+--- a/astropy/modeling/separable.py
++++ b/astropy/modeling/separable.py
+@@ -220,8 +220,8 @@
+     result : ndarray
+     
+     noutp = _compute_n_outputs(left, right)
+
+     if isinstance(left, Model) and isinstance(right, Model):
+         # Ensure independence of outputs for both left and right.
+         cleft = _coord_matrix(left, 'left', noutp)
+         cright = _coord_matrix(right, 'right', noutp)
+         if np.any(np.dot(cleft, cright) > 0):
+             raise ValueError('Outputs are not independent.') # Safeguard for interconnected outputs
+     else:
+         cleft = np.zeros((noutp, left.shape[1]))
+         cleft[: left.shape[0], : left.shape[1]] = left
+     if isinstance(right, Model):
+         cright = _coord_matrix(right, 'right', noutp)
+     else:
+         cright = np.zeros((noutp, right.shape[1]))
+         cright[-right.shape[0]:, -right.shape[1]:] = 1
+
+     return np.hstack([cleft, cright])

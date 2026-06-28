@@ -1,0 +1,76 @@
+diff --git a/requests/cookies.py b/requests/cookies.py
+index 831c49c6..52e1d8de 100644
+--- a/requests/cookies.py
++++ b/requests/cookies.py
+@@ -156,7 +156,7 @@ class CookieConflictError(RuntimeError):
+     Use .get and .set and include domain and path args in order to be more specific."""
+ 
+ 
+-class RequestsCookieJar(cookielib.CookieJar, collections.MutableMapping):
++class RequestsCookieJar(cookielib.CookieJar, collections.abc.MutableMapping):
+     """Compatibility class; is a cookielib.CookieJar, but exposes a dict interface.
+ 
+     This is the CookieJar we create by default for requests and sessions that
+diff --git a/requests/packages/urllib3/_collections.py b/requests/packages/urllib3/_collections.py
+index 5907b0dc..f34956fa 100644
+--- a/requests/packages/urllib3/_collections.py
++++ b/requests/packages/urllib3/_collections.py
+@@ -4,7 +4,7 @@
+ # This module is part of urllib3 and is released under
+ # the MIT License: http://www.opensource.org/licenses/mit-license.php
+ 
+-from collections import MutableMapping
++from collections.abc import MutableMapping
+ try:
+     from threading import RLock
+ except ImportError: # Platform-specific: No threads available
+diff --git a/requests/sessions.py b/requests/sessions.py
+index 425db22c..1d71ed25 100644
+--- a/requests/sessions.py
++++ b/requests/sessions.py
+@@ -9,7 +9,7 @@ requests (cookies, auth, proxies).
+ 
+ """
+ import os
+-from collections import Mapping
++from collections.abc import Mapping
+ from datetime import datetime
+ 
+ from .compat import cookielib, OrderedDict, urljoin, urlparse, builtin_str
+@@ -88,7 +88,7 @@ class SessionRedirectMixin(object):
+         i = 0
+ 
+         while resp.is_redirect:
+-            prepared_request = req.copy()
++            prepared_request = resp.request
+ 
+             resp.content  # Consume socket so it can be released
+ 
+diff --git a/requests/structures.py b/requests/structures.py
+index a1759137..5fdd4b6d 100644
+--- a/requests/structures.py
++++ b/requests/structures.py
+@@ -34,12 +34,12 @@ class IteratorProxy(object):
+         return "".join(islice(self.i, None, n))
+ 
+ 
+-class CaseInsensitiveDict(collections.MutableMapping):
++class CaseInsensitiveDict(collections.abc.MutableMapping):
+     """
+     A case-insensitive ``dict``-like object.
+ 
+     Implements all methods and operations of
+-    ``collections.MutableMapping`` as well as dict's ``copy``. Also
++    ``collections.abc.MutableMapping`` as well as dict's ``copy``. Also
+     provides ``lower_items``.
+ 
+     All keys are expected to be strings. The structure remembers the
+@@ -94,7 +94,7 @@ class CaseInsensitiveDict(collections.MutableMapping):
+         )
+ 
+     def __eq__(self, other):
+-        if isinstance(other, collections.Mapping):
++        if isinstance(other, collections.abc.Mapping):
+             other = CaseInsensitiveDict(other)
+         else:
+             return NotImplemented

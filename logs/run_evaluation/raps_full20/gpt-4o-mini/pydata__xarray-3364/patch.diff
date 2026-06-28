@@ -1,0 +1,32 @@
+diff --git a/xarray/core/concat.py b/xarray/core/concat.py
+index ecae2566..a0f7d147 100644
+--- a/xarray/core/concat.py
++++ b/xarray/core/concat.py
+@@ -313,11 +313,9 @@ def _dataset_concat(
+ 
+         for ds in datasets:
+             absent_merge_vars = variables_to_merge - set(ds.variables)
+-            if absent_merge_vars:
+-                raise ValueError(
+-                    "variables %r are present in some datasets but not others. "
+-                    % absent_merge_vars
+-                )
++            # Allow for missing variables and fill with NaN
++            for var in absent_merge_vars:
++                to_merge[var].append(fill_value)  # Fill with NaN for missing variables
+ 
+             for var in variables_to_merge:
+                 to_merge[var].append(ds.variables[var])
+diff --git a/xarray/core/dtypes.py b/xarray/core/dtypes.py
+index 4db2990a..bd5c7156 100644
+--- a/xarray/core/dtypes.py
++++ b/xarray/core/dtypes.py
+@@ -38,7 +38,7 @@ NINF = AlwaysLessThan()
+ PROMOTE_TO_OBJECT = [
+     {np.number, np.character},  # numpy promotes to character
+     {np.bool_, np.character},  # numpy promotes to character
+-    {np.bytes_, np.unicode_},  # numpy promotes to unicode
++    {np.bytes_, np.str_},  # numpy promotes to str
+ ]
+ 
+ 

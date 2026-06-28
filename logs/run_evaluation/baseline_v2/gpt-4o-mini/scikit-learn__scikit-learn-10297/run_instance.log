@@ -1,0 +1,149 @@
+2026-06-14 19:36:26,779 - INFO - Creating container for scikit-learn__scikit-learn-10297...
+2026-06-14 19:36:26,885 - INFO - Container for scikit-learn__scikit-learn-10297 created: 77d3324335d40c96810d84664830cfd3699a26b2523178f9f9e527f388ba0f99
+2026-06-14 19:36:27,073 - INFO - Container for scikit-learn__scikit-learn-10297 started: 77d3324335d40c96810d84664830cfd3699a26b2523178f9f9e527f388ba0f99
+2026-06-14 19:36:27,073 - INFO - Intermediate patch for scikit-learn__scikit-learn-10297 written to logs/run_evaluation/baseline_v2/gpt-4o-mini/scikit-learn__scikit-learn-10297/patch.diff, now applying to container...
+2026-06-14 19:36:27,183 - INFO - >>>>> Applied Patch:
+/tmp/patch.diff:9: trailing whitespace.
+        if self.store_cv_values: 
+/tmp/patch.diff:18: trailing whitespace.
+        if self.store_cv_values: 
+/tmp/patch.diff:27: trailing whitespace.
+        if self.store_cv_values: 
+/tmp/patch.diff:36: trailing whitespace.
+        if self.store_cv_values: 
+/tmp/patch.diff:45: trailing whitespace.
+        if self.store_cv_values: 
+Checking patch sklearn/linear_model/ridge.py...
+Applied patch sklearn/linear_model/ridge.py cleanly.
+warning: squelched 1 whitespace error
+warning: 6 lines add whitespace errors.
+
+2026-06-14 19:36:27,429 - INFO - Git diff before:
+diff --git a/sklearn/linear_model/ridge.py b/sklearn/linear_model/ridge.py
+index 911c74ae3..9a850f6fb 100644
+--- a/sklearn/linear_model/ridge.py
++++ b/sklearn/linear_model/ridge.py
+@@ -472,6 +472,8 @@ class _BaseRidge(six.with_metaclass(ABCMeta, LinearModel)):
+         self.random_state = random_state
+ 
+     def fit(self, X, y, sample_weight=None):
++        if self.store_cv_values: 
++            self.cv_values_ = np.empty((X.shape[0], len(self.alphas)))
+ 
+         if self.solver in ('sag', 'saga'):
+             _dtype = np.float64
+@@ -652,6 +654,8 @@ class Ridge(_BaseRidge, RegressorMixin):
+                                     random_state=random_state)
+ 
+     def fit(self, X, y, sample_weight=None):
++        if self.store_cv_values: 
++            self.cv_values_ = np.empty((X.shape[0], len(self.alphas)))
+         """Fit Ridge regression model
+ 
+         Parameters
+@@ -792,6 +796,8 @@ class RidgeClassifier(LinearClassifierMixin, _BaseRidge):
+         self.class_weight = class_weight
+ 
+     def fit(self, X, y, sample_weight=None):
++        if self.store_cv_values: 
++            self.cv_values_ = np.empty((X.shape[0], len(self.alphas)))
+         """Fit Ridge regression model.
+ 
+         Parameters
+@@ -979,6 +985,8 @@ class _RidgeGCV(LinearModel):
+         return y - (c / G_diag), c
+ 
+     def fit(self, X, y, sample_weight=None):
++        if self.store_cv_values: 
++            self.cv_values_ = np.empty((X.shape[0], len(self.alphas)))
+         """Fit Ridge regression model
+ 
+         Parameters
+@@ -1098,6 +1106,8 @@ class _BaseRidgeCV(LinearModel):
+         self.store_cv_values = store_cv_values
+ 
+     def fit(self, X, y, sample_weight=None):
++        if self.store_cv_values: 
++            self.cv_values_ = np.empty((X.shape[0], len(self.alphas)))
+         """Fit Ridge regression model
+ 
+         Parameters
+@@ -1340,6 +1350,8 @@ class RidgeClassifierCV(LinearClassifierMixin, _BaseRidgeCV):
+         self.class_weight = class_weight
+ 
+     def fit(self, X, y, sample_weight=None):
++        if self.store_cv_values: 
++            self.cv_values_ = np.empty((X.shape[0], len(self.alphas)))
+         """Fit the ridge classifier.
+ 
+         Parameters
+2026-06-14 19:36:27,430 - INFO - Eval script for scikit-learn__scikit-learn-10297 written to logs/run_evaluation/baseline_v2/gpt-4o-mini/scikit-learn__scikit-learn-10297/eval.sh; copying to container...
+2026-06-14 19:36:32,231 - INFO - Test runtime: 4.73 seconds
+2026-06-14 19:36:32,231 - INFO - Test output for scikit-learn__scikit-learn-10297 written to logs/run_evaluation/baseline_v2/gpt-4o-mini/scikit-learn__scikit-learn-10297/test_output.txt
+2026-06-14 19:36:32,289 - INFO - Git diff after:
+diff --git a/sklearn/linear_model/ridge.py b/sklearn/linear_model/ridge.py
+index 911c74ae3..9a850f6fb 100644
+--- a/sklearn/linear_model/ridge.py
++++ b/sklearn/linear_model/ridge.py
+@@ -472,6 +472,8 @@ class _BaseRidge(six.with_metaclass(ABCMeta, LinearModel)):
+         self.random_state = random_state
+ 
+     def fit(self, X, y, sample_weight=None):
++        if self.store_cv_values: 
++            self.cv_values_ = np.empty((X.shape[0], len(self.alphas)))
+ 
+         if self.solver in ('sag', 'saga'):
+             _dtype = np.float64
+@@ -652,6 +654,8 @@ class Ridge(_BaseRidge, RegressorMixin):
+                                     random_state=random_state)
+ 
+     def fit(self, X, y, sample_weight=None):
++        if self.store_cv_values: 
++            self.cv_values_ = np.empty((X.shape[0], len(self.alphas)))
+         """Fit Ridge regression model
+ 
+         Parameters
+@@ -792,6 +796,8 @@ class RidgeClassifier(LinearClassifierMixin, _BaseRidge):
+         self.class_weight = class_weight
+ 
+     def fit(self, X, y, sample_weight=None):
++        if self.store_cv_values: 
++            self.cv_values_ = np.empty((X.shape[0], len(self.alphas)))
+         """Fit Ridge regression model.
+ 
+         Parameters
+@@ -979,6 +985,8 @@ class _RidgeGCV(LinearModel):
+         return y - (c / G_diag), c
+ 
+     def fit(self, X, y, sample_weight=None):
++        if self.store_cv_values: 
++            self.cv_values_ = np.empty((X.shape[0], len(self.alphas)))
+         """Fit Ridge regression model
+ 
+         Parameters
+@@ -1098,6 +1106,8 @@ class _BaseRidgeCV(LinearModel):
+         self.store_cv_values = store_cv_values
+ 
+     def fit(self, X, y, sample_weight=None):
++        if self.store_cv_values: 
++            self.cv_values_ = np.empty((X.shape[0], len(self.alphas)))
+         """Fit Ridge regression model
+ 
+         Parameters
+@@ -1340,6 +1350,8 @@ class RidgeClassifierCV(LinearClassifierMixin, _BaseRidgeCV):
+         self.class_weight = class_weight
+ 
+     def fit(self, X, y, sample_weight=None):
++        if self.store_cv_values: 
++            self.cv_values_ = np.empty((X.shape[0], len(self.alphas)))
+         """Fit the ridge classifier.
+ 
+         Parameters
+2026-06-14 19:36:32,290 - INFO - Grading answer for scikit-learn__scikit-learn-10297...
+2026-06-14 19:36:32,301 - INFO - report: {'scikit-learn__scikit-learn-10297': {'patch_is_None': False, 'patch_exists': True, 'patch_successfully_applied': True, 'resolved': False, 'tests_status': {'FAIL_TO_PASS': {'success': [], 'failure': ['sklearn/linear_model/tests/test_ridge.py::test_ridge_classifier_cv_store_cv_values']}, 'PASS_TO_PASS': {'success': ['sklearn/linear_model/tests/test_ridge.py::test_primal_dual_relationship', 'sklearn/linear_model/tests/test_ridge.py::test_ridge_regression_sample_weights', 'sklearn/linear_model/tests/test_ridge.py::test_ridge_cv_sparse_svd', 'sklearn/linear_model/tests/test_ridge.py::test_class_weights_cv', 'sklearn/linear_model/tests/test_ridge.py::test_ridgecv_store_cv_values', 'sklearn/linear_model/tests/test_ridge.py::test_raises_value_error_if_solver_not_supported', 'sklearn/linear_model/tests/test_ridge.py::test_errors_and_values_helper', 'sklearn/linear_model/tests/test_ridge.py::test_errors_and_values_svd_helper'], 'failure': ['sklearn/linear_model/tests/test_ridge.py::test_ridge', 'sklearn/linear_model/tests/test_ridge.py::test_ridge_singular', 'sklearn/linear_model/tests/test_ridge.py::test_ridge_sample_weights', 'sklearn/linear_model/tests/test_ridge.py::test_ridge_shapes', 'sklearn/linear_model/tests/test_ridge.py::test_ridge_intercept', 'sklearn/linear_model/tests/test_ridge.py::test_toy_ridge_object', 'sklearn/linear_model/tests/test_ridge.py::test_ridge_vs_lstsq', 'sklearn/linear_model/tests/test_ridge.py::test_ridge_individual_penalties', 'sklearn/linear_model/tests/test_ridge.py::test_ridge_sparse_svd', 'sklearn/linear_model/tests/test_ridge.py::test_class_weights', 'sklearn/linear_model/tests/test_ridge.py::test_class_weight_vs_sample_weight', 'sklearn/linear_model/tests/test_ridge.py::test_ridgecv_sample_weight', 'sklearn/linear_model/tests/test_ridge.py::test_raises_value_error_if_sample_weights_greater_than_1d', 'sklearn/linear_model/tests/test_ridge.py::test_sparse_design_with_sample_weights', 'sklearn/linear_model/tests/test_ridge.py::test_sparse_cg_max_iter', 'sklearn/linear_model/tests/test_ridge.py::test_n_iter', 'sklearn/linear_model/tests/test_ridge.py::test_ridge_fit_intercept_sparse', 'sklearn/linear_model/tests/test_ridge.py::test_ridge_classifier_no_support_multilabel', 'sklearn/linear_model/tests/test_ridge.py::test_dtype_match', 'sklearn/linear_model/tests/test_ridge.py::test_dtype_match_cholesky']}, 'FAIL_TO_FAIL': {'success': [], 'failure': []}, 'PASS_TO_FAIL': {'success': [], 'failure': []}}}}
+Result for scikit-learn__scikit-learn-10297: resolved: False
+2026-06-14 19:36:32,301 - INFO - Attempting to stop container sweb.eval.scikit-learn__scikit-learn-10297.baseline_v2...
+2026-06-14 19:36:47,572 - INFO - Attempting to remove container sweb.eval.scikit-learn__scikit-learn-10297.baseline_v2...
+2026-06-14 19:36:47,584 - INFO - Container sweb.eval.scikit-learn__scikit-learn-10297.baseline_v2 removed.
+2026-06-14 19:36:47,585 - INFO - Attempting to remove image swebench/sweb.eval.x86_64.scikit-learn_1776_scikit-learn-10297:latest...
+2026-06-14 19:36:49,166 - INFO - Image swebench/sweb.eval.x86_64.scikit-learn_1776_scikit-learn-10297:latest removed.

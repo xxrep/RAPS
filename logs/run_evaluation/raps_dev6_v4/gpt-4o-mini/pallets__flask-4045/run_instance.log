@@ -1,0 +1,47 @@
+2026-06-14 21:31:35,662 - INFO - Creating container for pallets__flask-4045...
+2026-06-14 21:31:35,700 - INFO - Container for pallets__flask-4045 created: 6029c3fd26d796ba2a69f14d57621ffb8fd97dfd61e00178541e69163519502d
+2026-06-14 21:31:35,917 - INFO - Container for pallets__flask-4045 started: 6029c3fd26d796ba2a69f14d57621ffb8fd97dfd61e00178541e69163519502d
+2026-06-14 21:31:35,917 - INFO - Intermediate patch for pallets__flask-4045 written to logs/run_evaluation/raps_dev6_v4/gpt-4o-mini/pallets__flask-4045/patch.diff, now applying to container...
+2026-06-14 21:31:36,024 - INFO - >>>>> Applied Patch:
+Checking patch src/flask/app.py...
+Applied patch src/flask/app.py cleanly.
+
+2026-06-14 21:31:36,117 - INFO - Git diff before:
+diff --git a/src/flask/app.py b/src/flask/app.py
+index f0f31486..381e16af 100644
+--- a/src/flask/app.py
++++ b/src/flask/app.py
+@@ -1002,6 +1002,8 @@ class Flask(Scaffold):
+ 
+     @setupmethod
+     def register_blueprint(self, blueprint: "Blueprint", **options: t.Any) -> None:
++        if "." in blueprint.name:
++            raise BadRequest("Blueprint name cannot contain a dot.")
+         """Register a :class:`~flask.Blueprint` on the application. Keyword
+         arguments passed to this method will override the defaults set on the
+         blueprint.
+2026-06-14 21:31:36,118 - INFO - Eval script for pallets__flask-4045 written to logs/run_evaluation/raps_dev6_v4/gpt-4o-mini/pallets__flask-4045/eval.sh; copying to container...
+2026-06-14 21:31:46,137 - INFO - Test runtime: 9.95 seconds
+2026-06-14 21:31:46,139 - INFO - Test output for pallets__flask-4045 written to logs/run_evaluation/raps_dev6_v4/gpt-4o-mini/pallets__flask-4045/test_output.txt
+2026-06-14 21:31:46,201 - INFO - Git diff after:
+diff --git a/src/flask/app.py b/src/flask/app.py
+index f0f31486..381e16af 100644
+--- a/src/flask/app.py
++++ b/src/flask/app.py
+@@ -1002,6 +1002,8 @@ class Flask(Scaffold):
+ 
+     @setupmethod
+     def register_blueprint(self, blueprint: "Blueprint", **options: t.Any) -> None:
++        if "." in blueprint.name:
++            raise BadRequest("Blueprint name cannot contain a dot.")
+         """Register a :class:`~flask.Blueprint` on the application. Keyword
+         arguments passed to this method will override the defaults set on the
+         blueprint.
+2026-06-14 21:31:46,201 - INFO - Grading answer for pallets__flask-4045...
+2026-06-14 21:31:46,231 - INFO - report: {'pallets__flask-4045': {'patch_is_None': False, 'patch_exists': True, 'patch_successfully_applied': True, 'resolved': False, 'tests_status': {'FAIL_TO_PASS': {'success': [], 'failure': ['tests/test_blueprints.py::test_dotted_name_not_allowed', 'tests/test_blueprints.py::test_route_decorator_custom_endpoint_with_dots']}, 'PASS_TO_PASS': {'success': ['tests/test_basic.py::test_method_route_no_methods', 'tests/test_basic.py::test_disallow_string_for_allowed_methods', 'tests/test_basic.py::test_error_handler_unknown_code', 'tests/test_basic.py::test_request_locals', 'tests/test_basic.py::test_exception_propagation', 'tests/test_basic.py::test_werkzeug_passthrough_errors[None-True-True-True]', 'tests/test_basic.py::test_werkzeug_passthrough_errors[None-True-True-False]', 'tests/test_basic.py::test_werkzeug_passthrough_errors[None-True-False-True]', 'tests/test_basic.py::test_werkzeug_passthrough_errors[None-True-False-False]', 'tests/test_basic.py::test_werkzeug_passthrough_errors[None-False-True-True]', 'tests/test_basic.py::test_werkzeug_passthrough_errors[None-False-True-False]', 'tests/test_basic.py::test_werkzeug_passthrough_errors[None-False-False-True]', 'tests/test_basic.py::test_werkzeug_passthrough_errors[None-False-False-False]', 'tests/test_basic.py::test_werkzeug_passthrough_errors[True-True-True-True]', 'tests/test_basic.py::test_werkzeug_passthrough_errors[True-True-True-False]', 'tests/test_basic.py::test_werkzeug_passthrough_errors[True-True-False-True]', 'tests/test_basic.py::test_werkzeug_passthrough_errors[True-True-False-False]', 'tests/test_basic.py::test_werkzeug_passthrough_errors[True-False-True-True]', 'tests/test_basic.py::test_werkzeug_passthrough_errors[True-False-True-False]', 'tests/test_basic.py::test_werkzeug_passthrough_errors[True-False-False-True]', 'tests/test_basic.py::test_werkzeug_passthrough_errors[True-False-False-False]', 'tests/test_basic.py::test_werkzeug_passthrough_errors[False-True-True-True]', 'tests/test_basic.py::test_werkzeug_passthrough_errors[False-True-True-False]', 'tests/test_basic.py::test_werkzeug_passthrough_errors[False-True-False-True]', 'tests/test_basic.py::test_werkzeug_passthrough_errors[False-True-False-False]', 'tests/test_basic.py::test_werkzeug_passthrough_errors[False-False-True-True]', 'tests/test_basic.py::test_werkzeug_passthrough_errors[False-False-True-False]', 'tests/test_basic.py::test_werkzeug_passthrough_errors[False-False-False-True]', 'tests/test_basic.py::test_werkzeug_passthrough_errors[False-False-False-False]', 'tests/test_basic.py::test_get_method_on_g', 'tests/test_basic.py::test_g_iteration_protocol', 'tests/test_basic.py::test_run_defaults', 'tests/test_basic.py::test_run_server_port', 'tests/test_basic.py::test_run_from_config[None-None-pocoo.org:8080-pocoo.org-8080]', 'tests/test_basic.py::test_run_from_config[localhost-None-pocoo.org:8080-localhost-8080]', 'tests/test_basic.py::test_run_from_config[None-80-pocoo.org:8080-pocoo.org-80]', 'tests/test_basic.py::test_run_from_config[localhost-80-pocoo.org:8080-localhost-80]', 'tests/test_basic.py::test_run_from_config[localhost-0-localhost:8080-localhost-0]', 'tests/test_basic.py::test_run_from_config[None-None-localhost:8080-localhost-8080]', 'tests/test_basic.py::test_run_from_config[None-None-localhost:0-localhost-0]', 'tests/test_basic.py::test_app_freed_on_zero_refcount', 'tests/test_blueprints.py::test_template_filter', 'tests/test_blueprints.py::test_add_template_filter', 'tests/test_blueprints.py::test_template_filter_with_name', 'tests/test_blueprints.py::test_add_template_filter_with_name', 'tests/test_blueprints.py::test_template_test', 'tests/test_blueprints.py::test_add_template_test', 'tests/test_blueprints.py::test_template_test_with_name', 'tests/test_blueprints.py::test_add_template_test_with_name', 'tests/test_blueprints.py::test_template_global'], 'failure': []}, 'FAIL_TO_FAIL': {'success': [], 'failure': []}, 'PASS_TO_FAIL': {'success': [], 'failure': []}}}}
+Result for pallets__flask-4045: resolved: False
+2026-06-14 21:31:46,231 - INFO - Attempting to stop container sweb.eval.pallets__flask-4045.raps_dev6_v4...
+2026-06-14 21:32:01,679 - INFO - Attempting to remove container sweb.eval.pallets__flask-4045.raps_dev6_v4...
+2026-06-14 21:32:01,690 - INFO - Container sweb.eval.pallets__flask-4045.raps_dev6_v4 removed.
+2026-06-14 21:32:01,690 - INFO - Attempting to remove image swebench/sweb.eval.x86_64.pallets_1776_flask-4045:latest...
+2026-06-14 21:32:02,190 - INFO - Image swebench/sweb.eval.x86_64.pallets_1776_flask-4045:latest removed.

@@ -1,0 +1,76 @@
+diff --git a/requests/cookies.py b/requests/cookies.py
+index 831c49c6..52e1d8de 100644
+--- a/requests/cookies.py
++++ b/requests/cookies.py
+@@ -156,7 +156,7 @@ class CookieConflictError(RuntimeError):
+     Use .get and .set and include domain and path args in order to be more specific."""
+ 
+ 
+-class RequestsCookieJar(cookielib.CookieJar, collections.MutableMapping):
++class RequestsCookieJar(cookielib.CookieJar, collections.abc.MutableMapping):
+     """Compatibility class; is a cookielib.CookieJar, but exposes a dict interface.
+ 
+     This is the CookieJar we create by default for requests and sessions that
+diff --git a/requests/models.py b/requests/models.py
+index e2fa09f8..f88a7594 100644
+--- a/requests/models.py
++++ b/requests/models.py
+@@ -161,7 +161,7 @@ class RequestHooksMixin(object):
+         if event not in self.hooks:
+             raise ValueError('Unsupported event specified, with event name "%s"' % (event))
+ 
+-        if isinstance(hook, collections.Callable):
++        if isinstance(hook, collections.abc.Callable):
+             self.hooks[event].append(hook)
+         elif hasattr(hook, '__iter__'):
+             self.hooks[event].extend(h for h in hook if isinstance(h, collections.Callable))
+diff --git a/requests/sessions.py b/requests/sessions.py
+index 425db22c..f3d657d8 100644
+--- a/requests/sessions.py
++++ b/requests/sessions.py
+@@ -9,7 +9,7 @@ requests (cookies, auth, proxies).
+ 
+ """
+ import os
+-from collections import Mapping
++from collections.abc import Mapping
+ from datetime import datetime
+ 
+ from .compat import cookielib, OrderedDict, urljoin, urlparse, builtin_str
+@@ -136,6 +136,10 @@ class SessionRedirectMixin(object):
+                 method = 'GET'
+ 
+             prepared_request.method = method
++            if resp.status_code == codes.see_other and method != "HEAD":
++                method = "GET"
++            elif resp.status_code == codes.temporary and method == "GET":
++                method = "GET"
+ 
+             # https://github.com/kennethreitz/requests/issues/1084
+             if resp.status_code not in (codes.temporary, codes.resume):
+diff --git a/requests/structures.py b/requests/structures.py
+index a1759137..d2dbc26d 100644
+--- a/requests/structures.py
++++ b/requests/structures.py
+@@ -34,7 +34,7 @@ class IteratorProxy(object):
+         return "".join(islice(self.i, None, n))
+ 
+ 
+-class CaseInsensitiveDict(collections.MutableMapping):
++class CaseInsensitiveDict(collections.abc.MutableMapping):
+     """
+     A case-insensitive ``dict``-like object.
+ 
+diff --git a/requests/utils.py b/requests/utils.py
+index 4d648bc5..60053caa 100644
+--- a/requests/utils.py
++++ b/requests/utils.py
+@@ -160,7 +160,7 @@ def to_key_val_list(value):
+     if isinstance(value, (str, bytes, bool, int)):
+         raise ValueError('cannot encode objects that are not 2-tuples')
+ 
+-    if isinstance(value, collections.Mapping):
++    if isinstance(value, collections.abc.Mapping):
+         value = value.items()
+ 
+     return list(value)

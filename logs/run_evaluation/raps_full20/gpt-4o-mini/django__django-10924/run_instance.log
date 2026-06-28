@@ -1,0 +1,55 @@
+2026-06-15 02:59:52,267 - INFO - Creating container for django__django-10924...
+2026-06-15 02:59:52,294 - INFO - Container for django__django-10924 created: 7146980ba2ff18e5b274e81bd191fb6185c856683363e98283ae8cf8db38f654
+2026-06-15 02:59:52,497 - INFO - Container for django__django-10924 started: 7146980ba2ff18e5b274e81bd191fb6185c856683363e98283ae8cf8db38f654
+2026-06-15 02:59:52,498 - INFO - Intermediate patch for django__django-10924 written to logs/run_evaluation/raps_full20/gpt-4o-mini/django__django-10924/patch.diff, now applying to container...
+2026-06-15 02:59:52,609 - INFO - >>>>> Applied Patch:
+Checking patch django/db/models/fields/__init__.py...
+Applied patch django/db/models/fields/__init__.py cleanly.
+
+2026-06-15 02:59:53,479 - INFO - Git diff before:
+diff --git a/django/db/models/fields/__init__.py b/django/db/models/fields/__init__.py
+index 0c64748ccd..1e2c1af429 100644
+--- a/django/db/models/fields/__init__.py
++++ b/django/db/models/fields/__init__.py
+@@ -1663,7 +1663,11 @@ class FilePathField(Field):
+ 
+     def __init__(self, verbose_name=None, name=None, path='', match=None,
+                  recursive=False, allow_files=True, allow_folders=False, **kwargs):
+-        self.path, self.match, self.recursive = path, match, recursive
++        if callable(path):
++            self.path = path()
++        else:
++            self.path = path
++        self.match, self.recursive = match, recursive
+         self.allow_files, self.allow_folders = allow_files, allow_folders
+         kwargs.setdefault('max_length', 100)
+         super().__init__(verbose_name, name, **kwargs)
+2026-06-15 02:59:53,480 - INFO - Eval script for django__django-10924 written to logs/run_evaluation/raps_full20/gpt-4o-mini/django__django-10924/eval.sh; copying to container...
+2026-06-15 03:00:00,135 - INFO - Test runtime: 6.59 seconds
+2026-06-15 03:00:00,135 - INFO - Test output for django__django-10924 written to logs/run_evaluation/raps_full20/gpt-4o-mini/django__django-10924/test_output.txt
+2026-06-15 03:00:00,238 - INFO - Git diff after:
+diff --git a/django/db/models/fields/__init__.py b/django/db/models/fields/__init__.py
+index 0c64748ccd..1e2c1af429 100644
+--- a/django/db/models/fields/__init__.py
++++ b/django/db/models/fields/__init__.py
+@@ -1663,7 +1663,11 @@ class FilePathField(Field):
+ 
+     def __init__(self, verbose_name=None, name=None, path='', match=None,
+                  recursive=False, allow_files=True, allow_folders=False, **kwargs):
+-        self.path, self.match, self.recursive = path, match, recursive
++        if callable(path):
++            self.path = path()
++        else:
++            self.path = path
++        self.match, self.recursive = match, recursive
+         self.allow_files, self.allow_folders = allow_files, allow_folders
+         kwargs.setdefault('max_length', 100)
+         super().__init__(verbose_name, name, **kwargs)
+2026-06-15 03:00:00,238 - INFO - Grading answer for django__django-10924...
+2026-06-15 03:00:00,240 - INFO - report: {'django__django-10924': {'patch_is_None': False, 'patch_exists': True, 'patch_successfully_applied': True, 'resolved': False, 'tests_status': {'FAIL_TO_PASS': {'success': [], 'failure': ['test_callable_path (model_fields.test_filepathfield.FilePathFieldTests)']}, 'PASS_TO_PASS': {'success': ['test_path (model_fields.test_filepathfield.FilePathFieldTests)'], 'failure': []}, 'FAIL_TO_FAIL': {'success': [], 'failure': []}, 'PASS_TO_FAIL': {'success': [], 'failure': []}}}}
+Result for django__django-10924: resolved: False
+2026-06-15 03:00:00,241 - INFO - Attempting to stop container sweb.eval.django__django-10924.raps_full20...
+2026-06-15 03:00:15,662 - INFO - Attempting to remove container sweb.eval.django__django-10924.raps_full20...
+2026-06-15 03:00:15,786 - INFO - Container sweb.eval.django__django-10924.raps_full20 removed.
+2026-06-15 03:00:15,788 - INFO - Attempting to remove image swebench/sweb.eval.x86_64.django_1776_django-10924:latest...
+2026-06-15 03:00:16,547 - INFO - Image swebench/sweb.eval.x86_64.django_1776_django-10924:latest removed.

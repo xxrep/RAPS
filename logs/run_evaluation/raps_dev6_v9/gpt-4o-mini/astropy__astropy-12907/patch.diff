@@ -1,0 +1,22 @@
+diff --git a/astropy/modeling/separable.py b/astropy/modeling/separable.py
+index a308e2729..98ee79c7e 100644
+--- a/astropy/modeling/separable.py
++++ b/astropy/modeling/separable.py
+@@ -97,7 +97,16 @@ def separability_matrix(transform):
+     if transform.n_inputs == 1 and transform.n_outputs > 1:
+         return np.ones((transform.n_outputs, transform.n_inputs),
+                        dtype=np.bool_)
+-    separable_matrix = _separable(transform)
++    if isinstance(transform, CompoundModel):
++        separable_matrix = np.zeros((transform.n_outputs, transform.n_inputs), dtype=np.bool_)
++        left_separability = _separable(transform.left)
++        right_separability = _separable(transform.right)
++        separable_matrix[:len(left_separability), :transform.left.n_inputs] = left_separability[:, None]
++        separable_matrix[len(left_separability):, transform.left.n_inputs:] = right_separability[:, None]
++        # Ensure that the outputs are treated as independent
++        separable_matrix[len(left_separability):, -len(right_separability):] = right_separability[:, None]
++    else:
++        separable_matrix = _separable(transform)
+     separable_matrix = np.where(separable_matrix != 0, True, False)
+     return separable_matrix
+ 

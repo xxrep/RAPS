@@ -1,0 +1,544 @@
+{
+  "task": "def fibfib(n: int) -> int:\n    \"\"\"The FibFib number sequence is a sequence similar to the Fibbonacci sequnece that's defined as follows:\n    fibfib(0) == 0\n    fibfib(1) == 0\n    fibfib(2) == 1\n    fibfib(n) == fibfib(n-1) + fibfib(n-2) + fibfib(n-3).\n    Please write a function to efficiently compute the n-th element of the fibfib number sequence.\n    >>> fibfib(1)\n    0\n    >>> fibfib(5)\n    4\n    >>> fibfib(8)\n    24\n    \"\"\"\n",
+  "steps": [
+    {
+      "step": 1,
+      "active_agents": [
+        "Project Manager_Frih"
+      ],
+      "publications": [
+        {
+          "sender_id": "Project Manager_Frih",
+          "role": "Project Manager",
+          "content": "To optimize the `fibfib` function, use memoization to store previously computed values. This avoids redundant calculations. Here's an efficient implementation:\n\n```python\ndef fibfib(n: int, memo={0: 0, 1: 0, 2: 1}) -> int:\n    if n in memo:\n        return memo[n]\n    memo[n] = fibfib(n-1, memo) + fibfib(n-2, memo) + fibfib(n-3, memo)\n    return memo[n]\n```\n\nAlternatively, an iterative approach can be used:\n\n```python\ndef fibfib(n: int) -> int:\n    if n == 0: return 0\n    if n == 1: return 0\n    if n == 2: return 1\n    \n    fibfib_values = [0, 0, 1] + [0] * (n - 2)\n    for i in range(3, n + 1):\n        fibfib_values[i] = fibfib_values[i-1] + fibfib_values[i-2] + fibfib_values[i-3]\n    return fibfib_values[n]\n```\n\nBoth methods significantly improve performance over naive recursion."
+        }
+      ],
+      "refinements": {
+        "Project Manager_Frih": {
+          "role": "Project Manager",
+          "pre_refinement": "You are a project manager. You will be given a function signature and its docstring by the user. You are responsible for overseeing the overall structure of the code, ensuring that the code is structured to complete the task Implement code concisely and correctly without pursuing over-engineering.You need to suggest optimal design patterns to ensure that the code follows best practices for maintainability and flexibility. You can specify the overall design of the code, including the classes that need to be defined(maybe none) and the functions used (maybe only one function) .I hope your reply will be more concise. Preferably within fifty words. Don\u2019t list too many points.",
+          "post_refinement": "You are a project manager tasked with implementing the `fibfib` function efficiently. Focus on optimizing the recursive approach to avoid excessive computation. Suggest a memoization technique or an iterative solution to enhance performance. Keep your response concise, ideally within fifty words."
+        }
+      },
+      "broker_decisions": [
+        {
+          "sender": "Project Manager_Frih",
+          "matched_keys": [
+            "Programming Expert_WVnf"
+          ],
+          "receivers": [
+            "Programming Expert_WVnf"
+          ]
+        }
+      ],
+      "llm_calls": {
+        "Project Manager_Frih": [
+          {
+            "type": "refine_system_prompt",
+            "messages": [
+              {
+                "role": "system",
+                "content": "You are an expert prompt refiner who tailors agent instructions to the current question and context based on the evolving workflow."
+              },
+              {
+                "role": "user",
+                "content": "### GOAL\nYour task is to dynamically specialize an LLM agent's persona to perfectly align with the specific needs of the current problem state.\nDo NOT simply summarize the old profile. Instead, evolve the agent's intent to be highly specific to the immediate context.\n\n### INPUT DATA\n1. **Base Profile (Starting Point):**\nYou are a project manager. You will be given a function signature and its docstring by the user. You are responsible for overseeing the overall structure of the code, ensuring that the code is structured to complete the task Implement code concisely and correctly without pursuing over-engineering.You need to suggest optimal design patterns to ensure that the code follows best practices for maintainability and flexibility. You can specify the overall design of the code, including the classes that need to be defined(maybe none) and the functions used (maybe only one function) .I hope your reply will be more concise. Preferably within fifty words. Don\u2019t list too many points.\n\n2. **Current Task/Question:**\ndef fibfib(n: int) -> int:\n    \"\"\"The FibFib number sequence is a sequence similar to the Fibbonacci sequnece that's defined as follows:\n    fibfib(0) == 0\n    fibfib(1) == 0\n    fibfib(2) == 1\n    fibfib(n) == fibfib(n-1) + fibfib(n-2) + fibfib(n-3).\n    Please write a function to efficiently compute the n-th element of the fibfib number sequence.\n    >>> fibfib(1)\n    0\n    >>> fibfib(5)\n    4\n    >>> fibfib(8)\n    24\n    \"\"\"\n\n\n3. **Interaction Context (Message Flow):**\nHistory:\nNone\n\n### INSTRUCTIONS\n- Analyze the `Current Task` and `Interaction Context` to identify what specific expertise, constraints, or output format is missing or needed right now.\n- Ignore generic traits in the `Base Profile` if they are not relevant to the current step.\n- Rewrite the System Instruction to explicitly guide the agent on *how* to process the specific input in the context.\n- The new instruction should act like a focused 'Mission Briefing' for this specific step of the chain.\n\n### OUTPUT FORMAT\nReturn ONLY the refined system instruction string. No explanations."
+              }
+            ],
+            "output": "You are a project manager tasked with implementing the `fibfib` function efficiently. Focus on optimizing the recursive approach to avoid excessive computation. Suggest a memoization technique or an iterative solution to enhance performance. Keep your response concise, ideally within fifty words."
+          },
+          {
+            "type": "publish",
+            "messages": [
+              {
+                "role": "system",
+                "content": "You are a project manager tasked with implementing the `fibfib` function efficiently. Focus on optimizing the recursive approach to avoid excessive computation. Suggest a memoization technique or an iterative solution to enhance performance. Keep your response concise, ideally within fifty words."
+              },
+              {
+                "role": "user",
+                "content": "\n\nThe task is:\ndef fibfib(n: int) -> int:\n    \"\"\"The FibFib number sequence is a sequence similar to the Fibbonacci sequnece that's defined as follows:\n    fibfib(0) == 0\n    fibfib(1) == 0\n    fibfib(2) == 1\n    fibfib(n) == fibfib(n-1) + fibfib(n-2) + fibfib(n-3).\n    Please write a function to efficiently compute the n-th element of the fibfib number sequence.\n    >>> fibfib(1)\n    0\n    >>> fibfib(5)\n    4\n    >>> fibfib(8)\n    24\n    \"\"\"\n\n"
+              }
+            ],
+            "output": "To optimize the `fibfib` function, use memoization to store previously computed values. This avoids redundant calculations. Here's an efficient implementation:\n\n```python\ndef fibfib(n: int, memo={0: 0, 1: 0, 2: 1}) -> int:\n    if n in memo:\n        return memo[n]\n    memo[n] = fibfib(n-1, memo) + fibfib(n-2, memo) + fibfib(n-3, memo)\n    return memo[n]\n```\n\nAlternatively, an iterative approach can be used:\n\n```python\ndef fibfib(n: int) -> int:\n    if n == 0: return 0\n    if n == 1: return 0\n    if n == 2: return 1\n    \n    fibfib_values = [0, 0, 1] + [0] * (n - 2)\n    for i in range(3, n + 1):\n        fibfib_values[i] = fibfib_values[i-1] + fibfib_values[i-2] + fibfib_values[i-3]\n    return fibfib_values[n]\n```\n\nBoth methods significantly improve performance over naive recursion."
+          },
+          {
+            "type": "broker_route",
+            "messages": [
+              {
+                "role": "system",
+                "content": "You are a semantic router. You bridge the gap between current progress and required expertise."
+              },
+              {
+                "role": "user",
+                "content": "You are coordinating a multi-agent system.\nChoose the most suitable downstream role based on the available role options.\nPrevious agents' outputs:\nAgent Project Manager_Frih (Project Manager): To optimize the `fibfib` function, use memoization to store previously computed values. This avoids redundant calculations. Here's an efficient implementation:\n\n```python\ndef fibfib(n: int, memo={0: 0, 1: 0, 2: 1}) -> int:\n    if n in memo:\n        return memo[n]\n    memo[n] = fibfib(n-1, memo) + fibfib(n-2, memo) + fibfib(n-3, memo)\n    return memo[n]\n```\n\nAlternatively, an iterative approach can be used:\n\n```python\ndef fibfib(n: int) -> int:\n    if n == 0: return 0\n    if n == 1: return 0\n    if n == 2: return 1\n    \n    fibfib_values = [0, 0, 1] + [0] * (n - 2)\n    for i in range(3, n + 1):\n        fibfib_values[i] = fibfib_values[i-1] + fibfib_values[i-2] + fibfib_values[i-3]\n    return fibfib_values[n]\n```\n\nBoth methods significantly improve performance over naive recursion.\n\nAvailable downstream roles (current agent excluded):\n1. [Algorithm Designer_C2QQ] You are an algorithm designer. You will be given a function signature and its docstring by the user. You need to specify the specific design of the algorithm, including the classes that may be defined and the functions used. You need to generate the detailed documentation, including explanations of the algorithm, usage instructions, and API references. When the implementation logic is complex, you can give the pseudocode logic of the main algorithm.I hope your reply will be more concise. Preferably within fifty words. Don\u2019t list too many points.\n2. [Programming Expert_WVnf] You are a programming expert. You will be given a function signature and its docstring by the user. You may be able to get the output results of other agents. They may have passed internal tests, but they may not be completely correct. Write your full implementation (restate the function signature). Use a Python code block to write your response. For example:\n```python\nprint('Hello world!')\n```Do not include anything other than Python code blocks in your response. Do not change function names and input variable types in tasks.\n3. [Test Analyst_WasE] You are a test analyst. You will be given a function signature and its docstring by the user. You need to provide problems in the current code or solution based on the test data and possible test feedback in the question. You need to provide additional special use cases, boundary conditions, etc. that should be paid attention to when writing code. You can point out any potential errors in the code.I hope your reply will be more concise. Preferably within fifty words. Don\u2019t list too many points.\n4. [Bug Fixer_CjVE] You are a bug fixer.You will be given a function signature and its docstring by the user. You need to provide modified and improved python code based on the current overall code design, algorithm framework, code implementation or test problems. Write your full implementation (restate the function signature). Use a Python code block to write your response. For example:\n```python\nprint('Hello world!')\n```Do not include anything other than Python code blocks in your response Do not change function names and input variable types in tasks\n\nWrite a concise role description grounded in the options above. Do not write a task plan. Keep it under 100 words."
+              }
+            ],
+            "output": "The most suitable downstream role is **Programming Expert_WVnf**. This role involves restating the function signature and providing a complete implementation of the `fibfib` function based on the previous agents' outputs. The expert will ensure the code is correct and adheres to the specified input variable types without altering function names."
+          }
+        ]
+      },
+      "reputation": {}
+    },
+    {
+      "step": 2,
+      "active_agents": [
+        "Programming Expert_WVnf"
+      ],
+      "publications": [
+        {
+          "sender_id": "Programming Expert_WVnf",
+          "role": "Programming Expert",
+          "content": "```python\ndef fibfib(n: int) -> int:\n    \"\"\"The FibFib number sequence is a sequence similar to the Fibonacci sequence that's defined as follows:\n    fibfib(0) == 0\n    fibfib(1) == 0\n    fibfib(2) == 1\n    fibfib(n) == fibfib(n-1) + fibfib(n-2) + fibfib(n-3).\n    >>> fibfib(1)\n    0\n    >>> fibfib(5)\n    4\n    >>> fibfib(8)\n    24\n    \"\"\"\n    if n == 0:\n        return 0\n    if n == 1:\n        return 0\n    if n == 2:\n        return 1\n    \n    fibfib_values = [0] * (n + 1)\n    fibfib_values[0], fibfib_values[1], fibfib_values[2] = 0, 0, 1\n    \n    for i in range(3, n + 1):\n        fibfib_values[i] = fibfib_values[i-1] + fibfib_values[i-2] + fibfib_values[i-3]\n    \n    return fibfib_values[n]\n```"
+        }
+      ],
+      "refinements": {
+        "Programming Expert_WVnf": {
+          "role": "Programming Expert",
+          "pre_refinement": "You are a programming expert. You will be given a function signature and its docstring by the user. You may be able to get the output results of other agents. They may have passed internal tests, but they may not be completely correct. Write your full implementation (restate the function signature). Use a Python code block to write your response. For example:\n```python\nprint('Hello world!')\n```Do not include anything other than Python code blocks in your response. Do not change function names and input variable types in tasks.",
+          "post_refinement": "You are a programming expert specializing in optimizing recursive functions using memoization and iterative approaches. Your task is to implement the `fibfib` function efficiently, ensuring it adheres to the provided function signature and docstring. Focus on delivering a solution that minimizes redundant calculations. Use a Python code block for your response, and ensure that the implementation is clear and follows best practices for performance. Do not include any additional text outside of the code block."
+        }
+      },
+      "broker_decisions": [
+        {
+          "sender": "Programming Expert_WVnf",
+          "matched_keys": [
+            "Project Manager_Frih"
+          ],
+          "receivers": [
+            "Project Manager_Frih"
+          ]
+        }
+      ],
+      "llm_calls": {
+        "Project Manager_Frih": [
+          {
+            "type": "watchdog_evaluate",
+            "messages": [
+              {
+                "role": "system",
+                "content": "You are a watchdog evaluator."
+              },
+              {
+                "role": "user",
+                "content": "You are a watchdog for an intelligent agent system.\nPlease evaluate the following new message from another agent.\nDecide whether it is logically relevant and valuable for solving the math problem:\ndef fibfib(n: int) -> int:\n    \"\"\"The FibFib number sequence is a sequence similar to the Fibbonacci sequnece that's defined as follows:\n    fibfib(0) == 0\n    fibfib(1) == 0\n    fibfib(2) == 1\n    fibfib(n) == fibfib(n-1) + fibfib(n-2) + fibfib(n-3).\n    Please write a function to efficiently compute the n-th element of the fibfib number sequence.\n    >>> fibfib(1)\n    0\n    >>> fibfib(5)\n    4\n    >>> fibfib(8)\n    24\n    \"\"\"\n\nYour known information:\nProject Manager (Project Manager_Frih): To optimize the `fibfib` function, use memoization to store previously computed values. This avoids redundant calculations. Here's an efficient implementation:\n\n```python\ndef fibfib(n: int, memo={0: 0, 1: 0, 2: 1}) -> int:\n    if n in memo:\n        return memo[n]\n    memo[n] = fibfib(n-1, memo) + fibfib(n-2, memo) + fibfib(n-3, memo)\n    return memo[n]\n```\n\nAlternatively, an iterative approach can be used:\n\n```python\ndef fibfib(n: int) -> int:\n    if n == 0: return 0\n    if n == 1: return 0\n    if n == 2: return 1\n    \n    fibfib_values = [0, 0, 1] + [0] * (n - 2)\n    for i in range(3, n + 1):\n        fibfib_values[i] = fibfib_values[i-1] + fibfib_values[i-2] + fibfib_values[i-3]\n    return fibfib_values[n]\n```\n\nBoth methods significantly improve performance over naive recursion.\n\nThe new message from another agent:\n```python\ndef fibfib(n: int) -> int:\n    \"\"\"The FibFib number sequence is a sequence similar to the Fibonacci sequence that's defined as follows:\n    fibfib(0) == 0\n    fibfib(1) == 0\n    fibfib(2) == 1\n    fibfib(n) == fibfib(n-1) + fibfib(n-2) + fibfib(n-3).\n    >>> fibfib(1)\n    0\n    >>> fibfib(5)\n    4\n    >>> fibfib(8)\n    24\n    \"\"\"\n    if n == 0:\n        return 0\n    if n == 1:\n        return 0\n    if n == 2:\n        return 1\n    \n    fibfib_values = [0] * (n + 1)\n    fibfib_values[0], fibfib_values[1], fibfib_values[2] = 0, 0, 1\n    \n    for i in range(3, n + 1):\n        fibfib_values[i] = fibfib_values[i-1] + fibfib_values[i-2] + fibfib_values[i-3]\n    \n    return fibfib_values[n]\n```\n\nA message is valuable if it is coherent, grounded in the problem, adds supporting evidence, provides a correction, or clarifies reasoning.\nDisagreement with others is acceptable when it is well-justified.\nRespond with 'YES' if it is good, 'NO' if it is bad or a hallucination.\nDo not provide explanations, just YES or NO."
+              }
+            ],
+            "output": "YES"
+          }
+        ],
+        "Programming Expert_WVnf": [
+          {
+            "type": "refine_system_prompt",
+            "messages": [
+              {
+                "role": "system",
+                "content": "You are an expert prompt refiner who tailors agent instructions to the current question and context based on the evolving workflow."
+              },
+              {
+                "role": "user",
+                "content": "### GOAL\nYour task is to dynamically specialize an LLM agent's persona to perfectly align with the specific needs of the current problem state.\nDo NOT simply summarize the old profile. Instead, evolve the agent's intent to be highly specific to the immediate context.\n\n### INPUT DATA\n1. **Base Profile (Starting Point):**\nYou are a programming expert. You will be given a function signature and its docstring by the user. You may be able to get the output results of other agents. They may have passed internal tests, but they may not be completely correct. Write your full implementation (restate the function signature). Use a Python code block to write your response. For example:\n```python\nprint('Hello world!')\n```Do not include anything other than Python code blocks in your response. Do not change function names and input variable types in tasks.\n\n2. **Current Task/Question:**\ndef fibfib(n: int) -> int:\n    \"\"\"The FibFib number sequence is a sequence similar to the Fibbonacci sequnece that's defined as follows:\n    fibfib(0) == 0\n    fibfib(1) == 0\n    fibfib(2) == 1\n    fibfib(n) == fibfib(n-1) + fibfib(n-2) + fibfib(n-3).\n    Please write a function to efficiently compute the n-th element of the fibfib number sequence.\n    >>> fibfib(1)\n    0\n    >>> fibfib(5)\n    4\n    >>> fibfib(8)\n    24\n    \"\"\"\n\n\n3. **Interaction Context (Message Flow):**\nHistory:\nProject Manager: To optimize the `fibfib` function, use memoization to store previously computed values. This avoids redundant calculations. Here's an efficient implementation:\n\n```python\ndef fibfib(n: int, memo={0: 0, 1: 0, 2: 1}) -> int:\n    if n in memo:\n        return memo[n]\n    memo[n] = fibfib(n-1, memo) + fibfib(n-2, memo) + fibfib(n-3, memo)\n    return memo[n]\n```\n\nAlternatively, an iterative approach can be used:\n\n```python\ndef fibfib(n: int) -> int:\n    if n == 0: return 0\n    if n == 1: return 0\n    if n == 2: return 1\n    \n    fibfib_values = [0, 0, 1] + [0] * (n - 2)\n    for i in range(3, n + 1):\n        fibfib_values[i] = fibfib_values[i-1] + fibfib_values[i-2] + fibfib_values[i-3]\n    return fibfib_values[n]\n```\n\nBoth methods significantly improve performance over naive recursion.\n\n### INSTRUCTIONS\n- Analyze the `Current Task` and `Interaction Context` to identify what specific expertise, constraints, or output format is missing or needed right now.\n- Ignore generic traits in the `Base Profile` if they are not relevant to the current step.\n- Rewrite the System Instruction to explicitly guide the agent on *how* to process the specific input in the context.\n- The new instruction should act like a focused 'Mission Briefing' for this specific step of the chain.\n\n### OUTPUT FORMAT\nReturn ONLY the refined system instruction string. No explanations."
+              }
+            ],
+            "output": "You are a programming expert specializing in optimizing recursive functions using memoization and iterative approaches. Your task is to implement the `fibfib` function efficiently, ensuring it adheres to the provided function signature and docstring. Focus on delivering a solution that minimizes redundant calculations. Use a Python code block for your response, and ensure that the implementation is clear and follows best practices for performance. Do not include any additional text outside of the code block."
+          },
+          {
+            "type": "publish",
+            "messages": [
+              {
+                "role": "system",
+                "content": "You are a programming expert specializing in optimizing recursive functions using memoization and iterative approaches. Your task is to implement the `fibfib` function efficiently, ensuring it adheres to the provided function signature and docstring. Focus on delivering a solution that minimizes redundant calculations. Use a Python code block for your response, and ensure that the implementation is clear and follows best practices for performance. Do not include any additional text outside of the code block."
+              },
+              {
+                "role": "user",
+                "content": "\n\nThe task is:\ndef fibfib(n: int) -> int:\n    \"\"\"The FibFib number sequence is a sequence similar to the Fibbonacci sequnece that's defined as follows:\n    fibfib(0) == 0\n    fibfib(1) == 0\n    fibfib(2) == 1\n    fibfib(n) == fibfib(n-1) + fibfib(n-2) + fibfib(n-3).\n    Please write a function to efficiently compute the n-th element of the fibfib number sequence.\n    >>> fibfib(1)\n    0\n    >>> fibfib(5)\n    4\n    >>> fibfib(8)\n    24\n    \"\"\"\n\n\nPrevious Discussions and Plans:\nProject Manager: To optimize the `fibfib` function, use memoization to store previously computed values. This avoids redundant calculations. Here's an efficient implementation:\n\n```python\ndef fibfib(n: int, memo={0: 0, 1: 0, 2: 1}) -> int:\n    if n in memo:\n        return memo[n]\n    memo[n] = fibfib(n-1, memo) + fibfib(n-2, memo) + fibfib(n-3, memo)\n    return memo[n]\n```\n\nAlternatively, an iterative approach can be used:\n\n```python\ndef fibfib(n: int) -> int:\n    if n == 0: return 0\n    if n == 1: return 0\n    if n == 2: return 1\n    \n    fibfib_values = [0, 0, 1] + [0] * (n - 2)\n    for i in range(3, n + 1):\n        fibfib_values[i] = fibfib_values[i-1] + fibfib_values[i-2] + fibfib_values[i-3]\n    return fibfib_values[n]\n```\n\nBoth methods significantly improve performance over naive recursion.\n"
+              }
+            ],
+            "output": "```python\ndef fibfib(n: int) -> int:\n    \"\"\"The FibFib number sequence is a sequence similar to the Fibonacci sequence that's defined as follows:\n    fibfib(0) == 0\n    fibfib(1) == 0\n    fibfib(2) == 1\n    fibfib(n) == fibfib(n-1) + fibfib(n-2) + fibfib(n-3).\n    >>> fibfib(1)\n    0\n    >>> fibfib(5)\n    4\n    >>> fibfib(8)\n    24\n    \"\"\"\n    if n == 0:\n        return 0\n    if n == 1:\n        return 0\n    if n == 2:\n        return 1\n    \n    fibfib_values = [0] * (n + 1)\n    fibfib_values[0], fibfib_values[1], fibfib_values[2] = 0, 0, 1\n    \n    for i in range(3, n + 1):\n        fibfib_values[i] = fibfib_values[i-1] + fibfib_values[i-2] + fibfib_values[i-3]\n    \n    return fibfib_values[n]\n```"
+          },
+          {
+            "type": "broker_route",
+            "messages": [
+              {
+                "role": "system",
+                "content": "You are a semantic router. You bridge the gap between current progress and required expertise."
+              },
+              {
+                "role": "user",
+                "content": "You are coordinating a multi-agent system.\nChoose the most suitable downstream role based on the available role options.\nPrevious agents' outputs:\nAgent Programming Expert_WVnf (Programming Expert): ```python\ndef fibfib(n: int) -> int:\n    \"\"\"The FibFib number sequence is a sequence similar to the Fibonacci sequence that's defined as follows:\n    fibfib(0) == 0\n    fibfib(1) == 0\n    fibfib(2) == 1\n    fibfib(n) == fibfib(n-1) + fibfib(n-2) + fibfib(n-3).\n    >>> fibfib(1)\n    0\n    >>> fibfib(5)\n    4\n    >>> fibfib(8)\n    24\n    \"\"\"\n    if n == 0:\n        return 0\n    if n == 1:\n        return 0\n    if n == 2:\n        return 1\n    \n    fibfib_values = [0] * (n + 1)\n    fibfib_values[0], fibfib_values[1], fibfib_values[2] = 0, 0, 1\n    \n    for i in range(3, n + 1):\n        fibfib_values[i] = fibfib_values[i-1] + fibfib_values[i-2] + fibfib_values[i-3]\n    \n    return fibfib_values[n]\n```\n\nAvailable downstream roles (current agent excluded):\n1. [Project Manager_Frih] You are a project manager tasked with implementing the `fibfib` function efficiently. Focus on optimizing the recursive approach to avoid excessive computation. Suggest a memoization technique or an iterative solution to enhance performance. Keep your response concise, ideally within fifty words.\n2. [Algorithm Designer_C2QQ] You are an algorithm designer. You will be given a function signature and its docstring by the user. You need to specify the specific design of the algorithm, including the classes that may be defined and the functions used. You need to generate the detailed documentation, including explanations of the algorithm, usage instructions, and API references. When the implementation logic is complex, you can give the pseudocode logic of the main algorithm.I hope your reply will be more concise. Preferably within fifty words. Don\u2019t list too many points.\n3. [Test Analyst_WasE] You are a test analyst. You will be given a function signature and its docstring by the user. You need to provide problems in the current code or solution based on the test data and possible test feedback in the question. You need to provide additional special use cases, boundary conditions, etc. that should be paid attention to when writing code. You can point out any potential errors in the code.I hope your reply will be more concise. Preferably within fifty words. Don\u2019t list too many points.\n4. [Bug Fixer_CjVE] You are a bug fixer.You will be given a function signature and its docstring by the user. You need to provide modified and improved python code based on the current overall code design, algorithm framework, code implementation or test problems. Write your full implementation (restate the function signature). Use a Python code block to write your response. For example:\n```python\nprint('Hello world!')\n```Do not include anything other than Python code blocks in your response Do not change function names and input variable types in tasks\n\nWrite a concise role description grounded in the options above. Do not write a task plan. Keep it under 100 words."
+              }
+            ],
+            "output": "The most suitable downstream role is **Test Analyst_WasE**. This role focuses on identifying potential issues in the provided `fibfib` function, including edge cases and boundary conditions. The analyst will assess the current implementation for correctness and robustness, ensuring comprehensive test coverage and highlighting any special use cases that may affect functionality."
+          }
+        ]
+      },
+      "reputation": {
+        "Project Manager_Frih": {
+          "Programming Expert_WVnf": 0.6667
+        }
+      }
+    },
+    {
+      "step": 3,
+      "active_agents": [
+        "Project Manager_Frih"
+      ],
+      "publications": [
+        {
+          "sender_id": "Project Manager_Frih",
+          "role": "Project Manager",
+          "content": "```python\ndef fibfib(n: int) -> int:\n    if n == 0: return 0\n    if n == 1: return 0\n    if n == 2: return 1\n    \n    a, b, c = 0, 0, 1\n    for _ in range(3, n + 1):\n        a, b, c = b, c, a + b + c\n    \n    return c\n```\n\nThis iterative approach uses constant space, maintaining only the last three computed values, thus optimizing both time and space complexity while avoiding recursion."
+        }
+      ],
+      "refinements": {
+        "Project Manager_Frih": {
+          "role": "Project Manager",
+          "pre_refinement": "You are a project manager. You will be given a function signature and its docstring by the user. You are responsible for overseeing the overall structure of the code, ensuring that the code is structured to complete the task Implement code concisely and correctly without pursuing over-engineering.You need to suggest optimal design patterns to ensure that the code follows best practices for maintainability and flexibility. You can specify the overall design of the code, including the classes that need to be defined(maybe none) and the functions used (maybe only one function) .I hope your reply will be more concise. Preferably within fifty words. Don\u2019t list too many points.",
+          "post_refinement": "You are a programming expert focused on optimizing the implementation of the `fibfib` function. Ensure the code is efficient, avoiding recursion to prevent stack overflow for larger `n`. Use an iterative approach with a space-efficient method, and provide a concise explanation of your design choices. Limit your response to fifty words."
+        }
+      },
+      "broker_decisions": [
+        {
+          "sender": "Project Manager_Frih",
+          "matched_keys": [
+            "Programming Expert_WVnf"
+          ],
+          "receivers": [
+            "Programming Expert_WVnf"
+          ]
+        }
+      ],
+      "llm_calls": {
+        "Project Manager_Frih": [
+          {
+            "type": "refine_system_prompt",
+            "messages": [
+              {
+                "role": "system",
+                "content": "You are an expert prompt refiner who tailors agent instructions to the current question and context based on the evolving workflow."
+              },
+              {
+                "role": "user",
+                "content": "### GOAL\nYour task is to dynamically specialize an LLM agent's persona to perfectly align with the specific needs of the current problem state.\nDo NOT simply summarize the old profile. Instead, evolve the agent's intent to be highly specific to the immediate context.\n\n### INPUT DATA\n1. **Base Profile (Starting Point):**\nYou are a project manager. You will be given a function signature and its docstring by the user. You are responsible for overseeing the overall structure of the code, ensuring that the code is structured to complete the task Implement code concisely and correctly without pursuing over-engineering.You need to suggest optimal design patterns to ensure that the code follows best practices for maintainability and flexibility. You can specify the overall design of the code, including the classes that need to be defined(maybe none) and the functions used (maybe only one function) .I hope your reply will be more concise. Preferably within fifty words. Don\u2019t list too many points.\n\n2. **Current Task/Question:**\ndef fibfib(n: int) -> int:\n    \"\"\"The FibFib number sequence is a sequence similar to the Fibbonacci sequnece that's defined as follows:\n    fibfib(0) == 0\n    fibfib(1) == 0\n    fibfib(2) == 1\n    fibfib(n) == fibfib(n-1) + fibfib(n-2) + fibfib(n-3).\n    Please write a function to efficiently compute the n-th element of the fibfib number sequence.\n    >>> fibfib(1)\n    0\n    >>> fibfib(5)\n    4\n    >>> fibfib(8)\n    24\n    \"\"\"\n\n\n3. **Interaction Context (Message Flow):**\nHistory:\nProgramming Expert: ```python\ndef fibfib(n: int) -> int:\n    \"\"\"The FibFib number sequence is a sequence similar to the Fibonacci sequence that's defined as follows:\n    fibfib(0) == 0\n    fibfib(1) == 0\n    fibfib(2) == 1\n    fibfib(n) == fibfib(n-1) + fibfib(n-2) + fibfib(n-3).\n    >>> fibfib(1)\n    0\n    >>> fibfib(5)\n    4\n    >>> fibfib(8)\n    24\n    \"\"\"\n    if n == 0:\n        return 0\n    if n == 1:\n        return 0\n    if n == 2:\n        return 1\n    \n    fibfib_values = [0] * (n + 1)\n    fibfib_values[0], fibfib_values[1], fibfib_values[2] = 0, 0, 1\n    \n    for i in range(3, n + 1):\n        fibfib_values[i] = fibfib_values[i-1] + fibfib_values[i-2] + fibfib_values[i-3]\n    \n    return fibfib_values[n]\n```\n\n### INSTRUCTIONS\n- Analyze the `Current Task` and `Interaction Context` to identify what specific expertise, constraints, or output format is missing or needed right now.\n- Ignore generic traits in the `Base Profile` if they are not relevant to the current step.\n- Rewrite the System Instruction to explicitly guide the agent on *how* to process the specific input in the context.\n- The new instruction should act like a focused 'Mission Briefing' for this specific step of the chain.\n\n### OUTPUT FORMAT\nReturn ONLY the refined system instruction string. No explanations."
+              }
+            ],
+            "output": "You are a programming expert focused on optimizing the implementation of the `fibfib` function. Ensure the code is efficient, avoiding recursion to prevent stack overflow for larger `n`. Use an iterative approach with a space-efficient method, and provide a concise explanation of your design choices. Limit your response to fifty words."
+          },
+          {
+            "type": "publish",
+            "messages": [
+              {
+                "role": "system",
+                "content": "You are a programming expert focused on optimizing the implementation of the `fibfib` function. Ensure the code is efficient, avoiding recursion to prevent stack overflow for larger `n`. Use an iterative approach with a space-efficient method, and provide a concise explanation of your design choices. Limit your response to fifty words."
+              },
+              {
+                "role": "user",
+                "content": "\n\nThe task is:\ndef fibfib(n: int) -> int:\n    \"\"\"The FibFib number sequence is a sequence similar to the Fibbonacci sequnece that's defined as follows:\n    fibfib(0) == 0\n    fibfib(1) == 0\n    fibfib(2) == 1\n    fibfib(n) == fibfib(n-1) + fibfib(n-2) + fibfib(n-3).\n    Please write a function to efficiently compute the n-th element of the fibfib number sequence.\n    >>> fibfib(1)\n    0\n    >>> fibfib(5)\n    4\n    >>> fibfib(8)\n    24\n    \"\"\"\n\n\nPrevious Discussions and Plans:\nProgramming Expert: ```python\ndef fibfib(n: int) -> int:\n    \"\"\"The FibFib number sequence is a sequence similar to the Fibonacci sequence that's defined as follows:\n    fibfib(0) == 0\n    fibfib(1) == 0\n    fibfib(2) == 1\n    fibfib(n) == fibfib(n-1) + fibfib(n-2) + fibfib(n-3).\n    >>> fibfib(1)\n    0\n    >>> fibfib(5)\n    4\n    >>> fibfib(8)\n    24\n    \"\"\"\n    if n == 0:\n        return 0\n    if n == 1:\n        return 0\n    if n == 2:\n        return 1\n    \n    fibfib_values = [0] * (n + 1)\n    fibfib_values[0], fibfib_values[1], fibfib_values[2] = 0, 0, 1\n    \n    for i in range(3, n + 1):\n        fibfib_values[i] = fibfib_values[i-1] + fibfib_values[i-2] + fibfib_values[i-3]\n    \n    return fibfib_values[n]\n```\n"
+              }
+            ],
+            "output": "```python\ndef fibfib(n: int) -> int:\n    if n == 0: return 0\n    if n == 1: return 0\n    if n == 2: return 1\n    \n    a, b, c = 0, 0, 1\n    for _ in range(3, n + 1):\n        a, b, c = b, c, a + b + c\n    \n    return c\n```\n\nThis iterative approach uses constant space, maintaining only the last three computed values, thus optimizing both time and space complexity while avoiding recursion."
+          },
+          {
+            "type": "broker_route",
+            "messages": [
+              {
+                "role": "system",
+                "content": "You are a semantic router. You bridge the gap between current progress and required expertise."
+              },
+              {
+                "role": "user",
+                "content": "You are coordinating a multi-agent system.\nChoose the most suitable downstream role based on the available role options.\nPrevious agents' outputs:\nAgent Project Manager_Frih (Project Manager): ```python\ndef fibfib(n: int) -> int:\n    if n == 0: return 0\n    if n == 1: return 0\n    if n == 2: return 1\n    \n    a, b, c = 0, 0, 1\n    for _ in range(3, n + 1):\n        a, b, c = b, c, a + b + c\n    \n    return c\n```\n\nThis iterative approach uses constant space, maintaining only the last three computed values, thus optimizing both time and space complexity while avoiding recursion.\n\nAvailable downstream roles (current agent excluded):\n1. [Algorithm Designer_C2QQ] You are an algorithm designer. You will be given a function signature and its docstring by the user. You need to specify the specific design of the algorithm, including the classes that may be defined and the functions used. You need to generate the detailed documentation, including explanations of the algorithm, usage instructions, and API references. When the implementation logic is complex, you can give the pseudocode logic of the main algorithm.I hope your reply will be more concise. Preferably within fifty words. Don\u2019t list too many points.\n2. [Programming Expert_WVnf] You are a programming expert specializing in optimizing recursive functions using memoization and iterative approaches. Your task is to implement the `fibfib` function efficiently, ensuring it adheres to the provided function signature and docstring. Focus on delivering a solution that minimizes redundant calculations. Use a Python code block for your response, and ensure that the implementation is clear and follows best practices for performance. Do not include any additional text outside of the code block.\n3. [Test Analyst_WasE] You are a test analyst. You will be given a function signature and its docstring by the user. You need to provide problems in the current code or solution based on the test data and possible test feedback in the question. You need to provide additional special use cases, boundary conditions, etc. that should be paid attention to when writing code. You can point out any potential errors in the code.I hope your reply will be more concise. Preferably within fifty words. Don\u2019t list too many points.\n4. [Bug Fixer_CjVE] You are a bug fixer.You will be given a function signature and its docstring by the user. You need to provide modified and improved python code based on the current overall code design, algorithm framework, code implementation or test problems. Write your full implementation (restate the function signature). Use a Python code block to write your response. For example:\n```python\nprint('Hello world!')\n```Do not include anything other than Python code blocks in your response Do not change function names and input variable types in tasks\n\nWrite a concise role description grounded in the options above. Do not write a task plan. Keep it under 100 words."
+              }
+            ],
+            "output": "The most suitable downstream role is **Programming Expert_WVnf**. This role focuses on optimizing the `fibfib` function efficiently, ensuring it adheres to the provided function signature and docstring. The expert will implement the function to minimize redundant calculations while following best practices for performance, making it ideal for enhancing the current implementation."
+          }
+        ],
+        "Programming Expert_WVnf": [
+          {
+            "type": "watchdog_evaluate",
+            "messages": [
+              {
+                "role": "system",
+                "content": "You are a watchdog evaluator."
+              },
+              {
+                "role": "user",
+                "content": "You are a watchdog for an intelligent agent system.\nPlease evaluate the following new message from another agent.\nDecide whether it is logically relevant and valuable for solving the math problem:\ndef fibfib(n: int) -> int:\n    \"\"\"The FibFib number sequence is a sequence similar to the Fibbonacci sequnece that's defined as follows:\n    fibfib(0) == 0\n    fibfib(1) == 0\n    fibfib(2) == 1\n    fibfib(n) == fibfib(n-1) + fibfib(n-2) + fibfib(n-3).\n    Please write a function to efficiently compute the n-th element of the fibfib number sequence.\n    >>> fibfib(1)\n    0\n    >>> fibfib(5)\n    4\n    >>> fibfib(8)\n    24\n    \"\"\"\n\nYour known information:\nProgramming Expert (Programming Expert_WVnf): ```python\ndef fibfib(n: int) -> int:\n    \"\"\"The FibFib number sequence is a sequence similar to the Fibonacci sequence that's defined as follows:\n    fibfib(0) == 0\n    fibfib(1) == 0\n    fibfib(2) == 1\n    fibfib(n) == fibfib(n-1) + fibfib(n-2) + fibfib(n-3).\n    >>> fibfib(1)\n    0\n    >>> fibfib(5)\n    4\n    >>> fibfib(8)\n    24\n    \"\"\"\n    if n == 0:\n        return 0\n    if n == 1:\n        return 0\n    if n == 2:\n        return 1\n    \n    fibfib_values = [0] * (n + 1)\n    fibfib_values[0], fibfib_values[1], fibfib_values[2] = 0, 0, 1\n    \n    for i in range(3, n + 1):\n        fibfib_values[i] = fibfib_values[i-1] + fibfib_values[i-2] + fibfib_values[i-3]\n    \n    return fibfib_values[n]\n```\n\nThe new message from another agent:\n```python\ndef fibfib(n: int) -> int:\n    if n == 0: return 0\n    if n == 1: return 0\n    if n == 2: return 1\n    \n    a, b, c = 0, 0, 1\n    for _ in range(3, n + 1):\n        a, b, c = b, c, a + b + c\n    \n    return c\n```\n\nThis iterative approach uses constant space, maintaining only the last three computed values, thus optimizing both time and space complexity while avoiding recursion.\n\nA message is valuable if it is coherent, grounded in the problem, adds supporting evidence, provides a correction, or clarifies reasoning.\nDisagreement with others is acceptable when it is well-justified.\nRespond with 'YES' if it is good, 'NO' if it is bad or a hallucination.\nDo not provide explanations, just YES or NO."
+              }
+            ],
+            "output": "YES"
+          }
+        ]
+      },
+      "reputation": {
+        "Project Manager_Frih": {
+          "Programming Expert_WVnf": 0.6667
+        },
+        "Programming Expert_WVnf": {
+          "Project Manager_Frih": 0.6667
+        }
+      }
+    },
+    {
+      "step": 4,
+      "active_agents": [
+        "Programming Expert_WVnf"
+      ],
+      "publications": [
+        {
+          "sender_id": "Programming Expert_WVnf",
+          "role": "Programming Expert",
+          "content": "Here is the efficient implementation of the `fibfib` function using an iterative approach that maintains constant space:\n\n```python\ndef fibfib(n: int) -> int:\n    \"\"\"The FibFib number sequence is a sequence similar to the Fibonacci sequence that's defined as follows:\n    fibfib(0) == 0\n    fibfib(1) == 0\n    fibfib(2) == 1\n    fibfib(n) == fibfib(n-1) + fibfib(n-2) + fibfib(n-3).\n    Please write a function to efficiently compute the n-th element of the fibfib number sequence.\n    >>> fibfib(1)\n    0\n    >>> fibfib(5)\n    4\n    >>> fibfib(8)\n    24\n    \"\"\"\n    if n == 0: return 0\n    if n == 1: return 0\n    if n == 2: return 1\n    \n    a, b, c = 0, 0, 1\n    for _ in range(3, n + 1):\n        a, b, c = b, c, a + b + c\n    \n    return c\n```\n\n### Explanation:\n- The function starts by handling the base cases for `n = 0`, `n = 1`, and `n = 2`.\n- For `n >= 3`, it initializes three variables `a`, `b`, and `c` to represent `fibfib(n-3)`, `fibfib(n-2)`, and `fibfib(n-1)` respectively.\n- It then iteratively computes the next value in the sequence by updating these three variables in each iteration.\n- This approach ensures that only a constant amount of space is used, regardless of the size of `n`, making it efficient in terms of both time and space complexity."
+        }
+      ],
+      "refinements": {
+        "Programming Expert_WVnf": {
+          "role": "Programming Expert",
+          "pre_refinement": "You are a programming expert. You will be given a function signature and its docstring by the user. You may be able to get the output results of other agents. They may have passed internal tests, but they may not be completely correct. Write your full implementation (restate the function signature). Use a Python code block to write your response. For example:\n```python\nprint('Hello world!')\n```Do not include anything other than Python code blocks in your response. Do not change function names and input variable types in tasks.",
+          "post_refinement": "You are a programming expert focused on implementing the `fibfib` function efficiently. Your task is to write a Python function that computes the n-th element of the FibFib number sequence using an iterative approach that maintains constant space. Ensure the function signature remains unchanged and that the implementation adheres to the provided docstring. Use a Python code block for your response."
+        }
+      },
+      "broker_decisions": [
+        {
+          "sender": "Programming Expert_WVnf",
+          "matched_keys": [
+            "Project Manager_Frih"
+          ],
+          "receivers": [
+            "Project Manager_Frih"
+          ]
+        }
+      ],
+      "llm_calls": {
+        "Project Manager_Frih": [
+          {
+            "type": "watchdog_evaluate",
+            "messages": [
+              {
+                "role": "system",
+                "content": "You are a watchdog evaluator."
+              },
+              {
+                "role": "user",
+                "content": "You are a watchdog for an intelligent agent system.\nPlease evaluate the following new message from another agent.\nDecide whether it is logically relevant and valuable for solving the math problem:\ndef fibfib(n: int) -> int:\n    \"\"\"The FibFib number sequence is a sequence similar to the Fibbonacci sequnece that's defined as follows:\n    fibfib(0) == 0\n    fibfib(1) == 0\n    fibfib(2) == 1\n    fibfib(n) == fibfib(n-1) + fibfib(n-2) + fibfib(n-3).\n    Please write a function to efficiently compute the n-th element of the fibfib number sequence.\n    >>> fibfib(1)\n    0\n    >>> fibfib(5)\n    4\n    >>> fibfib(8)\n    24\n    \"\"\"\n\nYour known information:\nProject Manager (Project Manager_Frih): ```python\ndef fibfib(n: int) -> int:\n    if n == 0: return 0\n    if n == 1: return 0\n    if n == 2: return 1\n    \n    a, b, c = 0, 0, 1\n    for _ in range(3, n + 1):\n        a, b, c = b, c, a + b + c\n    \n    return c\n```\n\nThis iterative approach uses constant space, maintaining only the last three computed values, thus optimizing both time and space complexity while avoiding recursion.\n\nThe new message from another agent:\nHere is the efficient implementation of the `fibfib` function using an iterative approach that maintains constant space:\n\n```python\ndef fibfib(n: int) -> int:\n    \"\"\"The FibFib number sequence is a sequence similar to the Fibonacci sequence that's defined as follows:\n    fibfib(0) == 0\n    fibfib(1) == 0\n    fibfib(2) == 1\n    fibfib(n) == fibfib(n-1) + fibfib(n-2) + fibfib(n-3).\n    Please write a function to efficiently compute the n-th element of the fibfib number sequence.\n    >>> fibfib(1)\n    0\n    >>> fibfib(5)\n    4\n    >>> fibfib(8)\n    24\n    \"\"\"\n    if n == 0: return 0\n    if n == 1: return 0\n    if n == 2: return 1\n    \n    a, b, c = 0, 0, 1\n    for _ in range(3, n + 1):\n        a, b, c = b, c, a + b + c\n    \n    return c\n```\n\n### Explanation:\n- The function starts by handling the base cases for `n = 0`, `n = 1`, and `n = 2`.\n- For `n >= 3`, it initializes three variables `a`, `b`, and `c` to represent `fibfib(n-3)`, `fibfib(n-2)`, and `fibfib(n-1)` respectively.\n- It then iteratively computes the next value in the sequence by updating these three variables in each iteration.\n- This approach ensures that only a constant amount of space is used, regardless of the size of `n`, making it efficient in terms of both time and space complexity.\n\nA message is valuable if it is coherent, grounded in the problem, adds supporting evidence, provides a correction, or clarifies reasoning.\nDisagreement with others is acceptable when it is well-justified.\nRespond with 'YES' if it is good, 'NO' if it is bad or a hallucination.\nDo not provide explanations, just YES or NO."
+              }
+            ],
+            "output": "YES"
+          }
+        ],
+        "Programming Expert_WVnf": [
+          {
+            "type": "refine_system_prompt",
+            "messages": [
+              {
+                "role": "system",
+                "content": "You are an expert prompt refiner who tailors agent instructions to the current question and context based on the evolving workflow."
+              },
+              {
+                "role": "user",
+                "content": "### GOAL\nYour task is to dynamically specialize an LLM agent's persona to perfectly align with the specific needs of the current problem state.\nDo NOT simply summarize the old profile. Instead, evolve the agent's intent to be highly specific to the immediate context.\n\n### INPUT DATA\n1. **Base Profile (Starting Point):**\nYou are a programming expert. You will be given a function signature and its docstring by the user. You may be able to get the output results of other agents. They may have passed internal tests, but they may not be completely correct. Write your full implementation (restate the function signature). Use a Python code block to write your response. For example:\n```python\nprint('Hello world!')\n```Do not include anything other than Python code blocks in your response. Do not change function names and input variable types in tasks.\n\n2. **Current Task/Question:**\ndef fibfib(n: int) -> int:\n    \"\"\"The FibFib number sequence is a sequence similar to the Fibbonacci sequnece that's defined as follows:\n    fibfib(0) == 0\n    fibfib(1) == 0\n    fibfib(2) == 1\n    fibfib(n) == fibfib(n-1) + fibfib(n-2) + fibfib(n-3).\n    Please write a function to efficiently compute the n-th element of the fibfib number sequence.\n    >>> fibfib(1)\n    0\n    >>> fibfib(5)\n    4\n    >>> fibfib(8)\n    24\n    \"\"\"\n\n\n3. **Interaction Context (Message Flow):**\nHistory:\nProject Manager: To optimize the `fibfib` function, use memoization to store previously computed values. This avoids redundant calculations. Here's an efficient implementation:\n\n```python\ndef fibfib(n: int, memo={0: 0, 1: 0, 2: 1}) -> int:\n    if n in memo:\n        return memo[n]\n    memo[n] = fibfib(n-1, memo) + fibfib(n-2, memo) + fibfib(n-3, memo)\n    return memo[n]\n```\n\nAlternatively, an iterative approach can be used:\n\n```python\ndef fibfib(n: int) -> int:\n    if n == 0: return 0\n    if n == 1: return 0\n    if n == 2: return 1\n    \n    fibfib_values = [0, 0, 1] + [0] * (n - 2)\n    for i in range(3, n + 1):\n        fibfib_values[i] = fibfib_values[i-1] + fibfib_values[i-2] + fibfib_values[i-3]\n    return fibfib_values[n]\n```\n\nBoth methods significantly improve performance over naive recursion.\nProject Manager: ```python\ndef fibfib(n: int) -> int:\n    if n == 0: return 0\n    if n == 1: return 0\n    if n == 2: return 1\n    \n    a, b, c = 0, 0, 1\n    for _ in range(3, n + 1):\n        a, b, c = b, c, a + b + c\n    \n    return c\n```\n\nThis iterative approach uses constant space, maintaining only the last three computed values, thus optimizing both time and space complexity while avoiding recursion.\n\n### INSTRUCTIONS\n- Analyze the `Current Task` and `Interaction Context` to identify what specific expertise, constraints, or output format is missing or needed right now.\n- Ignore generic traits in the `Base Profile` if they are not relevant to the current step.\n- Rewrite the System Instruction to explicitly guide the agent on *how* to process the specific input in the context.\n- The new instruction should act like a focused 'Mission Briefing' for this specific step of the chain.\n\n### OUTPUT FORMAT\nReturn ONLY the refined system instruction string. No explanations."
+              }
+            ],
+            "output": "You are a programming expert focused on implementing the `fibfib` function efficiently. Your task is to write a Python function that computes the n-th element of the FibFib number sequence using an iterative approach that maintains constant space. Ensure the function signature remains unchanged and that the implementation adheres to the provided docstring. Use a Python code block for your response."
+          },
+          {
+            "type": "publish",
+            "messages": [
+              {
+                "role": "system",
+                "content": "You are a programming expert focused on implementing the `fibfib` function efficiently. Your task is to write a Python function that computes the n-th element of the FibFib number sequence using an iterative approach that maintains constant space. Ensure the function signature remains unchanged and that the implementation adheres to the provided docstring. Use a Python code block for your response."
+              },
+              {
+                "role": "user",
+                "content": "\n\nThe task is:\ndef fibfib(n: int) -> int:\n    \"\"\"The FibFib number sequence is a sequence similar to the Fibbonacci sequnece that's defined as follows:\n    fibfib(0) == 0\n    fibfib(1) == 0\n    fibfib(2) == 1\n    fibfib(n) == fibfib(n-1) + fibfib(n-2) + fibfib(n-3).\n    Please write a function to efficiently compute the n-th element of the fibfib number sequence.\n    >>> fibfib(1)\n    0\n    >>> fibfib(5)\n    4\n    >>> fibfib(8)\n    24\n    \"\"\"\n\n\nPrevious Discussions and Plans:\nProject Manager: To optimize the `fibfib` function, use memoization to store previously computed values. This avoids redundant calculations. Here's an efficient implementation:\n\n```python\ndef fibfib(n: int, memo={0: 0, 1: 0, 2: 1}) -> int:\n    if n in memo:\n        return memo[n]\n    memo[n] = fibfib(n-1, memo) + fibfib(n-2, memo) + fibfib(n-3, memo)\n    return memo[n]\n```\n\nAlternatively, an iterative approach can be used:\n\n```python\ndef fibfib(n: int) -> int:\n    if n == 0: return 0\n    if n == 1: return 0\n    if n == 2: return 1\n    \n    fibfib_values = [0, 0, 1] + [0] * (n - 2)\n    for i in range(3, n + 1):\n        fibfib_values[i] = fibfib_values[i-1] + fibfib_values[i-2] + fibfib_values[i-3]\n    return fibfib_values[n]\n```\n\nBoth methods significantly improve performance over naive recursion.\nProject Manager: ```python\ndef fibfib(n: int) -> int:\n    if n == 0: return 0\n    if n == 1: return 0\n    if n == 2: return 1\n    \n    a, b, c = 0, 0, 1\n    for _ in range(3, n + 1):\n        a, b, c = b, c, a + b + c\n    \n    return c\n```\n\nThis iterative approach uses constant space, maintaining only the last three computed values, thus optimizing both time and space complexity while avoiding recursion.\n"
+              }
+            ],
+            "output": "Here is the efficient implementation of the `fibfib` function using an iterative approach that maintains constant space:\n\n```python\ndef fibfib(n: int) -> int:\n    \"\"\"The FibFib number sequence is a sequence similar to the Fibonacci sequence that's defined as follows:\n    fibfib(0) == 0\n    fibfib(1) == 0\n    fibfib(2) == 1\n    fibfib(n) == fibfib(n-1) + fibfib(n-2) + fibfib(n-3).\n    Please write a function to efficiently compute the n-th element of the fibfib number sequence.\n    >>> fibfib(1)\n    0\n    >>> fibfib(5)\n    4\n    >>> fibfib(8)\n    24\n    \"\"\"\n    if n == 0: return 0\n    if n == 1: return 0\n    if n == 2: return 1\n    \n    a, b, c = 0, 0, 1\n    for _ in range(3, n + 1):\n        a, b, c = b, c, a + b + c\n    \n    return c\n```\n\n### Explanation:\n- The function starts by handling the base cases for `n = 0`, `n = 1`, and `n = 2`.\n- For `n >= 3`, it initializes three variables `a`, `b`, and `c` to represent `fibfib(n-3)`, `fibfib(n-2)`, and `fibfib(n-1)` respectively.\n- It then iteratively computes the next value in the sequence by updating these three variables in each iteration.\n- This approach ensures that only a constant amount of space is used, regardless of the size of `n`, making it efficient in terms of both time and space complexity."
+          },
+          {
+            "type": "broker_route",
+            "messages": [
+              {
+                "role": "system",
+                "content": "You are a semantic router. You bridge the gap between current progress and required expertise."
+              },
+              {
+                "role": "user",
+                "content": "You are coordinating a multi-agent system.\nChoose the most suitable downstream role based on the available role options.\nPrevious agents' outputs:\nAgent Programming Expert_WVnf (Programming Expert): Here is the efficient implementation of the `fibfib` function using an iterative approach that maintains constant space:\n\n```python\ndef fibfib(n: int) -> int:\n    \"\"\"The FibFib number sequence is a sequence similar to the Fibonacci sequence that's defined as follows:\n    fibfib(0) == 0\n    fibfib(1) == 0\n    fibfib(2) == 1\n    fibfib(n) == fibfib(n-1) + fibfib(n-2) + fibfib(n-3).\n    Please write a function to efficiently compute the n-th element of the fibfib number sequence.\n    >>> fibfib(1)\n    0\n    >>> fibfib(5)\n    4\n    >>> fibfib(8)\n    24\n    \"\"\"\n    if n == 0: return 0\n    if n == 1: return 0\n    if n == 2: return 1\n    \n    a, b, c = 0, 0, 1\n    for _ in range(3, n + 1):\n        a, b, c = b, c, a + b + c\n    \n    return c\n```\n\n### Explanation:\n- The function starts by handling the base cases for `n = 0`, `n = 1`, and `n = 2`.\n- For `n >= 3`, it initializes three variables `a`, `b`, and `c` to represent `fibfib(n-3)`, `fibfib(n-2)`, and `fibfib(n-1)` respectively.\n- It then iteratively computes the next value in the sequence by updating these three variables in each iteration.\n- This approach ensures that only a constant amount of space is used, regardless of the size of `n`, making it efficient in terms of both time and space complexity.\n\nAvailable downstream roles (current agent excluded):\n1. [Project Manager_Frih] You are a programming expert focused on optimizing the implementation of the `fibfib` function. Ensure the code is efficient, avoiding recursion to prevent stack overflow for larger `n`. Use an iterative approach with a space-efficient method, and provide a concise explanation of your design choices. Limit your response to fifty words.\n2. [Algorithm Designer_C2QQ] You are an algorithm designer. You will be given a function signature and its docstring by the user. You need to specify the specific design of the algorithm, including the classes that may be defined and the functions used. You need to generate the detailed documentation, including explanations of the algorithm, usage instructions, and API references. When the implementation logic is complex, you can give the pseudocode logic of the main algorithm.I hope your reply will be more concise. Preferably within fifty words. Don\u2019t list too many points.\n3. [Test Analyst_WasE] You are a test analyst. You will be given a function signature and its docstring by the user. You need to provide problems in the current code or solution based on the test data and possible test feedback in the question. You need to provide additional special use cases, boundary conditions, etc. that should be paid attention to when writing code. You can point out any potential errors in the code.I hope your reply will be more concise. Preferably within fifty words. Don\u2019t list too many points.\n4. [Bug Fixer_CjVE] You are a bug fixer.You will be given a function signature and its docstring by the user. You need to provide modified and improved python code based on the current overall code design, algorithm framework, code implementation or test problems. Write your full implementation (restate the function signature). Use a Python code block to write your response. For example:\n```python\nprint('Hello world!')\n```Do not include anything other than Python code blocks in your response Do not change function names and input variable types in tasks\n\nWrite a concise role description grounded in the options above. Do not write a task plan. Keep it under 100 words."
+              }
+            ],
+            "output": "The most suitable downstream role for the current context is **Project Manager_Frih**. This role focuses on optimizing the implementation of the `fibfib` function, ensuring efficiency through an iterative approach while avoiding recursion. The project manager will provide a concise explanation of design choices, aligning with the goal of maintaining performance and space efficiency."
+          }
+        ]
+      },
+      "reputation": {
+        "Project Manager_Frih": {
+          "Programming Expert_WVnf": 0.7499
+        },
+        "Programming Expert_WVnf": {
+          "Project Manager_Frih": 0.6667
+        }
+      }
+    },
+    {
+      "step": 5,
+      "active_agents": [
+        "Project Manager_Frih"
+      ],
+      "publications": [
+        {
+          "sender_id": "Project Manager_Frih",
+          "role": "Project Manager",
+          "content": "The optimized `fibfib` function uses three variables to track the last three computed values of the sequence. It iteratively updates these values, ensuring constant space usage while efficiently calculating the n-th FibFib number. This approach avoids the overhead of storing all previous results."
+        }
+      ],
+      "refinements": {
+        "Project Manager_Frih": {
+          "role": "Project Manager",
+          "pre_refinement": "You are a project manager. You will be given a function signature and its docstring by the user. You are responsible for overseeing the overall structure of the code, ensuring that the code is structured to complete the task Implement code concisely and correctly without pursuing over-engineering.You need to suggest optimal design patterns to ensure that the code follows best practices for maintainability and flexibility. You can specify the overall design of the code, including the classes that need to be defined(maybe none) and the functions used (maybe only one function) .I hope your reply will be more concise. Preferably within fifty words. Don\u2019t list too many points.",
+          "post_refinement": "You are a programming expert focused on optimizing the implementation of the `fibfib` function. Your goal is to ensure the function is efficient, using an iterative approach with constant space. Provide a concise explanation of the logic used, emphasizing clarity and correctness. Limit your response to under fifty words."
+        }
+      },
+      "broker_decisions": [],
+      "llm_calls": {
+        "Project Manager_Frih": [
+          {
+            "type": "refine_system_prompt",
+            "messages": [
+              {
+                "role": "system",
+                "content": "You are an expert prompt refiner who tailors agent instructions to the current question and context based on the evolving workflow."
+              },
+              {
+                "role": "user",
+                "content": "### GOAL\nYour task is to dynamically specialize an LLM agent's persona to perfectly align with the specific needs of the current problem state.\nDo NOT simply summarize the old profile. Instead, evolve the agent's intent to be highly specific to the immediate context.\n\n### INPUT DATA\n1. **Base Profile (Starting Point):**\nYou are a project manager. You will be given a function signature and its docstring by the user. You are responsible for overseeing the overall structure of the code, ensuring that the code is structured to complete the task Implement code concisely and correctly without pursuing over-engineering.You need to suggest optimal design patterns to ensure that the code follows best practices for maintainability and flexibility. You can specify the overall design of the code, including the classes that need to be defined(maybe none) and the functions used (maybe only one function) .I hope your reply will be more concise. Preferably within fifty words. Don\u2019t list too many points.\n\n2. **Current Task/Question:**\ndef fibfib(n: int) -> int:\n    \"\"\"The FibFib number sequence is a sequence similar to the Fibbonacci sequnece that's defined as follows:\n    fibfib(0) == 0\n    fibfib(1) == 0\n    fibfib(2) == 1\n    fibfib(n) == fibfib(n-1) + fibfib(n-2) + fibfib(n-3).\n    Please write a function to efficiently compute the n-th element of the fibfib number sequence.\n    >>> fibfib(1)\n    0\n    >>> fibfib(5)\n    4\n    >>> fibfib(8)\n    24\n    \"\"\"\n\n\n3. **Interaction Context (Message Flow):**\nHistory:\nProgramming Expert: ```python\ndef fibfib(n: int) -> int:\n    \"\"\"The FibFib number sequence is a sequence similar to the Fibonacci sequence that's defined as follows:\n    fibfib(0) == 0\n    fibfib(1) == 0\n    fibfib(2) == 1\n    fibfib(n) == fibfib(n-1) + fibfib(n-2) + fibfib(n-3).\n    >>> fibfib(1)\n    0\n    >>> fibfib(5)\n    4\n    >>> fibfib(8)\n    24\n    \"\"\"\n    if n == 0:\n        return 0\n    if n == 1:\n        return 0\n    if n == 2:\n        return 1\n    \n    fibfib_values = [0] * (n + 1)\n    fibfib_values[0], fibfib_values[1], fibfib_values[2] = 0, 0, 1\n    \n    for i in range(3, n + 1):\n        fibfib_values[i] = fibfib_values[i-1] + fibfib_values[i-2] + fibfib_values[i-3]\n    \n    return fibfib_values[n]\n```\nProgramming Expert: Here is the efficient implementation of the `fibfib` function using an iterative approach that maintains constant space:\n\n```python\ndef fibfib(n: int) -> int:\n    \"\"\"The FibFib number sequence is a sequence similar to the Fibonacci sequence that's defined as follows:\n    fibfib(0) == 0\n    fibfib(1) == 0\n    fibfib(2) == 1\n    fibfib(n) == fibfib(n-1) + fibfib(n-2) + fibfib(n-3).\n    Please write a function to efficiently compute the n-th element of the fibfib number sequence.\n    >>> fibfib(1)\n    0\n    >>> fibfib(5)\n    4\n    >>> fibfib(8)\n    24\n    \"\"\"\n    if n == 0: return 0\n    if n == 1: return 0\n    if n == 2: return 1\n    \n    a, b, c = 0, 0, 1\n    for _ in range(3, n + 1):\n        a, b, c = b, c, a + b + c\n    \n    return c\n```\n\n### Explanation:\n- The function starts by handling the base cases for `n = 0`, `n = 1`, and `n = 2`.\n- For `n >= 3`, it initializes three variables `a`, `b`, and `c` to represent `fibfib(n-3)`, `fibfib(n-2)`, and `fibfib(n-1)` respectively.\n- It then iteratively computes the next value in the sequence by updating these three variables in each iteration.\n- This approach ensures that only a constant amount of space is used, regardless of the size of `n`, making it efficient in terms of both time and space complexity.\n\n### INSTRUCTIONS\n- Analyze the `Current Task` and `Interaction Context` to identify what specific expertise, constraints, or output format is missing or needed right now.\n- Ignore generic traits in the `Base Profile` if they are not relevant to the current step.\n- Rewrite the System Instruction to explicitly guide the agent on *how* to process the specific input in the context.\n- The new instruction should act like a focused 'Mission Briefing' for this specific step of the chain.\n\n### OUTPUT FORMAT\nReturn ONLY the refined system instruction string. No explanations."
+              }
+            ],
+            "output": "You are a programming expert focused on optimizing the implementation of the `fibfib` function. Your goal is to ensure the function is efficient, using an iterative approach with constant space. Provide a concise explanation of the logic used, emphasizing clarity and correctness. Limit your response to under fifty words."
+          },
+          {
+            "type": "publish",
+            "messages": [
+              {
+                "role": "system",
+                "content": "You are a programming expert focused on optimizing the implementation of the `fibfib` function. Your goal is to ensure the function is efficient, using an iterative approach with constant space. Provide a concise explanation of the logic used, emphasizing clarity and correctness. Limit your response to under fifty words."
+              },
+              {
+                "role": "user",
+                "content": "\n\nThe task is:\ndef fibfib(n: int) -> int:\n    \"\"\"The FibFib number sequence is a sequence similar to the Fibbonacci sequnece that's defined as follows:\n    fibfib(0) == 0\n    fibfib(1) == 0\n    fibfib(2) == 1\n    fibfib(n) == fibfib(n-1) + fibfib(n-2) + fibfib(n-3).\n    Please write a function to efficiently compute the n-th element of the fibfib number sequence.\n    >>> fibfib(1)\n    0\n    >>> fibfib(5)\n    4\n    >>> fibfib(8)\n    24\n    \"\"\"\n\n\nPrevious Discussions and Plans:\nProgramming Expert: ```python\ndef fibfib(n: int) -> int:\n    \"\"\"The FibFib number sequence is a sequence similar to the Fibonacci sequence that's defined as follows:\n    fibfib(0) == 0\n    fibfib(1) == 0\n    fibfib(2) == 1\n    fibfib(n) == fibfib(n-1) + fibfib(n-2) + fibfib(n-3).\n    >>> fibfib(1)\n    0\n    >>> fibfib(5)\n    4\n    >>> fibfib(8)\n    24\n    \"\"\"\n    if n == 0:\n        return 0\n    if n == 1:\n        return 0\n    if n == 2:\n        return 1\n    \n    fibfib_values = [0] * (n + 1)\n    fibfib_values[0], fibfib_values[1], fibfib_values[2] = 0, 0, 1\n    \n    for i in range(3, n + 1):\n        fibfib_values[i] = fibfib_values[i-1] + fibfib_values[i-2] + fibfib_values[i-3]\n    \n    return fibfib_values[n]\n```\nProgramming Expert: Here is the efficient implementation of the `fibfib` function using an iterative approach that maintains constant space:\n\n```python\ndef fibfib(n: int) -> int:\n    \"\"\"The FibFib number sequence is a sequence similar to the Fibonacci sequence that's defined as follows:\n    fibfib(0) == 0\n    fibfib(1) == 0\n    fibfib(2) == 1\n    fibfib(n) == fibfib(n-1) + fibfib(n-2) + fibfib(n-3).\n    Please write a function to efficiently compute the n-th element of the fibfib number sequence.\n    >>> fibfib(1)\n    0\n    >>> fibfib(5)\n    4\n    >>> fibfib(8)\n    24\n    \"\"\"\n    if n == 0: return 0\n    if n == 1: return 0\n    if n == 2: return 1\n    \n    a, b, c = 0, 0, 1\n    for _ in range(3, n + 1):\n        a, b, c = b, c, a + b + c\n    \n    return c\n```\n\n### Explanation:\n- The function starts by handling the base cases for `n = 0`, `n = 1`, and `n = 2`.\n- For `n >= 3`, it initializes three variables `a`, `b`, and `c` to represent `fibfib(n-3)`, `fibfib(n-2)`, and `fibfib(n-1)` respectively.\n- It then iteratively computes the next value in the sequence by updating these three variables in each iteration.\n- This approach ensures that only a constant amount of space is used, regardless of the size of `n`, making it efficient in terms of both time and space complexity.\n"
+              }
+            ],
+            "output": "The optimized `fibfib` function uses three variables to track the last three computed values of the sequence. It iteratively updates these values, ensuring constant space usage while efficiently calculating the n-th FibFib number. This approach avoids the overhead of storing all previous results."
+          }
+        ],
+        "Programming Expert_WVnf": [
+          {
+            "type": "watchdog_evaluate",
+            "messages": [
+              {
+                "role": "system",
+                "content": "You are a watchdog evaluator."
+              },
+              {
+                "role": "user",
+                "content": "You are a watchdog for an intelligent agent system.\nPlease evaluate the following new message from another agent.\nDecide whether it is logically relevant and valuable for solving the math problem:\ndef fibfib(n: int) -> int:\n    \"\"\"The FibFib number sequence is a sequence similar to the Fibbonacci sequnece that's defined as follows:\n    fibfib(0) == 0\n    fibfib(1) == 0\n    fibfib(2) == 1\n    fibfib(n) == fibfib(n-1) + fibfib(n-2) + fibfib(n-3).\n    Please write a function to efficiently compute the n-th element of the fibfib number sequence.\n    >>> fibfib(1)\n    0\n    >>> fibfib(5)\n    4\n    >>> fibfib(8)\n    24\n    \"\"\"\n\nYour known information:\nProgramming Expert (Programming Expert_WVnf): Here is the efficient implementation of the `fibfib` function using an iterative approach that maintains constant space:\n\n```python\ndef fibfib(n: int) -> int:\n    \"\"\"The FibFib number sequence is a sequence similar to the Fibonacci sequence that's defined as follows:\n    fibfib(0) == 0\n    fibfib(1) == 0\n    fibfib(2) == 1\n    fibfib(n) == fibfib(n-1) + fibfib(n-2) + fibfib(n-3).\n    Please write a function to efficiently compute the n-th element of the fibfib number sequence.\n    >>> fibfib(1)\n    0\n    >>> fibfib(5)\n    4\n    >>> fibfib(8)\n    24\n    \"\"\"\n    if n == 0: return 0\n    if n == 1: return 0\n    if n == 2: return 1\n    \n    a, b, c = 0, 0, 1\n    for _ in range(3, n + 1):\n        a, b, c = b, c, a + b + c\n    \n    return c\n```\n\n### Explanation:\n- The function starts by handling the base cases for `n = 0`, `n = 1`, and `n = 2`.\n- For `n >= 3`, it initializes three variables `a`, `b`, and `c` to represent `fibfib(n-3)`, `fibfib(n-2)`, and `fibfib(n-1)` respectively.\n- It then iteratively computes the next value in the sequence by updating these three variables in each iteration.\n- This approach ensures that only a constant amount of space is used, regardless of the size of `n`, making it efficient in terms of both time and space complexity.\n\nThe new message from another agent:\nThe optimized `fibfib` function uses three variables to track the last three computed values of the sequence. It iteratively updates these values, ensuring constant space usage while efficiently calculating the n-th FibFib number. This approach avoids the overhead of storing all previous results.\n\nA message is valuable if it is coherent, grounded in the problem, adds supporting evidence, provides a correction, or clarifies reasoning.\nDisagreement with others is acceptable when it is well-justified.\nRespond with 'YES' if it is good, 'NO' if it is bad or a hallucination.\nDo not provide explanations, just YES or NO."
+              }
+            ],
+            "output": "YES"
+          }
+        ]
+      },
+      "reputation": {
+        "Project Manager_Frih": {
+          "Programming Expert_WVnf": 0.7499
+        },
+        "Programming Expert_WVnf": {
+          "Project Manager_Frih": 0.7499
+        }
+      }
+    },
+    {
+      "step": "Final",
+      "active_agents": [
+        "Final_Answerer"
+      ],
+      "publications": [
+        {
+          "sender_id": "Final_Answerer",
+          "role": "Final Answerer",
+          "content": "```python\ndef fibfib(n: int) -> int:\n    \"\"\"The FibFib number sequence is a sequence similar to the Fibonacci sequence that's defined as follows:\n    fibfib(0) == 0\n    fibfib(1) == 0\n    fibfib(2) == 1\n    fibfib(n) == fibfib(n-1) + fibfib(n-2) + fibfib(n-3).\n    Please write a function to efficiently compute the n-th element of the fibfib number sequence.\n    >>> fibfib(1)\n    0\n    >>> fibfib(5)\n    4\n    >>> fibfib(8)\n    24\n    \"\"\"\n    if n == 0: return 0\n    if n == 1: return 0\n    if n == 2: return 1\n    \n    a, b, c = 0, 0, 1\n    for _ in range(3, n + 1):\n        a, b, c = b, c, a + b + c\n    \n    return c\n```"
+        }
+      ],
+      "refinements": {
+        "Final_Answerer": "You are a Python programming expert focused on implementing efficient algorithms. Your current task is to write a function that computes the n-th element of the FibFib number sequence using an iterative approach with constant space complexity. Ensure the function handles base cases correctly and iteratively updates the last three computed values. Provide clear and concise code that adheres to Python standards, including a docstring with examples for clarity.You will be given a function signature and its docstring by the user.You may be given the overall code design, algorithm framework, code implementation or test problems.Write your full implementation (restate the function signature). If the prompt given to you contains code that passed internal testing, you can choose the most reliable reply.If there is no code that has passed internal testing in the prompt, you can change it yourself according to the prompt.Use a Python code block to write your response. For example:\n```python\nprint('Hello world!')\n```Do not include anything other than Python code blocks in your response"
+      },
+      "llm_calls": {
+        "Final_Answerer": [
+          {
+            "type": "refine_system_prompt",
+            "messages": [
+              {
+                "role": "system",
+                "content": "You are an expert prompt refiner who tailors agent instructions to the current question and context based on the evolving workflow."
+              },
+              {
+                "role": "user",
+                "content": "### GOAL\nYour task is to dynamically specialize an LLM agent's persona to perfectly align with the specific needs of the current problem state.\nDo NOT simply summarize the old profile. Instead, evolve the agent's intent to be highly specific to the immediate context.\n\n### INPUT DATA\n1. **Base Profile (Starting Point):**\nYou are the top decision-maker and are good at analyzing and summarizing other people's opinions, finding errors and giving final answers. And you are an AI that only responds with only python code.\n\n2. **Current Task/Question:**\ndef fibfib(n: int) -> int:\n    \"\"\"The FibFib number sequence is a sequence similar to the Fibbonacci sequnece that's defined as follows:\n    fibfib(0) == 0\n    fibfib(1) == 0\n    fibfib(2) == 1\n    fibfib(n) == fibfib(n-1) + fibfib(n-2) + fibfib(n-3).\n    Please write a function to efficiently compute the n-th element of the fibfib number sequence.\n    >>> fibfib(1)\n    0\n    >>> fibfib(5)\n    4\n    >>> fibfib(8)\n    24\n    \"\"\"\n\n\n3. **Interaction Context (Message Flow):**\nOriginal Task: def fibfib(n: int) -> int:\n    \"\"\"The FibFib number sequence is a sequence similar to the Fibbonacci sequnece that's defined as follows:\n    fibfib(0) == 0\n    fibfib(1) == 0\n    fibfib(2) == 1\n    fibfib(n) == fibfib(n-1) + fibfib(n-2) + fibfib(n-3).\n    Please write a function to efficiently compute the n-th element of the fibfib number sequence.\n    >>> fibfib(1)\n    0\n    >>> fibfib(5)\n    4\n    >>> fibfib(8)\n    24\n    \"\"\"\n\n\nProcess History:\nProject Manager (Project Manager_Frih): To optimize the `fibfib` function, use memoization to store previously computed values. This avoids redundant calculations. Here's an efficient implementation:\n\n```python\ndef fibfib(n: int, memo={0: 0, 1: 0, 2: 1}) -> int:\n    if n in memo:\n        return memo[n]\n    memo[n] = fibfib(n-1, memo) + fibfib(n-2, memo) + fibfib(n-3, memo)\n    return memo[n]\n```\n\nAlternatively, an iterative approach can be used:\n\n```python\ndef fibfib(n: int) -> int:\n    if n == 0: return 0\n    if n == 1: return 0\n    if n == 2: return 1\n    \n    fibfib_values = [0, 0, 1] + [0] * (n - 2)\n    for i in range(3, n + 1):\n        fibfib_values[i] = fibfib_values[i-1] + fibfib_values[i-2] + fibfib_values[i-3]\n    return fibfib_values[n]\n```\n\nBoth methods significantly improve performance over naive recursion.\nProgramming Expert (Programming Expert_WVnf): ```python\ndef fibfib(n: int) -> int:\n    \"\"\"The FibFib number sequence is a sequence similar to the Fibonacci sequence that's defined as follows:\n    fibfib(0) == 0\n    fibfib(1) == 0\n    fibfib(2) == 1\n    fibfib(n) == fibfib(n-1) + fibfib(n-2) + fibfib(n-3).\n    >>> fibfib(1)\n    0\n    >>> fibfib(5)\n    4\n    >>> fibfib(8)\n    24\n    \"\"\"\n    if n == 0:\n        return 0\n    if n == 1:\n        return 0\n    if n == 2:\n        return 1\n    \n    fibfib_values = [0] * (n + 1)\n    fibfib_values[0], fibfib_values[1], fibfib_values[2] = 0, 0, 1\n    \n    for i in range(3, n + 1):\n        fibfib_values[i] = fibfib_values[i-1] + fibfib_values[i-2] + fibfib_values[i-3]\n    \n    return fibfib_values[n]\n```\nProject Manager (Project Manager_Frih): ```python\ndef fibfib(n: int) -> int:\n    if n == 0: return 0\n    if n == 1: return 0\n    if n == 2: return 1\n    \n    a, b, c = 0, 0, 1\n    for _ in range(3, n + 1):\n        a, b, c = b, c, a + b + c\n    \n    return c\n```\n\nThis iterative approach uses constant space, maintaining only the last three computed values, thus optimizing both time and space complexity while avoiding recursion.\nProgramming Expert (Programming Expert_WVnf): Here is the efficient implementation of the `fibfib` function using an iterative approach that maintains constant space:\n\n```python\ndef fibfib(n: int) -> int:\n    \"\"\"The FibFib number sequence is a sequence similar to the Fibonacci sequence that's defined as follows:\n    fibfib(0) == 0\n    fibfib(1) == 0\n    fibfib(2) == 1\n    fibfib(n) == fibfib(n-1) + fibfib(n-2) + fibfib(n-3).\n    Please write a function to efficiently compute the n-th element of the fibfib number sequence.\n    >>> fibfib(1)\n    0\n    >>> fibfib(5)\n    4\n    >>> fibfib(8)\n    24\n    \"\"\"\n    if n == 0: return 0\n    if n == 1: return 0\n    if n == 2: return 1\n    \n    a, b, c = 0, 0, 1\n    for _ in range(3, n + 1):\n        a, b, c = b, c, a + b + c\n    \n    return c\n```\n\n### Explanation:\n- The function starts by handling the base cases for `n = 0`, `n = 1`, and `n = 2`.\n- For `n >= 3`, it initializes three variables `a`, `b`, and `c` to represent `fibfib(n-3)`, `fibfib(n-2)`, and `fibfib(n-1)` respectively.\n- It then iteratively computes the next value in the sequence by updating these three variables in each iteration.\n- This approach ensures that only a constant amount of space is used, regardless of the size of `n`, making it efficient in terms of both time and space complexity.\nProject Manager (Project Manager_Frih): The optimized `fibfib` function uses three variables to track the last three computed values of the sequence. It iteratively updates these values, ensuring constant space usage while efficiently calculating the n-th FibFib number. This approach avoids the overhead of storing all previous results.\n\n### INSTRUCTIONS\n- Analyze the `Current Task` and `Interaction Context` to identify what specific expertise, constraints, or output format is missing or needed right now.\n- Ignore generic traits in the `Base Profile` if they are not relevant to the current step.\n- Rewrite the System Instruction to explicitly guide the agent on *how* to process the specific input in the context.\n- The new instruction should act like a focused 'Mission Briefing' for this specific step of the chain.\n\n### OUTPUT FORMAT\nReturn ONLY the refined system instruction string. No explanations."
+              }
+            ],
+            "output": "You are a Python programming expert focused on implementing efficient algorithms. Your current task is to write a function that computes the n-th element of the FibFib number sequence using an iterative approach with constant space complexity. Ensure the function handles base cases correctly and iteratively updates the last three computed values. Provide clear and concise code that adheres to Python standards, including a docstring with examples for clarity.You will be given a function signature and its docstring by the user.You may be given the overall code design, algorithm framework, code implementation or test problems.Write your full implementation (restate the function signature). If the prompt given to you contains code that passed internal testing, you can choose the most reliable reply.If there is no code that has passed internal testing in the prompt, you can change it yourself according to the prompt.Use a Python code block to write your response. For example:\n```python\nprint('Hello world!')\n```Do not include anything other than Python code blocks in your response"
+          },
+          {
+            "type": "publish",
+            "messages": [
+              {
+                "role": "system",
+                "content": "You are a Python programming expert focused on implementing efficient algorithms. Your current task is to write a function that computes the n-th element of the FibFib number sequence using an iterative approach with constant space complexity. Ensure the function handles base cases correctly and iteratively updates the last three computed values. Provide clear and concise code that adheres to Python standards, including a docstring with examples for clarity.You will be given a function signature and its docstring by the user.You may be given the overall code design, algorithm framework, code implementation or test problems.Write your full implementation (restate the function signature). If the prompt given to you contains code that passed internal testing, you can choose the most reliable reply.If there is no code that has passed internal testing in the prompt, you can change it yourself according to the prompt.Use a Python code block to write your response. For example:\n```python\nprint('Hello world!')\n```Do not include anything other than Python code blocks in your response"
+              },
+              {
+                "role": "user",
+                "content": "\n\nThe task is:\ndef fibfib(n: int) -> int:\n    \"\"\"The FibFib number sequence is a sequence similar to the Fibbonacci sequnece that's defined as follows:\n    fibfib(0) == 0\n    fibfib(1) == 0\n    fibfib(2) == 1\n    fibfib(n) == fibfib(n-1) + fibfib(n-2) + fibfib(n-3).\n    Please write a function to efficiently compute the n-th element of the fibfib number sequence.\n    >>> fibfib(1)\n    0\n    >>> fibfib(5)\n    4\n    >>> fibfib(8)\n    24\n    \"\"\"\n\n\nPrevious Discussions and Plans:\nProject Manager (Project Manager_Frih): To optimize the `fibfib` function, use memoization to store previously computed values. This avoids redundant calculations. Here's an efficient implementation:\n\n```python\ndef fibfib(n: int, memo={0: 0, 1: 0, 2: 1}) -> int:\n    if n in memo:\n        return memo[n]\n    memo[n] = fibfib(n-1, memo) + fibfib(n-2, memo) + fibfib(n-3, memo)\n    return memo[n]\n```\n\nAlternatively, an iterative approach can be used:\n\n```python\ndef fibfib(n: int) -> int:\n    if n == 0: return 0\n    if n == 1: return 0\n    if n == 2: return 1\n    \n    fibfib_values = [0, 0, 1] + [0] * (n - 2)\n    for i in range(3, n + 1):\n        fibfib_values[i] = fibfib_values[i-1] + fibfib_values[i-2] + fibfib_values[i-3]\n    return fibfib_values[n]\n```\n\nBoth methods significantly improve performance over naive recursion.\nProgramming Expert (Programming Expert_WVnf): ```python\ndef fibfib(n: int) -> int:\n    \"\"\"The FibFib number sequence is a sequence similar to the Fibonacci sequence that's defined as follows:\n    fibfib(0) == 0\n    fibfib(1) == 0\n    fibfib(2) == 1\n    fibfib(n) == fibfib(n-1) + fibfib(n-2) + fibfib(n-3).\n    >>> fibfib(1)\n    0\n    >>> fibfib(5)\n    4\n    >>> fibfib(8)\n    24\n    \"\"\"\n    if n == 0:\n        return 0\n    if n == 1:\n        return 0\n    if n == 2:\n        return 1\n    \n    fibfib_values = [0] * (n + 1)\n    fibfib_values[0], fibfib_values[1], fibfib_values[2] = 0, 0, 1\n    \n    for i in range(3, n + 1):\n        fibfib_values[i] = fibfib_values[i-1] + fibfib_values[i-2] + fibfib_values[i-3]\n    \n    return fibfib_values[n]\n```\nProject Manager (Project Manager_Frih): ```python\ndef fibfib(n: int) -> int:\n    if n == 0: return 0\n    if n == 1: return 0\n    if n == 2: return 1\n    \n    a, b, c = 0, 0, 1\n    for _ in range(3, n + 1):\n        a, b, c = b, c, a + b + c\n    \n    return c\n```\n\nThis iterative approach uses constant space, maintaining only the last three computed values, thus optimizing both time and space complexity while avoiding recursion.\nProgramming Expert (Programming Expert_WVnf): Here is the efficient implementation of the `fibfib` function using an iterative approach that maintains constant space:\n\n```python\ndef fibfib(n: int) -> int:\n    \"\"\"The FibFib number sequence is a sequence similar to the Fibonacci sequence that's defined as follows:\n    fibfib(0) == 0\n    fibfib(1) == 0\n    fibfib(2) == 1\n    fibfib(n) == fibfib(n-1) + fibfib(n-2) + fibfib(n-3).\n    Please write a function to efficiently compute the n-th element of the fibfib number sequence.\n    >>> fibfib(1)\n    0\n    >>> fibfib(5)\n    4\n    >>> fibfib(8)\n    24\n    \"\"\"\n    if n == 0: return 0\n    if n == 1: return 0\n    if n == 2: return 1\n    \n    a, b, c = 0, 0, 1\n    for _ in range(3, n + 1):\n        a, b, c = b, c, a + b + c\n    \n    return c\n```\n\n### Explanation:\n- The function starts by handling the base cases for `n = 0`, `n = 1`, and `n = 2`.\n- For `n >= 3`, it initializes three variables `a`, `b`, and `c` to represent `fibfib(n-3)`, `fibfib(n-2)`, and `fibfib(n-1)` respectively.\n- It then iteratively computes the next value in the sequence by updating these three variables in each iteration.\n- This approach ensures that only a constant amount of space is used, regardless of the size of `n`, making it efficient in terms of both time and space complexity.\nProject Manager (Project Manager_Frih): The optimized `fibfib` function uses three variables to track the last three computed values of the sequence. It iteratively updates these values, ensuring constant space usage while efficiently calculating the n-th FibFib number. This approach avoids the overhead of storing all previous results.\n"
+              }
+            ],
+            "output": "```python\ndef fibfib(n: int) -> int:\n    \"\"\"The FibFib number sequence is a sequence similar to the Fibonacci sequence that's defined as follows:\n    fibfib(0) == 0\n    fibfib(1) == 0\n    fibfib(2) == 1\n    fibfib(n) == fibfib(n-1) + fibfib(n-2) + fibfib(n-3).\n    Please write a function to efficiently compute the n-th element of the fibfib number sequence.\n    >>> fibfib(1)\n    0\n    >>> fibfib(5)\n    4\n    >>> fibfib(8)\n    24\n    \"\"\"\n    if n == 0: return 0\n    if n == 1: return 0\n    if n == 2: return 1\n    \n    a, b, c = 0, 0, 1\n    for _ in range(3, n + 1):\n        a, b, c = b, c, a + b + c\n    \n    return c\n```"
+          },
+          {
+            "type": "edge_cases",
+            "messages": [
+              {
+                "role": "system",
+                "content": "You are a meticulous test engineer. Given a function specification, write diverse EDGE-CASE tests as Python assert statements that call the function by its exact name. Cover empty / boundary / negative / large / duplicate / special inputs. Derive the expected outputs ONLY from the specification, reasoning carefully \u2014 never guess. Output ONLY assert statements, one per line, no code fences, no commentary."
+              },
+              {
+                "role": "user",
+                "content": "# Specification\ndef fibfib(n: int) -> int:\n    \"\"\"The FibFib number sequence is a sequence similar to the Fibbonacci sequnece that's defined as follows:\n    fibfib(0) == 0\n    fibfib(1) == 0\n    fibfib(2) == 1\n    fibfib(n) == fibfib(n-1) + fibfib(n-2) + fibfib(n-3).\n    Please write a function to efficiently compute the n-th element of the fibfib number sequence.\n    >>> fibfib(1)\n    0\n    >>> fibfib(5)\n    4\n    >>> fibfib(8)\n    24\n    \"\"\"\n\n\nWrite up to 8 edge-case asserts."
+              }
+            ],
+            "output": "assert fibfib(0) == 0  \nassert fibfib(1) == 0  \nassert fibfib(2) == 1  \nassert fibfib(3) == 1  \nassert fibfib(4) == 2  \nassert fibfib(5) == 4  \nassert fibfib(6) == 7  \nassert fibfib(7) == 13  "
+          }
+        ]
+      },
+      "broker_decisions": []
+    }
+  ],
+  "team": {
+    "initial_size": 5,
+    "final_size": 5,
+    "recruited": [],
+    "active_per_step": [
+      1,
+      1,
+      1,
+      1,
+      1
+    ],
+    "top_k": 1,
+    "roster": [
+      "Project Manager (Project Manager_Frih)",
+      "Algorithm Designer (Algorithm Designer_C2QQ)",
+      "Programming Expert (Programming Expert_WVnf)",
+      "Test Analyst (Test Analyst_WasE)",
+      "Bug Fixer (Bug Fixer_CjVE)"
+    ]
+  },
+  "entry_point": "fibfib"
+}

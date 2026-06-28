@@ -1,0 +1,51 @@
+2026-06-14 22:44:44,417 - INFO - Creating container for django__django-10924...
+2026-06-14 22:44:44,546 - INFO - Container for django__django-10924 created: ad19036ef5ca61dc530e68d5cb9f953f29d58d8c4c89ec7cd39e6045e15d4edf
+2026-06-14 22:44:44,742 - INFO - Container for django__django-10924 started: ad19036ef5ca61dc530e68d5cb9f953f29d58d8c4c89ec7cd39e6045e15d4edf
+2026-06-14 22:44:44,742 - INFO - Intermediate patch for django__django-10924 written to logs/run_evaluation/raps_dev6_oracle/gpt-4o-mini/django__django-10924/patch.diff, now applying to container...
+2026-06-14 22:44:44,865 - INFO - >>>>> Applied Patch:
+Checking patch django/conf/test_settings.py...
+Checking patch django/db/models/fields/__init__.py...
+Applied patch django/conf/test_settings.py cleanly.
+Applied patch django/db/models/fields/__init__.py cleanly.
+
+2026-06-14 22:44:45,653 - INFO - Git diff before:
+diff --git a/django/db/models/fields/__init__.py b/django/db/models/fields/__init__.py
+index 0c64748ccd..edeff6f59f 100644
+--- a/django/db/models/fields/__init__.py
++++ b/django/db/models/fields/__init__.py
+@@ -1663,7 +1663,8 @@ class FilePathField(Field):
+ 
+     def __init__(self, verbose_name=None, name=None, path='', match=None,
+                  recursive=False, allow_files=True, allow_folders=False, **kwargs):
+-        self.path, self.match, self.recursive = path, match, recursive
++        self.path = path() if callable(path) else path
++        self.match, self.recursive = match, recursive
+         self.allow_files, self.allow_folders = allow_files, allow_folders
+         kwargs.setdefault('max_length', 100)
+         super().__init__(verbose_name, name, **kwargs)
+2026-06-14 22:44:45,654 - INFO - Eval script for django__django-10924 written to logs/run_evaluation/raps_dev6_oracle/gpt-4o-mini/django__django-10924/eval.sh; copying to container...
+2026-06-14 22:44:51,855 - INFO - Test runtime: 6.14 seconds
+2026-06-14 22:44:51,855 - INFO - Test output for django__django-10924 written to logs/run_evaluation/raps_dev6_oracle/gpt-4o-mini/django__django-10924/test_output.txt
+2026-06-14 22:44:51,933 - INFO - Git diff after:
+diff --git a/django/db/models/fields/__init__.py b/django/db/models/fields/__init__.py
+index 0c64748ccd..edeff6f59f 100644
+--- a/django/db/models/fields/__init__.py
++++ b/django/db/models/fields/__init__.py
+@@ -1663,7 +1663,8 @@ class FilePathField(Field):
+ 
+     def __init__(self, verbose_name=None, name=None, path='', match=None,
+                  recursive=False, allow_files=True, allow_folders=False, **kwargs):
+-        self.path, self.match, self.recursive = path, match, recursive
++        self.path = path() if callable(path) else path
++        self.match, self.recursive = match, recursive
+         self.allow_files, self.allow_folders = allow_files, allow_folders
+         kwargs.setdefault('max_length', 100)
+         super().__init__(verbose_name, name, **kwargs)
+2026-06-14 22:44:51,933 - INFO - Grading answer for django__django-10924...
+2026-06-14 22:44:51,934 - INFO - report: {'django__django-10924': {'patch_is_None': False, 'patch_exists': True, 'patch_successfully_applied': True, 'resolved': False, 'tests_status': {'FAIL_TO_PASS': {'success': [], 'failure': ['test_callable_path (model_fields.test_filepathfield.FilePathFieldTests)']}, 'PASS_TO_PASS': {'success': ['test_path (model_fields.test_filepathfield.FilePathFieldTests)'], 'failure': []}, 'FAIL_TO_FAIL': {'success': [], 'failure': []}, 'PASS_TO_FAIL': {'success': [], 'failure': []}}}}
+Result for django__django-10924: resolved: False
+2026-06-14 22:44:51,934 - INFO - Attempting to stop container sweb.eval.django__django-10924.raps_dev6_oracle...
+2026-06-14 22:45:08,402 - INFO - Attempting to remove container sweb.eval.django__django-10924.raps_dev6_oracle...
+2026-06-14 22:45:08,432 - INFO - Container sweb.eval.django__django-10924.raps_dev6_oracle removed.
+2026-06-14 22:45:08,432 - INFO - Attempting to remove image swebench/sweb.eval.x86_64.django_1776_django-10924:latest...
+2026-06-14 22:45:08,965 - INFO - Image swebench/sweb.eval.x86_64.django_1776_django-10924:latest removed.

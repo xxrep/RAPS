@@ -1,0 +1,17 @@
+diff --git a/requests/sessions.py b/requests/sessions.py
+index 425db22c..e1ea2d49 100644
+--- a/requests/sessions.py
++++ b/requests/sessions.py
+@@ -121,9 +121,10 @@ class SessionRedirectMixin(object):
+             prepared_request.url = to_native_string(url)
+ 
+             # http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.3.4
+-            if (resp.status_code == codes.see_other and
+-                    method != 'HEAD'):
++            if resp.status_code == codes.see_other and method != 'HEAD':
+                 method = 'GET'
++            elif resp.status_code == codes.temporary:
++                method = method  # Preserve the original method for 307
+ 
+             # Do what the browsers do, despite standards...
+             # First, turn 302s into GETs.

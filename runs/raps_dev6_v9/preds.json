@@ -1,0 +1,32 @@
+{
+  "pallets__flask-4045": {
+    "model_name_or_path": "gpt-4o-mini",
+    "instance_id": "pallets__flask-4045",
+    "model_patch": ""
+  },
+  "django__django-10924": {
+    "model_name_or_path": "gpt-4o-mini",
+    "instance_id": "django__django-10924",
+    "model_patch": ""
+  },
+  "psf__requests-1963": {
+    "model_name_or_path": "gpt-4o-mini",
+    "instance_id": "psf__requests-1963",
+    "model_patch": ""
+  },
+  "astropy__astropy-12907": {
+    "model_name_or_path": "gpt-4o-mini",
+    "instance_id": "astropy__astropy-12907",
+    "model_patch": "diff --git a/astropy/modeling/separable.py b/astropy/modeling/separable.py\nindex a308e2729..98ee79c7e 100644\n--- a/astropy/modeling/separable.py\n+++ b/astropy/modeling/separable.py\n@@ -97,7 +97,16 @@ def separability_matrix(transform):\n     if transform.n_inputs == 1 and transform.n_outputs > 1:\n         return np.ones((transform.n_outputs, transform.n_inputs),\n                        dtype=np.bool_)\n-    separable_matrix = _separable(transform)\n+    if isinstance(transform, CompoundModel):\n+        separable_matrix = np.zeros((transform.n_outputs, transform.n_inputs), dtype=np.bool_)\n+        left_separability = _separable(transform.left)\n+        right_separability = _separable(transform.right)\n+        separable_matrix[:len(left_separability), :transform.left.n_inputs] = left_separability[:, None]\n+        separable_matrix[len(left_separability):, transform.left.n_inputs:] = right_separability[:, None]\n+        # Ensure that the outputs are treated as independent\n+        separable_matrix[len(left_separability):, -len(right_separability):] = right_separability[:, None]\n+    else:\n+        separable_matrix = _separable(transform)\n     separable_matrix = np.where(separable_matrix != 0, True, False)\n     return separable_matrix\n \n"
+  },
+  "scikit-learn__scikit-learn-10508": {
+    "model_name_or_path": "gpt-4o-mini",
+    "instance_id": "scikit-learn__scikit-learn-10508",
+    "model_patch": ""
+  },
+  "sympy__sympy-11400": {
+    "model_name_or_path": "gpt-4o-mini",
+    "instance_id": "sympy__sympy-11400",
+    "model_patch": "diff --git a/sympy/core/basic.py b/sympy/core/basic.py\nindex 005b8f8499..2b3eb4238c 100644\n--- a/sympy/core/basic.py\n+++ b/sympy/core/basic.py\n@@ -1,6 +1,6 @@\n \"\"\"Base class for all the objects in SymPy\"\"\"\n from __future__ import print_function, division\n-from collections import Mapping\n+from collections.abc import Mapping\n \n from .assumptions import BasicMeta, ManagedProperties\n from .cache import cacheit\ndiff --git a/sympy/plotting/plot.py b/sympy/plotting/plot.py\nindex b1ead153ef..f3dc7f60fe 100644\n--- a/sympy/plotting/plot.py\n+++ b/sympy/plotting/plot.py\n@@ -25,7 +25,7 @@\n from __future__ import print_function, division\n \n import inspect\n-from collections import Callable\n+from collections.abc import Callable\n import warnings\n import sys\n \n"
+  }
+}

@@ -1,0 +1,74 @@
+diff --git a/patch.txt b/patch.txt
+new file mode 100644
+index 000000000..4edc682d7
+--- /dev/null
++++ b/patch.txt
+@@ -0,0 +1,34 @@
++diff --git a/sklearn/preprocessing/label.py b/sklearn/preprocessing/label.py
++index 61b8d4a21..938a41045 100644
++--- a/sklearn/preprocessing/label.py
+++++ b/sklearn/preprocessing/label.py
++@@ -92,7 +92,8 @@ class LabelEncoder(BaseEstimator, TransformerMixin):
++         -------
++         self : returns an instance of self.
++         """
++-        y = column_or_1d(y, warn=True)
+++        if len(y) == 0:
+++            return np.array([])
++         self.classes_ = np.unique(y)
++         return self
++ 
++@@ -108,7 +109,8 @@ class LabelEncoder(BaseEstimator, TransformerMixin):
++         -------
++         y : array-like of shape [n_samples]
++         """
++-        y = column_or_1d(y, warn=True)
+++        if len(y) == 0:
+++            return np.array([])
++         self.classes_, y = np.unique(y, return_inverse=True)
++         return y
++ 
++@@ -125,7 +127,8 @@ class LabelEncoder(BaseEstimator, TransformerMixin):
++         y : array-like of shape [n_samples]
++         """
++         check_is_fitted(self, 'classes_')
++-        y = column_or_1d(y, warn=True)
+++        if len(y) == 0:
+++            return np.array([])
++ 
++         classes = np.unique(y)
++         if len(np.intersect1d(classes, self.classes_)) < len(classes):
+diff --git a/sklearn/preprocessing/label.py b/sklearn/preprocessing/label.py
+index 61b8d4a21..938a41045 100644
+--- a/sklearn/preprocessing/label.py
++++ b/sklearn/preprocessing/label.py
+@@ -92,7 +92,8 @@ class LabelEncoder(BaseEstimator, TransformerMixin):
+         -------
+         self : returns an instance of self.
+         """
+-        y = column_or_1d(y, warn=True)
++        if len(y) == 0:
++            return np.array([])
+         self.classes_ = np.unique(y)
+         return self
+ 
+@@ -108,7 +109,8 @@ class LabelEncoder(BaseEstimator, TransformerMixin):
+         -------
+         y : array-like of shape [n_samples]
+         """
+-        y = column_or_1d(y, warn=True)
++        if len(y) == 0:
++            return np.array([])
+         self.classes_, y = np.unique(y, return_inverse=True)
+         return y
+ 
+@@ -125,7 +127,8 @@ class LabelEncoder(BaseEstimator, TransformerMixin):
+         y : array-like of shape [n_samples]
+         """
+         check_is_fitted(self, 'classes_')
+-        y = column_or_1d(y, warn=True)
++        if len(y) == 0:
++            return np.array([])
+ 
+         classes = np.unique(y)
+         if len(np.intersect1d(classes, self.classes_)) < len(classes):

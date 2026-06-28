@@ -1,0 +1,30 @@
+diff --git a/lib/matplotlib/widgets.py b/lib/matplotlib/widgets.py
+index da5b40a5ef..5b03169ab2 100644
+--- a/lib/matplotlib/widgets.py
++++ b/lib/matplotlib/widgets.py
+@@ -903,13 +903,23 @@ class RangeSlider(SliderBase):
+             xy[1] = .25, val[1]
+             xy[2] = .75, val[1]
+             xy[3] = .75, val[0]
+-            xy[4] = .25, val[0]
++            print("DEBUG: xy before vertical modification:", xy)
++            if len(xy) <= 4:
++                xy = np.append(xy, [[.25, val[0]]], axis=0)
++            else:
++                xy[4] = .25, val[0]
++            print("DEBUG: xy after vertical modification:", xy)
+         else:
+             xy[0] = val[0], .25
+             xy[1] = val[0], .75
+             xy[2] = val[1], .75
+             xy[3] = val[1], .25
+-            xy[4] = val[0], .25
++            print("DEBUG: xy before horizontal modification:", xy)
++            if len(xy) <= 4:
++                xy = np.append(xy, [[val[0], .25]], axis=0)
++            else:
++                xy[4] = val[0], .25
++            print("DEBUG: xy after horizontal modification:", xy)
+         self.poly.xy = xy
+         self.valtext.set_text(self._format(val))
+         if self.drawon:

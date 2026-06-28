@@ -1,0 +1,63 @@
+2026-06-15 00:01:23,320 - INFO - Creating container for astropy__astropy-12907...
+2026-06-15 00:01:23,339 - INFO - Container for astropy__astropy-12907 created: 77fdbfa167e8bbab3b8c57952ad889414e1e97bf227a4fddd3b81b1d1e12d12b
+2026-06-15 00:01:23,542 - INFO - Container for astropy__astropy-12907 started: 77fdbfa167e8bbab3b8c57952ad889414e1e97bf227a4fddd3b81b1d1e12d12b
+2026-06-15 00:01:23,543 - INFO - Intermediate patch for astropy__astropy-12907 written to logs/run_evaluation/raps_dev6_v9/gpt-4o-mini/astropy__astropy-12907/patch.diff, now applying to container...
+2026-06-15 00:01:23,666 - INFO - >>>>> Applied Patch:
+Checking patch astropy/modeling/separable.py...
+Applied patch astropy/modeling/separable.py cleanly.
+
+2026-06-15 00:01:24,142 - INFO - Git diff before:
+diff --git a/astropy/modeling/separable.py b/astropy/modeling/separable.py
+index a308e2729..98ee79c7e 100644
+--- a/astropy/modeling/separable.py
++++ b/astropy/modeling/separable.py
+@@ -97,7 +97,16 @@ def separability_matrix(transform):
+     if transform.n_inputs == 1 and transform.n_outputs > 1:
+         return np.ones((transform.n_outputs, transform.n_inputs),
+                        dtype=np.bool_)
+-    separable_matrix = _separable(transform)
++    if isinstance(transform, CompoundModel):
++        separable_matrix = np.zeros((transform.n_outputs, transform.n_inputs), dtype=np.bool_)
++        left_separability = _separable(transform.left)
++        right_separability = _separable(transform.right)
++        separable_matrix[:len(left_separability), :transform.left.n_inputs] = left_separability[:, None]
++        separable_matrix[len(left_separability):, transform.left.n_inputs:] = right_separability[:, None]
++        # Ensure that the outputs are treated as independent
++        separable_matrix[len(left_separability):, -len(right_separability):] = right_separability[:, None]
++    else:
++        separable_matrix = _separable(transform)
+     separable_matrix = np.where(separable_matrix != 0, True, False)
+     return separable_matrix
+2026-06-15 00:01:24,143 - INFO - Eval script for astropy__astropy-12907 written to logs/run_evaluation/raps_dev6_v9/gpt-4o-mini/astropy__astropy-12907/eval.sh; copying to container...
+2026-06-15 00:02:40,077 - INFO - Test runtime: 75.87 seconds
+2026-06-15 00:02:40,079 - INFO - Test output for astropy__astropy-12907 written to logs/run_evaluation/raps_dev6_v9/gpt-4o-mini/astropy__astropy-12907/test_output.txt
+2026-06-15 00:02:40,151 - INFO - Git diff after:
+diff --git a/astropy/modeling/separable.py b/astropy/modeling/separable.py
+index a308e2729..98ee79c7e 100644
+--- a/astropy/modeling/separable.py
++++ b/astropy/modeling/separable.py
+@@ -97,7 +97,16 @@ def separability_matrix(transform):
+     if transform.n_inputs == 1 and transform.n_outputs > 1:
+         return np.ones((transform.n_outputs, transform.n_inputs),
+                        dtype=np.bool_)
+-    separable_matrix = _separable(transform)
++    if isinstance(transform, CompoundModel):
++        separable_matrix = np.zeros((transform.n_outputs, transform.n_inputs), dtype=np.bool_)
++        left_separability = _separable(transform.left)
++        right_separability = _separable(transform.right)
++        separable_matrix[:len(left_separability), :transform.left.n_inputs] = left_separability[:, None]
++        separable_matrix[len(left_separability):, transform.left.n_inputs:] = right_separability[:, None]
++        # Ensure that the outputs are treated as independent
++        separable_matrix[len(left_separability):, -len(right_separability):] = right_separability[:, None]
++    else:
++        separable_matrix = _separable(transform)
+     separable_matrix = np.where(separable_matrix != 0, True, False)
+     return separable_matrix
+2026-06-15 00:02:40,151 - INFO - Grading answer for astropy__astropy-12907...
+2026-06-15 00:02:40,161 - INFO - report: {'astropy__astropy-12907': {'patch_is_None': False, 'patch_exists': True, 'patch_successfully_applied': True, 'resolved': False, 'tests_status': {'FAIL_TO_PASS': {'success': [], 'failure': ['astropy/modeling/tests/test_separable.py::test_separable[compound_model6-result6]', 'astropy/modeling/tests/test_separable.py::test_separable[compound_model9-result9]']}, 'PASS_TO_PASS': {'success': ['astropy/modeling/tests/test_separable.py::test_coord_matrix', 'astropy/modeling/tests/test_separable.py::test_cdot', 'astropy/modeling/tests/test_separable.py::test_cstack', 'astropy/modeling/tests/test_separable.py::test_arith_oper', 'astropy/modeling/tests/test_separable.py::test_separable[compound_model4-result4]', 'astropy/modeling/tests/test_separable.py::test_custom_model_separable'], 'failure': ['astropy/modeling/tests/test_separable.py::test_separable[compound_model0-result0]', 'astropy/modeling/tests/test_separable.py::test_separable[compound_model1-result1]', 'astropy/modeling/tests/test_separable.py::test_separable[compound_model2-result2]', 'astropy/modeling/tests/test_separable.py::test_separable[compound_model3-result3]', 'astropy/modeling/tests/test_separable.py::test_separable[compound_model5-result5]', 'astropy/modeling/tests/test_separable.py::test_separable[compound_model7-result7]', 'astropy/modeling/tests/test_separable.py::test_separable[compound_model8-result8]']}, 'FAIL_TO_FAIL': {'success': [], 'failure': []}, 'PASS_TO_FAIL': {'success': [], 'failure': []}}}}
+Result for astropy__astropy-12907: resolved: False
+2026-06-15 00:02:40,161 - INFO - Attempting to stop container sweb.eval.astropy__astropy-12907.raps_dev6_v9...
+2026-06-15 00:02:55,421 - INFO - Attempting to remove container sweb.eval.astropy__astropy-12907.raps_dev6_v9...
+2026-06-15 00:02:55,448 - INFO - Container sweb.eval.astropy__astropy-12907.raps_dev6_v9 removed.
+2026-06-15 00:02:55,448 - INFO - Attempting to remove image swebench/sweb.eval.x86_64.astropy_1776_astropy-12907:latest...
+2026-06-15 00:02:55,934 - INFO - Image swebench/sweb.eval.x86_64.astropy_1776_astropy-12907:latest removed.
