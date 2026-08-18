@@ -19,10 +19,13 @@ def get_call_str(assert_statement: str) -> str:
     return astunparse.unparse(call_str).strip()
 
 def get_output(func: str, assert_statement: str, timeout: int = 5) -> str:
+    """What the candidate returns for the call an assert makes of it, evaluated in a
+    namespace of its own so nothing it defines outlives the call."""
+    ns = {}
     try:
-        exec(f"from typing import *\n{func}", globals())
+        exec(f"from typing import *\n{func}", ns)
         func_call = get_call_str(assert_statement)
-        output = function_with_timeout(eval, (func_call, globals()), timeout)
+        output = function_with_timeout(eval, (func_call, ns), timeout)
         return output
     except TimeoutError:
         return "TIMEOUT"
@@ -30,11 +33,14 @@ def get_output(func: str, assert_statement: str, timeout: int = 5) -> str:
         return str(e)
     
 def execute_code_get_return(code: str):
-    local_vars = {}
+    # Use a SINGLE namespace for globals and locals so that functions defined in
+    # the snippet can see module-level imports/constants (e.g. `import math`).
+    # With separate globals/locals, `def f(): return math.x` raises NameError.
+    ns = {}
     try:
-        exec(code, {}, local_vars)
-        if 'answer' in local_vars:
-            return local_vars['answer']
+        exec(code, ns)
+        if 'answer' in ns:
+            return ns['answer']
         else:
             return None
     except Exception as e:
@@ -53,7 +59,8 @@ class PyExecutor(Executor):
         num_tests = len(func_test_list)
         for i in range(num_tests):
             try:
-                function_with_timeout(exec, (func_test_list[i], globals()), timeout)
+                # a namespace per test, so one test cannot see what another defined
+                function_with_timeout(exec, (func_test_list[i], {}), timeout)
                 success_tests.append(tests[i])
             except Exception:
                 output = get_output(func, tests[i], timeout=timeout)
@@ -67,20 +74,12 @@ class PyExecutor(Executor):
         return is_passing, feedback, tuple(state)
 
     def evaluate(self, name: str, func: str, test: str, timeout: int = 5) -> bool:
-        """
-        Evaluates the implementation on Human-Eval Python.
-
-        probably should be written in a dataset-agnostic way but not now
-        """
-        
-        code = f"""{func}
-
-{test}
-
-check({name})
-    """
+        """Whether the candidate passes the benchmark's own test suite. The program runs in
+        a namespace of its own, so nothing an earlier problem defined can make a later one
+        pass, and the typing names a signature may carry are in scope."""
+        code = f"from typing import *\n{func}\n\n{test}\n\ncheck({name})\n"
         try:
-            function_with_timeout(exec, (code, globals()), timeout)
+            function_with_timeout(exec, (code, {}), timeout)
             return True
         except Exception:
             return False

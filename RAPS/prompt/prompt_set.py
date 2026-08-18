@@ -9,83 +9,68 @@ class PromptSet(ABC):
     @staticmethod
     @abstractmethod
     def get_role() -> str:
-        """ TODO """
+        """Return the next role name of the set."""
 
     @staticmethod
     @abstractmethod
     def get_constraint() -> str:
-        """ TODO """
+        """Return the prompt constraint of a role."""
 
     @staticmethod
     @abstractmethod
     def get_format() -> str:
-        """ TODO """
+        """Return the answer-format tag of the set."""
 
     @staticmethod
     @abstractmethod
     def get_answer_prompt(question) -> str:
-        """ TODO """
+        """Build the answering prompt for a question."""
 
     @staticmethod
     @abstractmethod
     def get_adversarial_answer_prompt(question) -> str:
-        """ TODO """
+        """Build the adversarial answering prompt for a question."""
 
     @staticmethod
     @abstractmethod
     def get_query_prompt(question) -> str:
-        """ TODO """
+        """Build the information-gathering query prompt."""
 
     @staticmethod
     @abstractmethod
     def get_file_analysis_prompt(query, file) -> str:
-        """ TODO """
+        """Build the file-analysis prompt for a query over a file."""
 
     @staticmethod
     @abstractmethod
     def get_websearch_prompt(query) -> str:
-        """ TODO """
+        """Build the web-search prompt for a query."""
 
     @staticmethod
     @abstractmethod
     def get_distill_websearch_prompt(query, results) -> str:
-        """ TODO """
+        """Build the prompt that distills web-search results."""
 
     @staticmethod
     @abstractmethod
     def get_reflect_prompt(question, answer) -> str:
-        """ TODO """
+        """Build the reflection prompt over a question and an answer."""
 
     @staticmethod
     def get_react_prompt(question, solutions, feedback) -> str:
-        """ TODO """
-
-    # @staticmethod
-    # @abstractmethod
-    # def get_self_consistency(materials: Dict[str, Any]) -> str:
-    #     """ TODO """
-
-    # @staticmethod
-    # @abstractmethod
-    # def get_select_best(materials: Dict[str, Any]) -> str:
-    #     """ TODO """
-
-    @staticmethod
-    @abstractmethod
-    def get_combine_materials(materials: Dict[str, Any]) -> str:
-        """ TODO """
+        """Build the feedback-driven rewrite prompt."""
 
     @staticmethod
     @abstractmethod
     def get_decision_constraint() ->str:
-        """ TODO """
-        
+        """Return the output constraint of the final-decision role."""
+
     @staticmethod
     @abstractmethod
     def get_decision_role() ->str:
-        """ TODO """
+        """Return the description of the final-decision role."""
 
     @staticmethod
     @abstractmethod
     def get_decision_few_shot() ->str:
-        """ TODO """
+        """Return the few-shot example of the final-decision role."""

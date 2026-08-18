@@ -2,7 +2,6 @@ from typing import Dict, Any
 import itertools
 from RAPS.prompt.prompt_set import PromptSet
 from RAPS.prompt.prompt_set_registry import PromptSetRegistry
-from RAPS.prompt.common import get_combine_materials
 
 roles = itertools.cycle(['Math Solver',
                          'Mathematical Analyst',
@@ -29,7 +28,7 @@ ROLE_DESCRIPTION = {
         "Integrate step-by-step reasoning and Python code to solve math problems. "
         "Analyze the question and write functions to solve the problem. "
         "The function should not take any arguments and use the final result as the return value. "
-        "The last line of code calls the function you wrote and assigns the return value to the \(answer\) variable. "
+        r"The last line of code calls the function you wrote and assigns the return value to the \(answer\) variable. "
         "Use a Python code block to write your response. For example:\n```python\ndef fun():\n x = 10\n y = 20\n return x + y\nanswer = fun()\n```\n"
         "Do not include anything other than Python code blocks in your response."
         "You will be given some examples you may refer to.",
@@ -39,6 +38,13 @@ ROLE_DESCRIPTION = {
         "Check whether the logic/calculation of the problem solving and analysis process is correct(if present). "
         "Check whether the code corresponds to the solution analysis(if present). "
         "Give your own solving process step by step based on hints. "
+        "The last line of your output contains only the final result without any units, for example: The answer is 140\n"
+        "You will be given some examples you may refer to.",
+    "Summarizer":
+        "You are a summarizer. "
+        "You will be given a math problem, analysis and code from other agents. "
+        "Review the solutions and analyses of other agents, reconcile any discrepancies, "
+        "and compose the final answer. "
         "The last line of your output contains only the final result without any units, for example: The answer is 140\n"
         "You will be given some examples you may refer to.",
 }
@@ -191,7 +197,11 @@ class GSM8KPromptSet(PromptSet):
     def get_constraint(role):
         return ROLE_DESCRIPTION[role]
 
-    def get_description(self,role):
+    def get_description(self, role):
+        """The profile of a role in this benchmark's pool."""
+        if role not in ROLE_DESCRIPTION:
+            raise KeyError(f"no profile for role {role!r}; this pool defines "
+                           f"{sorted(ROLE_DESCRIPTION)}")
         return ROLE_DESCRIPTION[role]
     
     def get_role_connection(self):
@@ -389,7 +399,4 @@ f"6. Adhere to the constraints: {constraint}.\n"
 "Note: If none of the answers fully meet the question's criteria, select the one closest to fulfilling them."
         )
 
-    @staticmethod
-    def get_combine_materials(materials: Dict[str, Any]) -> str:
-        return get_combine_materials(materials)
 

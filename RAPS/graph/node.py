@@ -2,29 +2,16 @@ import shortuuid
 from typing import List, Any, Optional,Dict
 from abc import ABC, abstractmethod
 import asyncio
+import numpy as np
 
 from RAPS.llm.llm_registry import LLMRegistry
-from RAPS.llm.profile_embedding import cosine_similarity
 from RAPS.graph.reputation import ReputationManager
 
-class SimpleProfile:
-    def __init__(self, role: str, capabilities: str, interests: str, additional_instructions: str, few_shot: str):
-        self.role = role
-        self.capabilities = capabilities
-        self.interests = interests
-        self.additional_instructions = additional_instructions
-        self.few_shot = few_shot
-        self.prompt = self.to_prompt()
 
-    def to_prompt(self) -> str:
-        prompt = f"Your Role: {self.role.strip()}."
-        if self.capabilities:
-            prompt += f"\nYour Capabilities: {self.capabilities.strip()}."
-        if self.interests:
-            prompt += f"\nYour Interests: {self.interests.strip()}."
-        if self.additional_instructions:
-            prompt += f"\n{self.additional_instructions.strip()}"
-        return prompt.strip()
+def cosine_similarity(a: np.ndarray, b: np.ndarray) -> float:
+    denom = np.linalg.norm(a) * np.linalg.norm(b)
+    return float(np.dot(a, b) / denom) if denom else 0.0
+
 
 class Node(ABC):
 
@@ -60,16 +47,17 @@ class Node(ABC):
         self.few_shot = few_shot
         self.last_memory: Dict[str,List[Any]] = {'inputs':[],'outputs':[],'raw_inputs':[]}
         self.llm = LLMRegistry.get(llm_name)
-        # self.subscription_prompt = SimpleProfile(
-        #     role=role,
-        #     capabilities=capabilities,
-        #     interests=interests,
-        #     additional_instructions=additional_instructions,
-        #     few_shot=few_shot
-        # )
+        # The standing subscription an agent declares, which the broker matches against and
+        # which reactive subscription rewrites into `refined_prompt`.
         self.system_prompt = capabilities
         self.refined_prompt = self.system_prompt
         self.llm_trace = []
+        # prompt strategy: "solve" (original) refines persona AND can bake in a
+        # solution path; "persona" refines only the agent's expertise/lens.
+        self.refine_mode = "solve"
+        # broker strategy: "default" predicts a next role; "gap" asks what
+        # capability is still MISSING (engages under-used specialists/tools).
+        self.broker_mode = "default"
 
         self.rep_manager = ReputationManager(
             discount_alpha=0.999,
@@ -127,25 +115,47 @@ class Node(ABC):
         self.last_memory['raw_inputs'] = self.raw_inputs
 
     def refine_system_prompt(self, context: str, question: str) -> str:
-        prompt = (
-            "### GOAL\n"
-            "Your task is to dynamically specialize an LLM agent's persona to perfectly align with the specific needs of the current problem state.\n"
-            "Do NOT simply summarize the old profile. Instead, evolve the agent's intent to be highly specific to the immediate context.\n\n"
-            
-            "### INPUT DATA\n"
-            f"1. **Base Profile (Starting Point):**\n{self.system_prompt}\n\n"
-            f"2. **Current Task/Question:**\n{question}\n\n"
-            f"3. **Interaction Context (Message Flow):**\n{context}\n\n"
-            
-            "### INSTRUCTIONS\n"
-            "- Analyze the `Current Task` and `Interaction Context` to identify what specific expertise, constraints, or output format is missing or needed right now.\n"
-            "- Ignore generic traits in the `Base Profile` if they are not relevant to the current step.\n"
-            "- Rewrite the System Instruction to explicitly guide the agent on *how* to process the specific input in the context.\n"
-            "- The new instruction should act like a focused 'Mission Briefing' for this specific step of the chain.\n\n"
-            
-            "### OUTPUT FORMAT\n"
-            "Return ONLY the refined system instruction string. No explanations."
-        )
+        if getattr(self, "refine_mode", "solve") == "persona":
+            # Persona-only refinement: shape the agent's expertise/lens, never the solution.
+            prompt = (
+                "### GOAL\n"
+                "Specialize this agent's EXPERTISE and LENS for the current problem — NOT its solution.\n"
+                "Describe what perspective, domain knowledge, and verification checks the agent should bring.\n\n"
+
+                "### HARD CONSTRAINTS\n"
+                "- Do NOT solve the problem, do NOT perform any calculation, do NOT state or imply a numeric/final answer.\n"
+                "- Do NOT restate the problem's specific quantities or a step-by-step solution path.\n"
+                "- Keep the agent's original output-format requirement intact.\n"
+                "- Output 2-3 sentences describing the agent's specialized role for THIS problem.\n\n"
+
+                "### INPUT DATA\n"
+                f"1. **Base Profile:**\n{self.system_prompt}\n\n"
+                f"2. **Current Question:**\n{question}\n\n"
+                f"3. **Interaction Context:**\n{context}\n\n"
+
+                "### OUTPUT FORMAT\n"
+                "Return ONLY the refined system instruction string. No explanations, no solution."
+            )
+        else:
+            prompt = (
+                "### GOAL\n"
+                "Your task is to dynamically specialize an LLM agent's persona to perfectly align with the specific needs of the current problem state.\n"
+                "Do NOT simply summarize the old profile. Instead, evolve the agent's intent to be highly specific to the immediate context.\n\n"
+
+                "### INPUT DATA\n"
+                f"1. **Base Profile (Starting Point):**\n{self.system_prompt}\n\n"
+                f"2. **Current Task/Question:**\n{question}\n\n"
+                f"3. **Interaction Context (Message Flow):**\n{context}\n\n"
+
+                "### INSTRUCTIONS\n"
+                "- Analyze the `Current Task` and `Interaction Context` to identify what specific expertise, constraints, or output format is missing or needed right now.\n"
+                "- Ignore generic traits in the `Base Profile` if they are not relevant to the current step.\n"
+                "- Rewrite the System Instruction to explicitly guide the agent on *how* to process the specific input in the context.\n"
+                "- The new instruction should act like a focused 'Mission Briefing' for this specific step of the chain.\n\n"
+
+                "### OUTPUT FORMAT\n"
+                "Return ONLY the refined system instruction string. No explanations."
+            )
         msg = [{"role": "system", "content": "You are an expert prompt refiner who tailors agent instructions to the current question and context based on the evolving workflow."},
                {"role": "user", "content": prompt}]
         self.llm_trace.append({
@@ -156,13 +166,26 @@ class Node(ABC):
 
         self.refined_prompt = str(refined).strip()
 
-        if self.role == "Final Answerer":
-            # self.refined_prompt += "You only need to output the final numerical answer. Do not provide any textual descriptions."
+        # The deciding node keeps its output-format constraint through the
+        # rewrite: runners mark it via role "Final Answerer" or the
+        # is_final_answerer flag (the revision names it after a pool role,
+        # e.g. "Summarizer" — Table S.2).
+        if self.role == "Final Answerer" or getattr(self, "is_final_answerer", False):
             self.refined_prompt += self.additional_instructions
 
         self.llm_trace[-1]["output"] = self.refined_prompt
         return self.refined_prompt
 
+
+    #: What the watchdog is asked to judge a publication against, per benchmark domain.
+    _WATCHDOG_SUBJECT = {
+        "mmlu": ("answering the multiple-choice question", "question"),
+        "aqua": ("solving the multiple-choice math problem", "problem"),
+        "gsm8k": ("solving the math problem", "problem"),
+        "svamp": ("solving the math problem", "problem"),
+        "math": ("solving the math problem", "problem"),
+        "humaneval": ("implementing a correct program for the specification", "specification"),
+    }
 
     def watchdog_evaluate(self, message_content: Any, task_domain: str = "gsm8k", question: str = "", existing_info: str = "") -> bool:
         if not message_content or len(str(message_content).strip()) == 0:
@@ -170,36 +193,21 @@ class Node(ABC):
         domain = str(task_domain or "").lower()
         question_text = str(question).strip() if question is not None else ""
         existing_text = str(existing_info).strip() if existing_info is not None else "None"
-        if domain == "mmlu":
-            prompt = (
-                "You are a watchdog for an intelligent agent system.\n"
-                "Please evaluate the following new message from another agent.\n"
-                "Decide whether it is logically relevant and valuable for answering the multiple-choice MMLU question:\n"
-                f"{question_text}\n\n"
-                "Your known information:\n"
-                f"{existing_text}\n\n"
-                "The new message from another agent:\n"
-                f"{message_content}\n\n"
-                "A message is valuable if it is coherent, grounded in the question, adds supporting evidence, provides a correction, or clarifies reasoning.\n"
-                "Disagreement with others is acceptable when it is well-justified.\n"
-                "Respond with 'YES' if it is good, 'NO' if it is bad or a hallucination.\n"
-                "Do not provide explanations, just YES or NO."
-            )
-        else:
-            prompt = (
-                "You are a watchdog for an intelligent agent system.\n"
-                "Please evaluate the following new message from another agent.\n"
-                "Decide whether it is logically relevant and valuable for solving the math problem:\n"
-                f"{question_text}\n\n"
-                "Your known information:\n"
-                f"{existing_text}\n\n"
-                "The new message from another agent:\n"
-                f"{message_content}\n\n"
-                "A message is valuable if it is coherent, grounded in the problem, adds supporting evidence, provides a correction, or clarifies reasoning.\n"
-                "Disagreement with others is acceptable when it is well-justified.\n"
-                "Respond with 'YES' if it is good, 'NO' if it is bad or a hallucination.\n"
-                "Do not provide explanations, just YES or NO."
-            )
+        goal, subject = self._WATCHDOG_SUBJECT.get(domain, ("solving the task", "task"))
+        prompt = (
+            "You are a watchdog for an intelligent agent system.\n"
+            "Please evaluate the following new message from another agent.\n"
+            f"Decide whether it is logically relevant and valuable for {goal}:\n"
+            f"{question_text}\n\n"
+            "Your known information:\n"
+            f"{existing_text}\n\n"
+            "The new message from another agent:\n"
+            f"{message_content}\n\n"
+            f"A message is valuable if it is coherent, grounded in the {subject}, adds supporting evidence, provides a correction, or clarifies reasoning.\n"
+            "Disagreement with others is acceptable when it is well-justified.\n"
+            "Respond with 'YES' if it is good, 'NO' if it is bad or a hallucination.\n"
+            "Do not provide explanations, just YES or NO."
+        )
         try:
             msg = [{"role": "system", "content": "You are a watchdog evaluator."},
                    {"role": "user", "content": prompt}]
@@ -215,11 +223,22 @@ class Node(ABC):
         except Exception:
             return False
 
-    def check_trust(self, sender_id: str, threshold: float = 0.3) -> bool:
-        rep = self.rep_manager.REP.get(sender_id, {"a": 1.0, "b": 1.0})
-        trust_score = rep["a"] / (rep["a"] + rep["b"])
-        return trust_score >= threshold
+    def check_trust(self, sender_id: str, threshold: float = 0.7,
+                    min_observations: float = 1.0) -> bool:
+        """Whether this agent's reliability-aware gate admits `sender_id` as a routing
+        candidate. min_observations=0 removes the exemption for unobserved peers, which
+        places the decision on the prior expectation (kept as an ablation)."""
+        return self.rep_manager.admits(sender_id, threshold, min_observations)
     
+    def export_report(self) -> Dict[str, tuple]:
+        """The second-hand testimony this agent broadcasts during gossip.
+
+        Defaults to its honest first-hand table; adversarial agents override it
+        to forge reports (false praise / bad-mouthing, Supp. F). The coordinator
+        always calls this method rather than the reputation manager directly.
+        """
+        return self.rep_manager.export_first_hand()
+
     def publish(self, task_context: Any, **kwargs):
         output = self._execute(task_context, **kwargs)
         self.outputs = output
@@ -238,13 +257,28 @@ class Node(ABC):
         if not candidate_subs:
             return []
         options = "\n".join([f"{i+1}. [{aid}] {sub}" for i, (aid, sub) in enumerate(candidate_subs.items())])
-        instruction = (
-            "You are coordinating a multi-agent system.\n"
-            "Choose the most suitable downstream role based on the available role options.\n"
-            f"Previous agents' outputs:\n{pub_context}\n\n"
-            f"Available downstream roles (current agent excluded):\n{options}\n\n"
-            "Write a concise role description grounded in the options above. Do not write a task plan. Keep it under 100 words."
-        )
+        if getattr(self, "broker_mode", "default") == "gap":
+            # Gap-driven routing: identify the MISSING capability rather than defaulting
+            # to a generic verifier, so under-used specialists/tools get engaged.
+            instruction = (
+                "You are coordinating a multi-agent system.\n"
+                "Identify the single most important capability that is STILL MISSING to finish the task,\n"
+                "then describe the downstream role best suited to provide it.\n"
+                "If the work so far is only natural-language reasoning with no independent/exact "
+                "verification (e.g. no code execution), prefer a role that provides that verification.\n"
+                f"Previous agents' outputs:\n{pub_context}\n\n"
+                f"Available downstream roles (current agent excluded):\n{options}\n\n"
+                "Write a concise description of the needed role, grounded in the options above. "
+                "Do not write a task plan. Keep it under 100 words."
+            )
+        else:
+            instruction = (
+                "You are coordinating a multi-agent system.\n"
+                "Choose the most suitable downstream role based on the available role options.\n"
+                f"Previous agents' outputs:\n{pub_context}\n\n"
+                f"Available downstream roles (current agent excluded):\n{options}\n\n"
+                "Write a concise role description grounded in the options above. Do not write a task plan. Keep it under 100 words."
+            )
 
         msg = [
             {"role": "system", "content": "You are a semantic router. You bridge the gap between current progress and required expertise."},
@@ -268,19 +302,30 @@ class Node(ABC):
         return self._match_by_embedding(predicted_task, candidate_subs, top_k=top_k, threshold=sim_threshold)
 
     def _match_by_embedding(self, task: str, subs: Dict[str, str], top_k=2, threshold=0.4) -> List[str]:
-        # task_vec = get_sentence_embedding(task)
-        task_vec = self.llm.get_embedding(task)
-        results = []
-        for agent_id, sub in subs.items():
-            # sub_vec = get_sentence_embedding(sub)
-            sub_vec = self.llm.get_embedding(sub)
-            score = cosine_similarity(task_vec, sub_vec)
-            if score >= threshold:
-                results.append((agent_id, score))
-        
-        results.sort(key=lambda x: x[1], reverse=True)
-        top = [agent_id for agent_id, _ in results[:top_k]]
-        print(f"[BROKER-EMBEDDING] Top-{top_k} (Threshold {threshold}): {top}")
+        """The forwarding query is matched against the candidate subscriptions by cosine
+        similarity, and the `top_k` highest-ranked candidates that reach `threshold` are
+        retained. A round in which no candidate reaches it forwards to nobody, which ends
+        the episode at that point."""
+        if not subs:
+            return []
+        agent_ids = list(subs.keys())
+        # One batched call: [predicted_task, sub_1, ..., sub_n] -> embeddings. The payload
+        # is traced so the cost decomposition can charge the subscription-embedding term.
+        payload = [task] + [subs[aid] for aid in agent_ids]
+        self.llm_trace.append({
+            "type": "subscription_embedding",
+            "messages": [{"role": "input", "content": text} for text in payload],
+            "output": "",
+        })
+        vectors = self.llm.get_embeddings(payload)
+        task_vec = np.asarray(vectors[0])
+        scored = [(aid, cosine_similarity(task_vec, np.asarray(vec)))
+                  for aid, vec in zip(agent_ids, vectors[1:])]
+        scored.sort(key=lambda x: x[1], reverse=True)
+
+        top = [aid for aid, score in scored[:top_k] if score >= threshold]
+        print(f"[BROKER-EMBEDDING] Top-{top_k} (Threshold {threshold}): {top or 'none reached'} "
+              f"| scores={[round(s, 3) for _, s in scored[:top_k]]}")
         return top
 
     def _match_by_llm(self, task: str, subs: Dict[str, str], top_k=1) -> List[str]:

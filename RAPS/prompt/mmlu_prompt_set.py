@@ -3,7 +3,6 @@ import itertools
 
 from RAPS.prompt.prompt_set import PromptSet
 from RAPS.prompt.prompt_set_registry import PromptSetRegistry
-from RAPS.prompt.common import get_combine_materials
 
 
 roles = itertools.cycle(['Knowledge Expert',
@@ -133,7 +132,11 @@ class MMLUPromptSet(PromptSet):
     def get_role_connection(self):
         return ROLE_CONNECTION
     
-    def get_description(self,role):
+    def get_description(self, role):
+        """The profile of a role in this benchmark's pool."""
+        if role not in ROLE_DESCRIPTION:
+            raise KeyError(f"no profile for role {role!r}; this pool defines "
+                           f"{sorted(ROLE_DESCRIPTION)}")
         return ROLE_DESCRIPTION[role]
     
     @staticmethod
@@ -216,9 +219,6 @@ The first line of your reply must contain only one letter(for example : A, B, C 
     def get_reflect_prompt(question, answer):
         raise NotImplementedError
 
-    @staticmethod
-    def get_combine_materials(materials: Dict[str, Any]) -> str:
-        return get_combine_materials(materials)
     
     @staticmethod
     def get_decision_few_shot():

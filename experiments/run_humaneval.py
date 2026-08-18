@@ -10,8 +10,12 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 sys.stdout.reconfigure(encoding='utf-8')
 
 from RAPS.utils.const import RAPS_ROOT
-from RAPS.utils.globals import Time
+from RAPS.utils.globals import Time, Cost, PromptTokens, CompletionTokens
 from RAPS.agents.agent_registry import AgentRegistry
+from RAPS.core import RAPSCoordinator
+from RAPS.config import (BENCHMARKS, NAIVE_POOL, TOP_K, add_mechanism_flags,
+                         add_pool_flag, mechanism_overrides, pool_spec,
+                         protocol_config)
 from RAPS.agents.code_writing import CodeWriting
 from RAPS.prompt.humaneval_prompt_set import HumanEvalPromptSet
 from RAPS.tools.coding.python_executor import PyExecutor
@@ -25,9 +29,13 @@ def _log(message: str):
     print(f"[{_ts()}] {message}")
 
 
+#: The crafted pool of Table S.2, taken from the one place it is declared.
+ROLES = BENCHMARKS["humaneval"].roles
+
+
 def load_jsonl(file_path):
     data = []
-    with open(file_path, 'r', encoding='utf-8') as f:
+    with open(file_path, "r", encoding="utf-8") as f:
         for line in f:
             line = line.strip()
             if line:
@@ -50,228 +58,135 @@ def extract_code(output):
     return output.strip()
 
 
-def initialize_agents_from_set(llm_name: str):
-    agents = []
-    roles = ["Project Manager", "Algorithm Designer", "Programming Expert", "Test Analyst", "Bug Fixer"]
-    for role in roles:
-        AgentClass = AgentRegistry.get_class("CodeWriting")
-        description = HumanEvalPromptSet().get_description(role)
-        agent = AgentClass(
-            id=None,
-            llm_name=llm_name,
-            role=role,
-            capabilities=description,
-            interests="",
-            additional_instructions="",
-            few_shot=""
-        )
-        agent.history = []
-        agent.inbox = []
-        agents.append(agent)
-    return agents
+def _subscription(role: str, naive_pool: bool) -> str:
+    """The profile a host declares: the naive pool's generic instruction, or the role's
+    domain description from the benchmark's prompt set."""
+    return NAIVE_POOL[role] if naive_pool else HumanEvalPromptSet().get_description(role)
 
 
-def initialize_final_answerer(llm_name: str):
-    AgentClass = AgentRegistry.get_class("CodeWriting")
-    role = "Final Answerer"
-    description = HumanEvalPromptSet().get_decision_role()
-    agent = AgentClass(
-        id=None,
-        llm_name=llm_name,
-        role=role,
-        capabilities=description,
-        interests="",
-        additional_instructions=HumanEvalPromptSet().get_decision_constraint(),
-        few_shot=""
+def _build_agent(role: str, llm_name: str, additional_instructions: str = "",
+                 naive_pool: bool = False):
+    agent = AgentRegistry.get(
+        BENCHMARKS["humaneval"].agent_class, id=None, llm_name=llm_name, domain="humaneval",
+        role=role, capabilities=_subscription(role, naive_pool), interests="",
+        additional_instructions=additional_instructions, few_shot="",
     )
+    agent.history = []
+    agent.inbox = []
     return agent
 
 
-def run_humaneval_task(agents, final_answerer, record, args):
-    task = record["prompt"]
-    entry_point = record["entry_point"]
-    test = record["test"]
+def initialize_agents_from_set(llm_name: str, naive_pool: bool = False):
+    """One CodeWriting agent per worker role of the HumanEval pool (Table S.2): the final
+    answerer is one of the five, so it is excluded here and built separately."""
+    spec = pool_spec("humaneval", naive_pool)
+    return [_build_agent(role, llm_name, naive_pool=naive_pool)
+            for role in spec.roles if role != spec.final_answerer]
 
-    for agent in agents:
-        agent.history = []
-        agent.inbox = []
-        agent.refined_prompt = agent.system_prompt
 
-    entry_agent = agents[0]
-    active_agents = [entry_agent]
+def initialize_final_answerer(llm_name: str, naive_pool: bool = False):
+    """The pool role that composes the final answer (Table S.2), carrying the decision
+    constraint on top of its own subscription rather than replacing it."""
+    agent = _build_agent(pool_spec("humaneval", naive_pool).final_answerer, llm_name,
+                         additional_instructions=HumanEvalPromptSet().get_decision_constraint(),
+                         naive_pool=naive_pool)
+    agent.is_final_answerer = True   # keep the format constraint through refinement
+    return agent
 
-    entry_agent.inbox.append({
-        "sender_id": "User",
-        "role": "User",
-        "content": task
-    })
 
-    round_publications = []
-    refinement_record = {}
+def write_task_log(task_log, record):
+    task_log["entry_point"] = record["entry_point"]
+    log_dir = RAPS_ROOT / "logs"
+    log_dir.mkdir(parents=True, exist_ok=True)
+    log_file = log_dir / f"log_humaneval_{Time.instance().value}_{record['entry_point'][:20]}.json"
+    with open(log_file, "w", encoding="utf-8") as f:
+        json.dump(task_log, f, indent=2)
 
-    for step in range(1, args.max_steps + 1):
-        _log(f"--- Step {step} ---")
-        _log(f"Active Agents: {[a.id for a in active_agents]}")
-        current_step_pubs = []
-        upstream_map = {a.id: set() for a in active_agents}
-        upstream_info_map = {a.id: [] for a in active_agents}
 
-        for agent in active_agents:
-            for msg in agent.inbox:
-                sender_id = msg.get("sender_id")
-                if sender_id != "User":
-                    upstream_map[agent.id].add(sender_id)
-                    upstream_info_map[agent.id].append(f"{msg['role']} ({sender_id}): {msg['content']}")
-                    agent.history.append(f"{msg['role']}: {msg['content']}")
-            agent.inbox = []
-
-        for agent in active_agents:
-            if step == 1:
-                context_str = "History:\nNone"
-            else:
-                context_str = "History:\n" + "\n".join(agent.history)
-            refined_sub = agent.refine_system_prompt(context=context_str, question=task)
-            refinement_record[agent.id] = refined_sub
-            _log(f"Step {step} Subscribe Input | {agent.id} ({agent.role}) | question: {task}")
-            _log(f"Step {step} Subscribe Context | {agent.id} ({agent.role}) | {context_str}")
-            _log(f"Step {step} Subscribe Output | {agent.id} ({agent.role}) | {refined_sub}")
-
-        for agent in active_agents:
-            publication_context = {
-                "task": task,
-                "history": "\n".join(agent.history)
-            }
-            output = agent.publish(publication_context)
-            pub_obj = {
-                "sender_id": agent.id,
-                "role": agent.role,
-                "content": output,
-                "embedding": None
-            }
-            round_publications.append(pub_obj)
-            current_step_pubs.append(pub_obj)
-            _log(f"Step {step} Publish Input | {agent.id} ({agent.role}) | {publication_context}")
-            _log(f"Step {step} Publish Output | {agent.id} ({agent.role}) | {output}")
-
-        if not current_step_pubs:
-            break
-
-        agent_map = {a.id: a for a in agents}
-        valid_pubs = []
-        passed_senders = set()
-        for pub in current_step_pubs:
-            sender_id = pub["sender_id"]
-            content = pub["content"]
-            other_info = "\n".join(upstream_info_map.get(sender_id, []))
-            upstream_ids = upstream_map.get(sender_id, set())
-            is_blocked = False
-            for u_id in upstream_ids:
-                if u_id not in agent_map:
-                    continue
-                upstream_agent = agent_map[u_id]
-                is_valid = upstream_agent.watchdog_evaluate(content, task_domain="humaneval", question=task, existing_info=other_info)
-                upstream_agent.rep_manager.update_first_hand(sender_id, is_valid)
-                if not is_valid:
-                    is_blocked = True
-                    break
-            if not is_blocked:
-                valid_pubs.append(pub)
-                passed_senders.add(sender_id)
-
-        current_step_pubs = valid_pubs
-        if len(passed_senders) == 0:
-            break
-
-        if step == args.max_steps:
-            break
-
-        next_active_agents = set()
-        all_subscriptions = {}
-        for a in agents:
-            all_subscriptions[a.id] = a.refined_prompt
-
-        step_pubs_str = [f"Agent {p['sender_id']} ({p['role']}): {p['content']}" for p in current_step_pubs]
-
-        for pub in current_step_pubs:
-            sender_id = pub["sender_id"]
-            if sender_id not in agent_map:
-                continue
-            matcher_agent = agent_map[sender_id]
-            try:
-                _log(f"Step {step} Broker Input | {sender_id} ({matcher_agent.role}) | publications: {step_pubs_str} | subscriptions: {all_subscriptions}")
-                matched_keys = matcher_agent.broker_route(step_pubs_str, all_subscriptions, top_k=1, sim_threshold=0.3)
-            except Exception:
-                matched_keys = []
-            selected_receivers = []
-            for receiver_id in matched_keys:
-                if receiver_id not in agent_map:
-                    continue
-                if receiver_id == sender_id:
-                    continue
-                receiver = agent_map[receiver_id]
-                receiver.inbox.append(pub)
-                next_active_agents.add(receiver)
-                selected_receivers.append(receiver_id)
-            _log(f"Step {step} Broker Output | {sender_id} ({matcher_agent.role}) | matched: {matched_keys} | receivers: {selected_receivers}")
-
-        if not next_active_agents:
-            break
-        active_agents = list(next_active_agents)
-
-    combined_output = "\n".join([f"{p['role']} ({p['sender_id']}): {p['content']}" for p in round_publications])
-    final_answerer.refined_prompt = final_answerer.system_prompt
-    context_str = f"Original Task: {task}\n\nProcess History:\n{combined_output}"
-    final_answerer.refine_system_prompt(context=context_str, question=task)
-    decision_input = {
-        "task": task,
-        "history": combined_output
-    }
-    final_output = final_answerer.publish(decision_input)
-    _log(f"Final Answerer Input | question: {task} | context: {context_str}")
-    _log(f"Final Answerer Publish Input | {decision_input}")
-    _log(f"Final Answerer Output | {final_output}")
-    code = extract_code(final_output)
-    is_solved = PyExecutor().evaluate(entry_point, code, test)
-    return {
-        "final_output": final_output,
-        "code": code,
-        "is_solved": is_solved
-    }
+def parse_args():
+    parser = argparse.ArgumentParser(description="RAPS Experiments on HumanEval")
+    parser.add_argument("--llm_name", type=str, default="gpt-4o-mini-2024-07-18")
+    parser.add_argument("--domain", type=str, default="humaneval")
+    parser.add_argument("--max_steps", type=int, default=None, help="default: paper value")
+    parser.add_argument("--top_k", type=int, default=None)
+    parser.add_argument("--sim_threshold", type=float, default=None)
+    parser.add_argument("--entry_index", type=int, default=0)
+    parser.add_argument("--start", type=int, default=0)
+    parser.add_argument("--limit", type=int, default=164)
+    add_mechanism_flags(parser)
+    add_pool_flag(parser)
+    parser.add_argument("--dynamic_recruit", action="store_true")
+    parser.add_argument("--adaptive_capacity", action="store_true")
+    parser.add_argument("--max_team_size", type=int, default=10)
+    parser.add_argument("--max_top_k", type=int, default=TOP_K,
+                        help="fan-out ceiling under adaptive capacity, at the protocol cap")
+    parser.add_argument("--budget_tokens", type=int, default=None,
+                        help="per-task token cap on the coordination loop (default: uncapped)")
+    parser.add_argument("--code_verify", action="store_true",
+                        help="Execute-feedback-repair on public doctests before finalizing")
+    parser.add_argument("--code_verify_max_iters", type=int, default=3)
+    parser.add_argument("--edge_cases", action="store_true",
+                        help="Edge-Case Writer agent generates extra tests for the Code Verifier")
+    return parser.parse_args()
 
 
 def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--llm_name", type=str, default="gpt-4o-mini")
-    parser.add_argument("--max_steps", type=int, default=5)
-    args = parser.parse_args()
-
+    args = parse_args()
     current_time = Time.instance().value or time.strftime("%Y-%m-%d-%H-%M-%S", time.localtime())
     Time.instance().value = current_time
 
-    data_path = Path(f"{RAPS_ROOT}/datasets/humaneval/humaneval-py.jsonl")
-    dataset = load_jsonl(data_path)[:20]
+    data_path = Path(f"{RAPS_ROOT}/raps_data/humaneval/humaneval-py.jsonl")
+    dataset = load_jsonl(data_path)[args.start:args.start + args.limit]
 
-    agents = initialize_agents_from_set(args.llm_name)
-    final_answerer = initialize_final_answerer(args.llm_name)
+    agents = initialize_agents_from_set(args.llm_name, args.naive_pool)
+    final_answerer = initialize_final_answerer(args.llm_name, args.naive_pool)
+    overrides = dict(
+        entry_index=args.entry_index,
+        dynamic_recruit=args.dynamic_recruit, adaptive_capacity=args.adaptive_capacity,
+        max_team_size=args.max_team_size, max_top_k=args.max_top_k,
+        **mechanism_overrides(args),
+        code_verify=args.code_verify, code_verify_max_iters=args.code_verify_max_iters,
+        edge_cases=args.edge_cases,
+    )
+    for flag in ("max_steps", "top_k", "sim_threshold", "budget_tokens"):
+        if getattr(args, flag) is not None:
+            overrides[flag] = getattr(args, flag)
+    config = protocol_config(args.domain, **overrides)
+    coordinator = RAPSCoordinator(agents, final_answerer, config, logger=_log)
 
     all_results = []
-    total_solved, total_executed = (0, 0)
+    total_solved = total_executed = 0
 
     for i, record in enumerate(dataset):
-        _log(f"================ Question {i} ================")
-        result_data = run_humaneval_task(agents, final_answerer, record, args)
-        is_solved = result_data["is_solved"]
-        total_solved = total_solved + (1 if is_solved else 0)
-        total_executed = total_executed + 1
+        _log(f"================ Question {args.start + i} ================")
+        # Per-problem resilience: a transient gateway hiccup shouldn't kill the whole run.
+        result = None
+        for attempt in range(4):
+            try:
+                result = coordinator.run(record["prompt"])
+                break
+            except Exception as e:
+                _log(f"[RETRY] problem {args.start + i} attempt {attempt + 1} failed: {e}")
+                time.sleep(10 * (attempt + 1))
+        if result is None:
+            _log(f"[SKIP] problem {args.start + i} failed after retries; counting as fail")
+            all_results.append({"name": record["name"], "entry_point": record["entry_point"],
+                                "pass@1": False, "code": "", "errored": True})
+            total_executed += 1
+            continue
+        write_task_log(result.task_log, record)
+
+        code = extract_code(result.final_output)
+        solved = PyExecutor().evaluate(record["entry_point"], code, record["test"])
+        total_solved += 1 if solved else 0
+        total_executed += 1
         pass_at_1 = total_solved / total_executed
+
         all_results.append({
-            "name": record["name"],
-            "entry_point": record["entry_point"],
-            "pass@1": is_solved,
-            "code": result_data["code"]
+            "name": record["name"], "entry_point": record["entry_point"],
+            "pass@1": solved, "code": code,
         })
-        _log(f"Pass@1: {is_solved}")
-        _log(f"Current Pass@1: {pass_at_1:.4f} ({total_solved}/{total_executed})")
+        _log(f"Pass@1: {solved} | Current Pass@1: {pass_at_1:.4f} ({total_solved}/{total_executed})")
 
     result_dir = Path(f"{RAPS_ROOT}/result/humaneval")
     result_dir.mkdir(parents=True, exist_ok=True)
@@ -280,9 +195,10 @@ def main():
         json.dump(all_results, f, indent=2)
 
     _log("====== Final Stats ======")
-    _log(f"Pass@1: {total_solved / total_executed if total_executed else 0}")
-    _log(f"Total Solved: {total_solved}")
-    _log(f"Total Executed: {total_executed}")
+    _log(f"Pass@1: {total_solved / total_executed if total_executed else 0:.4f}")
+    _log(f"Total Solved: {total_solved} / {total_executed}")
+    _log(f"Total Cost: ${Cost.instance().value:.4f} | PromptTokens: {PromptTokens.instance().value} "
+         f"| CompletionTokens: {CompletionTokens.instance().value}")
 
 
 if __name__ == "__main__":

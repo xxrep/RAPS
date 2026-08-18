@@ -1,5 +1,6 @@
 import sys
 import os
+import re
 import argparse
 import json
 import time
@@ -10,11 +11,15 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 sys.stdout.reconfigure(encoding='utf-8')
 
 from RAPS.utils.const import RAPS_ROOT
-from RAPS.utils.globals import Time
+from RAPS.utils.globals import Time, Cost, PromptTokens, CompletionTokens
 from RAPS.agents.agent_registry import AgentRegistry
+from RAPS.core import RAPSCoordinator
+from RAPS.config import (BENCHMARKS, NAIVE_POOL, NAIVE_TOOL_USER, TOP_K,
+                         add_mechanism_flags, add_pool_flag, mechanism_overrides,
+                         pool_spec, protocol_config)
 from RAPS.agents.analyze_agent import AnalyzeAgent
 from RAPS.prompt.mmlu_prompt_set import MMLUPromptSet
-from datasets.mmlu_dataset import MMLUDataset
+from raps_data.mmlu_dataset import MMLUDataset
 
 
 def _ts():
@@ -25,342 +30,188 @@ def _log(message: str):
     print(f"[{_ts()}] {message}")
 
 
-def initialize_agents_from_set(llm_name: str):
-    agents = []
-    roles = ["Knowledge Expert", "Critic", "Mathematician", "Psychologist", "Historian", "Doctor", "Lawyer", "Economist", "Programmer"]
-    for role in roles:
-        AgentClass = AgentRegistry.get_class("AnalyzeAgent")
+#: The crafted pool of Table S.2, taken from the one place it is declared.
+ROLES = BENCHMARKS["mmlu"].roles
+
+# Knowledge-intensive roles whose answers hinge on external facts (statutes, dates,
+# definitions, named results, empirical figures) get ReAct-style autonomous Wikipedia
+# retrieval. Pure-reasoning roles (Mathematician, Programmer) are left unchanged. Names
+# beyond the pool are listed so the additional profiles of the prompt set keep their
+# retrieval behaviour when a larger population draws on them.
+KNOWLEDGE_ROLES = {"Knowledge Expert", "Historian", "Doctor", "Lawyer", "Economist", "Psychologist"}
+
+REACT_RETRIEVAL_INSTRUCTION = (
+    "\n\nYou have access to a Wikipedia fact-retrieval tool. IMPORTANT: multiple-choice "
+    "distractors are deliberately crafted to look correct, and confident recall is often "
+    "wrong on specifics. Therefore, whenever the correct answer hinges on a precise external "
+    "fact — a specific statute, legal rule or holding, a definition, a date, a named "
+    "theorem/result, or an empirical figure — do NOT rely on memory alone: VERIFY the "
+    "decisive fact first, even if you believe you know it. To retrieve, output a SINGLE line "
+    "in EXACTLY this format and nothing else on that line:\n"
+    "SEARCH: <discriminative keywords>\n"
+    "Write the query as KEYWORDS for a keyword search engine, NOT a natural-language sentence: "
+    "include only the specific, rare, identifying terms — proper names, technical/domain terms, "
+    "statute or case names, the exact concept — and DROP generic filler like 'definition of', "
+    "'what is', 'in international law', 'the following'. For example, instead of "
+    "\"Definition of 'injured State' in international law\" write "
+    "\"injured State responsibility breach obligation specially affected\".\n"
+    "The retrieved facts are returned to you as an 'Observation'; then continue your analysis "
+    "grounded in them. Answer directly only for questions of pure reasoning or ones you can "
+    "derive from first principles. Use at most two searches, then give a brief step-by-step "
+    "analysis and your answer.\n"
+)
+
+
+def _retrieves(role: str, naive_pool: bool) -> bool:
+    """Whether the retrieval interface is granted to this profile: the crafted
+    knowledge roles, or the one naive profile defined by acting on tools."""
+    return role == NAIVE_TOOL_USER if naive_pool else role in KNOWLEDGE_ROLES
+
+
+def _subscription(role: str, naive_pool: bool) -> str:
+    """The profile a host declares. A naive profile is a complete instruction in itself, so
+    it is taken verbatim; a crafted one carries the reply-length requirement of its role.
+    Either way the profile granted retrieval also carries the instruction for using it."""
+    if naive_pool:
+        prompt = NAIVE_POOL[role]
+    else:
         description = MMLUPromptSet().get_description(role)
-        # constraint = MMLUPromptSet.get_constraint()
         if role == "Knowledge Expert":
-            combined_prompt = f"{description}\n"
+            prompt = f"{description}\n"
+        elif role in KNOWLEDGE_ROLES:
+            # knowledge roles need room to reason over retrieved facts -> relaxed length
+            prompt = (f"{description}\nKeep your reply concise (under ~150 words) "
+                      f"with a brief step by step analysis of the question.\n")
         else:
-            combined_prompt = f"{description}\nYour reply must be less than 100 words and include a brief step by step analysis of the question.\n"
-        agent = AgentClass(
-            id=None,
-            llm_name=llm_name,
-            role=role,
-            capabilities=combined_prompt,
-            interests="",
-            additional_instructions=""
-        )
-        agent.history = []
-        agent.inbox = []
-        agents.append(agent)
-    return agents
+            prompt = (f"{description}\nYour reply must be less than 100 words and "
+                      f"include a brief step by step analysis of the question.\n")
+    return prompt + REACT_RETRIEVAL_INSTRUCTION if _retrieves(role, naive_pool) else prompt
 
 
-def initialize_final_answerer(llm_name: str):
-    AgentClass = AgentRegistry.get_class("AnalyzeAgent")
-    role = "Final Answerer"
-    # decision_prompt = f"{MMLUPromptSet.get_decision_role()}\n{MMLUPromptSet.get_decision_constraint()}"
-    agent = AgentClass(
-        id=None,
-        llm_name=llm_name,
-        role=role,
-        capabilities=MMLUPromptSet.get_decision_role(),
-        interests="",
-        additional_instructions=MMLUPromptSet.get_decision_constraint()
+def _build_agent(role: str, llm_name: str, additional_instructions: str = "",
+                 naive_pool: bool = False):
+    agent = AgentRegistry.get(
+        BENCHMARKS["mmlu"].agent_class, id=None, llm_name=llm_name, domain="mmlu", role=role,
+        capabilities=_subscription(role, naive_pool), interests="",
+        additional_instructions=additional_instructions,
     )
+    if _retrieves(role, naive_pool):
+        agent.react_retrieve = True
+    agent.history = []
+    agent.inbox = []
     return agent
 
 
-def run_mmlu_task(agents, final_answerer, record, dataset, args):
-    task_dict = MMLUDataset.record_to_input(record)
-    task = task_dict["task"]
-    answer = MMLUDataset.record_to_target_answer(record)
+def initialize_agents_from_set(llm_name: str, naive_pool: bool = False):
+    """One AnalyzeAgent per worker role of the MMLU pool (Table S.2): the final answerer
+    is one of the five, so it is excluded here and built separately."""
+    spec = pool_spec("mmlu", naive_pool)
+    return [_build_agent(role, llm_name, naive_pool=naive_pool)
+            for role in spec.roles if role != spec.final_answerer]
 
-    _log(f"Task: {task}")
-    _log(f"Answer: {answer}")
 
-    task_log = {
-        "task": task,
-        "answer": answer,
-        "steps": []
-    }
+def initialize_final_answerer(llm_name: str, naive_pool: bool = False):
+    """The pool role that composes the final answer (Table S.2), carrying the decision
+    constraint on top of its own subscription rather than replacing it."""
+    agent = _build_agent(pool_spec("mmlu", naive_pool).final_answerer, llm_name,
+                         additional_instructions=MMLUPromptSet.get_decision_constraint(),
+                         naive_pool=naive_pool)
+    agent.is_final_answerer = True   # keep the format constraint through refinement
+    return agent
 
-    for agent in agents:
-        agent.history = []
-        agent.inbox = []
-        agent.refined_prompt = agent.system_prompt
 
-    active_agents = []
+def _safe_slug(text, n=10):
+    """Filesystem-safe slug (avoids '/' etc. in task text breaking the path)."""
+    return re.sub(r"[^A-Za-z0-9]+", "_", str(text)[:n]).strip("_") or "task"
 
-    entry_agent = agents[0]
-    active_agents = [entry_agent]
 
-    entry_agent.inbox.append({
-        "sender_id": "User",
-        "role": "User",
-        "content": task
-    })
-
-    round_publications = []
-    refinement_record = {}
-
-    for step in range(1, args.max_steps + 1):
-        step_log = {
-            "step": step,
-            "active_agents": [a.id for a in active_agents],
-            "publications": [],
-            "refinements": {},
-            "broker_decisions": [],
-            "llm_calls": {}
-        }
-
-        _log(f"--- Step {step} ---")
-        _log(f"Active Agents: {[a.id for a in active_agents]}")
-        _log(f"Entry Agent: {entry_agent.id}")
-
-        for a in agents:
-            if hasattr(a, "llm_trace"):
-                a.llm_trace = []
-
-        current_step_pubs = []
-        upstream_map = {a.id: set() for a in active_agents}
-        upstream_info_map = {a.id: [] for a in active_agents}
-
-        for agent in active_agents:
-            for msg in agent.inbox:
-                sender_id = msg.get("sender_id")
-                if sender_id != "User":
-                    upstream_map[agent.id].add(sender_id)
-                    upstream_info_map[agent.id].append(f"{msg['role']} ({sender_id}): {msg['content']}")
-                    agent.history.append(f"{msg['role']}: {msg['content']}")
-            agent.inbox = []
-
-        for agent in active_agents:
-            pre_refinement_prompt = agent.system_prompt
-            if step == 1:
-                context_str = "History:\nNone"
-            else:
-                context_str = "History:\n" + "\n".join(agent.history)
-            refined_sub = agent.refine_system_prompt(context=context_str, question=task)
-            refinement_record[agent.id] = refined_sub
-            step_log["refinements"][agent.id] = {
-                "role": agent.role,
-                "pre_refinement": pre_refinement_prompt,
-                "post_refinement": refined_sub
-            }
-            _log(f"Step {step} Subscribe Input | {agent.id} ({agent.role}) | question: {task}")
-            _log(f"Step {step} Subscribe Context | {agent.id} ({agent.role}) | {context_str}")
-            _log(f"Step {step} Subscribe Output | {agent.id} ({agent.role}) | {refined_sub}")
-
-        temp_pubs = []
-        for agent in active_agents:
-
-            publication_context = {
-                "task": task,
-                "history": "\n".join(agent.history)
-            }
-            output = agent.publish(publication_context)
-            pub_obj = {
-                "sender_id": agent.id,
-                "role": agent.role,
-                "content": output
-            }
-            temp_pubs.append(pub_obj)
-            round_publications.append(pub_obj)
-            current_step_pubs.append(pub_obj)
-            step_log["publications"].append(pub_obj)
-            _log(f"Step {step} Publish Input | {agent.id} ({agent.role}) | {publication_context}")
-            _log(f"Step {step} Publish Output | {agent.id} ({agent.role}) | {output}")
-
-        if not current_step_pubs:
-            step_log["llm_calls"] = {
-                a.id: a.llm_trace for a in agents if hasattr(a, "llm_trace") and len(a.llm_trace)
-            }
-            task_log["steps"].append(step_log)
-            break
-
-        agent_map = {a.id: a for a in agents}
-        valid_pubs = []
-        passed_senders = set()
-        for pub in current_step_pubs:
-            sender_id = pub["sender_id"]
-            content = pub["content"]
-            other_info = "\n".join(upstream_info_map.get(sender_id, []))
-            upstream_ids = upstream_map.get(sender_id, set())
-            is_blocked = False
-            blocking_agents = []
-            for u_id in upstream_ids:
-                if u_id not in agent_map:
-                    continue
-                upstream_agent = agent_map[u_id]
-                is_valid = upstream_agent.watchdog_evaluate(content, task_domain="mmlu", question=task, existing_info=other_info)
-                upstream_agent.rep_manager.update_first_hand(sender_id, is_valid)
-                if not is_valid:
-                    is_blocked = True
-                    blocking_agents.append(u_id)
-                    break
-            if is_blocked:
-                _log(f"[WATCHDOG-BLOCK] Agent {sender_id}'s output blocked by upstream: {blocking_agents}")
-                step_log["broker_decisions"].append({
-                    "sender": sender_id,
-                    "blocked_by": blocking_agents,
-                    "status": "blocked"
-                })
-            else:
-                valid_pubs.append(pub)
-                passed_senders.add(sender_id)
-
-        current_step_pubs = valid_pubs
-        if len(passed_senders) == 0:
-            step_log["llm_calls"] = {
-                a.id: a.llm_trace for a in agents if hasattr(a, "llm_trace") and len(a.llm_trace)
-            }
-            task_log["steps"].append(step_log)
-            break
-
-        next_active_agents = set()
-        all_subscriptions = {}
-        for a in agents:
-            all_subscriptions[a.id] = a.refined_prompt
-
-        step_pubs_str = [f"Agent {p['sender_id']} ({p['role']}): {p['content']}" for p in current_step_pubs]
-
-        all_ready = True
-        for pub in current_step_pubs:
-            if "final answer: yes" not in str(pub["content"]).lower():
-                all_ready = False
-                break
-        if all_ready or step == args.max_steps:
-            step_log["llm_calls"] = {
-                a.id: a.llm_trace for a in agents if hasattr(a, "llm_trace") and len(a.llm_trace)
-            }
-            task_log["steps"].append(step_log)
-            _log(f"Max steps reached: {args.max_steps}")
-            break
-
-        for pub in current_step_pubs:
-            sender_id = pub["sender_id"]
-            if sender_id not in agent_map:
-                continue
-            matcher_agent = agent_map[sender_id]
-            try:
-                _log(f"Step {step} Broker Input | {sender_id} ({matcher_agent.role}) | publications: {step_pubs_str} | subscriptions: {all_subscriptions}")
-                matched_keys = matcher_agent.broker_route(step_pubs_str, all_subscriptions, top_k=1, sim_threshold=0.3)
-            except Exception as e:
-                _log(f"Broker routing error: {e}")
-                matched_keys = []
-            selected_receivers = []
-            for receiver_id in matched_keys:
-                if receiver_id not in agent_map:
-                    continue
-                receiver = agent_map[receiver_id]
-                if receiver_id == sender_id:
-                    continue
-                receiver.inbox.append(pub)
-                next_active_agents.add(receiver)
-                selected_receivers.append(receiver_id)
-            _log(f"Step {step} Broker Output | {sender_id} ({matcher_agent.role}) | matched: {matched_keys} | receivers: {selected_receivers}")
-
-            step_log["broker_decisions"].append({
-                "sender": sender_id,
-                "matched_keys": matched_keys,
-                "receivers": selected_receivers
-            })
-
-        step_log["llm_calls"] = {
-            a.id: a.llm_trace for a in agents if hasattr(a, "llm_trace") and len(a.llm_trace)
-        }
-        task_log["steps"].append(step_log)
-
-        if not next_active_agents:
-            break
-        active_agents = list(next_active_agents)
-
-    combined_output = "\n".join([f"{p['role']} ({p['sender_id']}): {p['content']}" for p in round_publications])
-
-    final_answerer.llm_trace = []
-    context_str = f"Original Task: {task}\n\nProcess History:\n{combined_output}"
-    final_answerer.refine_system_prompt(context=context_str, question=task)
-
-    decision_input = {
-        "task": task,
-        "history": combined_output
-    }
-    final_output = final_answerer.publish(decision_input)
-    _log(f"Final Answerer Input | question: {task} | context: {context_str}")
-    _log(f"Final Answerer Publish Input | {decision_input}")
-    _log(f"Final Answerer Output | {final_output}")
-
-    final_log = {
-        "step": "Final",
-        "active_agents": ["Final_Answerer"],
-        "publications": [{
-            "sender_id": "Final_Answerer",
-            "role": "Final Answerer",
-            "content": final_output,
-            "embedding": None
-        }],
-        "refinements": {
-            "Final_Answerer": final_answerer.refined_prompt
-        },
-        "llm_calls": {
-            "Final_Answerer": final_answerer.llm_trace
-        },
-        "broker_decisions": []
-    }
-    task_log["steps"].append(final_log)
-
-    pred = dataset.postprocess_answer(final_output)
-    is_solved = (pred == answer)
-
+def write_task_log(task_log, answer, index=None):
+    task_log["answer"] = answer
+    if index is not None:
+        task_log["index"] = index
     log_dir = RAPS_ROOT / "logs"
-    os.makedirs(log_dir, exist_ok=True)
-    current_time = Time.instance().value
-    log_file = log_dir / f"log_mmlu_{current_time}_{task[:10]}.json"
-    with open(log_file, 'w', encoding='utf-8') as f:
+    log_dir.mkdir(parents=True, exist_ok=True)
+    task = task_log.get("task", "task")
+    # include the question index so questions sharing a 10-char prefix (very common in
+    # MMLU: "Which of the...", "This question...") no longer overwrite each other.
+    idx = "" if index is None else f"{index:05d}_"
+    log_file = log_dir / f"log_mmlu_{Time.instance().value}_{idx}{_safe_slug(task)}.json"
+    with open(log_file, "w", encoding="utf-8") as f:
         json.dump(task_log, f, indent=2)
 
-    return {
-        "publications": round_publications,
-        "refinement_record": refinement_record,
-        "final_output": final_output,
-        "prediction": pred,
-        "is_solved": is_solved
-    }
+
+def parse_args():
+    parser = argparse.ArgumentParser(description="RAPS Experiments on MMLU")
+    parser.add_argument("--llm_name", type=str, default="gpt-4o-mini-2024-07-18")
+    parser.add_argument("--domain", type=str, default="mmlu")
+    parser.add_argument("--max_steps", type=int, default=None, help="default: paper value")
+    parser.add_argument("--top_k", type=int, default=None)
+    parser.add_argument("--sim_threshold", type=float, default=None)
+    parser.add_argument("--entry_index", type=int, default=0)
+    parser.add_argument("--start", type=int, default=0)
+    parser.add_argument("--limit", type=int, default=153)
+    add_mechanism_flags(parser)
+    add_pool_flag(parser)
+    parser.add_argument("--dynamic_recruit", action="store_true")
+    parser.add_argument("--adaptive_capacity", action="store_true")
+    parser.add_argument("--max_team_size", type=int, default=12)
+    parser.add_argument("--max_top_k", type=int, default=TOP_K,
+                        help="fan-out ceiling under adaptive capacity, at the protocol cap")
+    parser.add_argument("--budget_tokens", type=int, default=None,
+                        help="per-task token cap on the coordination loop (default: uncapped)")
+    parser.add_argument("--no_react", action="store_true",
+                        help="disable ReAct retrieval for the knowledge roles (clean baseline)")
+    return parser.parse_args()
 
 
 def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--llm_name", type=str, default="gpt-4o-mini")
-    parser.add_argument("--max_steps", type=int, default=5)
-    args = parser.parse_args()
-
+    args = parse_args()
     dataset = MMLUDataset(split="test")
     current_time = Time.instance().value or time.strftime("%Y-%m-%d-%H-%M-%S", time.localtime())
     Time.instance().value = current_time
 
-    agents = initialize_agents_from_set(args.llm_name)
-    final_answerer = initialize_final_answerer(args.llm_name)
+    agents = initialize_agents_from_set(args.llm_name, args.naive_pool)
+    if args.no_react:
+        for a in agents:
+            a.react_retrieve = False
+    final_answerer = initialize_final_answerer(args.llm_name, args.naive_pool)
+    overrides = dict(
+        entry_index=args.entry_index,
+        dynamic_recruit=args.dynamic_recruit, adaptive_capacity=args.adaptive_capacity,
+        max_team_size=args.max_team_size, max_top_k=args.max_top_k,
+        **mechanism_overrides(args),
+    )
+    for flag in ("max_steps", "top_k", "sim_threshold", "budget_tokens"):
+        if getattr(args, flag) is not None:
+            overrides[flag] = getattr(args, flag)
+    config = protocol_config(args.domain, **overrides)
+    coordinator = RAPSCoordinator(agents, final_answerer, config,
+                                  logger=_log, answer_extractor=dataset.postprocess_answer)
 
     all_results = []
-    total_solved, total_executed = (0, 0)
+    total_solved = total_executed = 0
 
-    # test_indices = list(range(min(159, len(dataset))))
-    test_indices = range(159)
-    for i in test_indices:
+    end = min(args.start + args.limit, len(dataset))
+    for i in range(args.start, end):
         record = dataset[i]
         _log(f"================ Question {i} ================")
-        result_data = run_mmlu_task(agents, final_answerer, record, dataset, args)
+        task = MMLUDataset.record_to_input(record)["task"]
         answer = MMLUDataset.record_to_target_answer(record)
-        pred = result_data["prediction"]
-        is_solved = result_data["is_solved"]
-        total_solved = total_solved + (1 if is_solved else 0)
-        total_executed = total_executed + 1
+
+        result = coordinator.run(task)
+        write_task_log(result.task_log, answer, index=i)
+
+        pred = dataset.postprocess_answer(result.final_output)
+        solved = (pred == answer)
+        total_solved += 1 if solved else 0
+        total_executed += 1
         accuracy = total_solved / total_executed
-        result = {
-            "answer": answer,
-            "prediction": pred,
-            "correct": is_solved,
-            "total solved": total_solved,
-            "total executed": total_executed,
-            "accuracy": accuracy
-        }
-        all_results.append(result)
-        _log(f"Predicted: {pred} | Answer: {answer} | Correct: {is_solved}")
+
+        all_results.append({
+            "answer": answer, "prediction": pred, "correct": solved,
+            "total solved": total_solved, "total executed": total_executed, "accuracy": accuracy,
+        })
+        _log(f"Predicted: {pred} | Answer: {answer} | Correct: {solved}")
         _log(f"Current Accuracy: {accuracy:.4f} ({total_solved}/{total_executed})")
 
     result_dir = Path(f"{RAPS_ROOT}/result/mmlu")
@@ -370,9 +221,10 @@ def main():
         json.dump(all_results, f, indent=2)
 
     _log("====== Final Stats ======")
-    _log(f"Accuracy: {total_solved / total_executed if total_executed else 0}")
-    _log(f"Total Solved: {total_solved}")
-    _log(f"Total Executed: {total_executed}")
+    _log(f"Accuracy: {total_solved / total_executed if total_executed else 0:.4f}")
+    _log(f"Total Solved: {total_solved} / {total_executed}")
+    _log(f"Total Cost: ${Cost.instance().value:.4f} | PromptTokens: {PromptTokens.instance().value} "
+         f"| CompletionTokens: {CompletionTokens.instance().value}")
 
 
 if __name__ == "__main__":

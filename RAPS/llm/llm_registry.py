@@ -1,3 +1,4 @@
+import os
 from typing import Optional
 from class_registry import ClassRegistry
 
@@ -10,19 +11,28 @@ class LLMRegistry:
     @classmethod
     def register(cls, *args, **kwargs):
         return cls.registry.register(*args, **kwargs)
-    
+
     @classmethod
     def keys(cls):
         return cls.registry.keys()
 
     @classmethod
     def get(cls, model_name: Optional[str] = None) -> LLM:
-        if model_name is None or model_name=="":
-            model_name = "gpt-4o"
+        if model_name is None or model_name == "":
+            model_name = "gpt-4o-mini-2024-07-18"
 
         if model_name == 'mock':
-            model = cls.registry.get(model_name)
-        else: # any version of GPTChat like "gpt-4o"
-            model = cls.registry.get('GPTChat', model_name)
+            return cls.registry.get(model_name)
 
-        return model
+        # Per-agent backbone selection: the model name picks the backend, so a
+        # heterogeneous pool (Fig. 4d-e) mixes backbones by naming them per agent.
+        name = model_name.lower()
+        if "claude" in name or "sonnet" in name:
+            return cls.registry.get("ClaudeChat", model_name)
+        if "qwen" in name:
+            return cls.registry.get("QwenChat", model_name)
+
+        # Default chat backend is the Azure/modelhub gateway; override with
+        # RAPS_LLM_BACKEND=GPTChat to use the public OpenAI endpoint instead.
+        backend = os.getenv("RAPS_LLM_BACKEND", "AzureGPTChat")
+        return cls.registry.get(backend, model_name)

@@ -1,12 +1,13 @@
 from abc import ABC, abstractmethod
 from typing import List, Union, Optional, Dict
 
-# from RAPS.llm.format import Message
-
 
 class LLM(ABC):
+    # The shared decoding controls of Table S.1, applied to every agent call of every
+    # backend unless a call passes an explicit override. RAPS/config.py re-exports these
+    # as the canonical values so the controlled factor is declared in one place.
     DEFAULT_MAX_TOKENS = 2000
-    DEFAULT_TEMPERATURE = 0.5
+    DEFAULT_TEMPERATURE = 0.7
     DEFAULT_NUM_COMPLETIONS = 1
 
     # @abstractmethod

@@ -2,7 +2,6 @@ from typing import Dict, Any
 import itertools
 from RAPS.prompt.prompt_set import PromptSet
 from RAPS.prompt.prompt_set_registry import PromptSetRegistry
-from RAPS.prompt.common import get_combine_materials
 
 roles = itertools.cycle(['Project Manager',
                          'Algorithm Designer',
@@ -86,7 +85,11 @@ class HumanEvalPromptSet(PromptSet):
     def get_constraint(role):
         return ROLE_DESCRIPTION[role]
 
-    def get_description(self,role):
+    def get_description(self, role):
+        """The profile of a role in this benchmark's pool."""
+        if role not in ROLE_DESCRIPTION:
+            raise KeyError(f"no profile for role {role!r}; this pool defines "
+                           f"{sorted(ROLE_DESCRIPTION)}")
         return ROLE_DESCRIPTION[role]
     
     def get_role_connection(self):
@@ -251,9 +254,6 @@ f"6. Adhere to the constraints: {constraint}.\n"
 "Note: If none of the answers fully meet the question's criteria, select the one closest to fulfilling them."
         )
 
-    @staticmethod
-    def get_combine_materials(materials: Dict[str, Any]) -> str:
-        return get_combine_materials(materials)
 
     @staticmethod
     def get_decision_constraint():
